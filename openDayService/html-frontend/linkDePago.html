@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago con Openpay</title>
+    <!-- Enlace a Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJt3W+H0i4R9a8Ml4yt7XnPYrI45gFJXJpRHQjpx2iwmVQXI8vQX+zJpxiYS" crossorigin="anonymous">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-control {
+            margin-bottom: 15px;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+        h2 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #333;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        #search_enrollment {
+                font-size: 1.5rem; /* Aumenta el tamaño del texto */
+                padding: 1rem; /* Aumenta el padding para darle más altura */
+                width: 90%; /* Define una altura fija */
+        }
+        .search_etext_input_form{
+                font-size: 1.5rem; /* Aumenta el tamaño del texto */
+                padding: 1rem; /* Aumenta el padding para darle más altura */
+                width: 90%; /* Define una altura fija */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" style="width: 500px;">
+        <!-- Buscador de Cliente -->
+        <div id="search_customer">
+            <h2>Buscar Matricula</h2>
+            <input type="text" id="search_enrollment" class="form-control form-control-lg" placeholder="Matrícula del alumno" required>
+
+            <div class="btn-container">
+                <button class="btn-custom" onclick="searchCustomer()">Buscar</button>
+            </div>
+
+            <div id="customerInfo"></div>
+            <input type="hidden" id="customer_id">
+            <div class="btn-container">
+                <button class="btn-custom" id="customer_id_button" onclick="generatePaymentId()" style="display: none;">Generar Link</button>
+            </div>
+        </div>
+
+        <!-- Formulario para nuevo cliente -->
+        <div id="new_customer" style="display: none;">
+            <h2>Generar Link de Pago</h2>
+            <input type="text" id="name" class="search_etext_input_form form-control" placeholder="Nombre" required>
+            <input type="text" id="last_name" class="search_etext_input_form form-control" placeholder="Apellido" required>
+            <input type="text" id="enrollment" class="search_etext_input_form form-control" placeholder="Matrícula" required>
+            <input type="email" id="email" class="search_etext_input_form form-control" placeholder="Correo electrónico" required>
+            <input type="text" id="phone" class="search_etext_input_form form-control" placeholder="Teléfono" required>
+            <div class="btn-container">
+                <button class="btn-custom"  id="customer_id_button" onclick="generatePayment()">Generar Link</button>
+            </div>
+        </div>
+
+        <!-- Link de pago generado -->
+        <div id="payment-link" style="display: none;">
+            <h3>Link de pago generado con éxito</h3>
+            <p>Se ha generado con éxito el link de pago. favor de revisar tu correo electrónico para proceder con el pago:</p>
+           <!--<a id="payment-url" href="#" target="_blank" class="btn-custom">Ir al pago</a>-->
+        </div>
+    </div>
+
+    <!-- Incluir Bootstrap JS (opcional) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gyb6E4g8bT4OjWyptMGyG5gQQo6vA5N0xWz4a3zj5pnkV7Q5n5" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0o6z7L1oKLbW2eXQ6taotjLUMs4VFSsVwJjlh6/baCoWFi6t" crossorigin="anonymous"></script>
+
+    <script>
+        function searchCustomer() {
+            document.getElementById("payment-link").style.display = "none";
+
+            const search_enrollment = document.getElementById("search_enrollment").value;
+            if (!search_enrollment) {
+                alert("Por favor, colocar su matrícula.");
+                return;
+            }
+
+            fetch("http://localhost:3000/api/customers/list", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ external_id: search_enrollment })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!Array.isArray(data) || data.length === 0) {
+                    document.getElementById("customer_id_button").style.display = "none";
+                    document.getElementById("customer_id").value = 0;               
+                    document.getElementById("customerInfo").innerHTML = "";
+                    alert("Matrícula no encontrada.");
+                    document.getElementById("new_customer").style.display = "block";
+                    document.getElementById("name").value = "";
+                    document.getElementById("last_name").value = "";
+                    document.getElementById("enrollment").value = search_enrollment;
+                    document.getElementById("email").value = "";
+                    document.getElementById("phone").value = "";
+                    
+                    return;
+                }
+
+                let customerInfo = "<h3>Alumno encontrado:</h3>";
+                let customerID = "";
+                data.forEach(customer => {
+                    customerInfo += `
+                        <div class="customer-card">
+                            <p><strong>ID:</strong> ${customer.id}</p>
+                            <p><strong>Nombre:</strong> ${customer.name || "N/A"}</p>
+                            <p><strong>Apellido:</strong> ${customer.last_name || "N/A"}</p>
+                            <p><strong>Email:</strong> ${customer.email || "N/A"}</p>
+                            <p><strong>Teléfono:</strong> ${customer.phone_number || "N/A"}</p>
+                            <p><strong>Fecha de Creación:</strong> ${customer.creation_date}</p>
+                            <p><strong>Matrícula:</strong> ${customer.external_id || "N/A"}</p>
+                        </div>
+                        <hr>
+                    `;
+                    customerID = customer.id;
+                });
+
+                document.getElementById("new_customer").style.display = "none";
+                document.getElementById("customer_id_button").style.display = "block";
+                document.getElementById("customer_id").value = customerID;
+                document.getElementById("customerInfo").innerHTML = customerInfo;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Ocurrió un problema, intenta de nuevo.");
+            });
+        }
+
+        function generatePayment() {
+            const name = document.getElementById("name").value;
+            const last_name = document.getElementById("last_name").value;
+            const external_id = document.getElementById("enrollment").value;
+            const email = document.getElementById("email").value;
+            const phone = document.getElementById("phone").value;
+
+            if (!name || !last_name || !email || !external_id || !phone) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+           
+            
+            // Validar el correo electrónico
+            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            if (!email.match(emailPattern)) {
+                alert("Por favor, ingresa un correo electrónico válido.");
+                return; // Impide el envío del formulario
+            }
+
+            // Validar el teléfono (solo números y 10 dígitos)
+            var phonePattern = /^[0-9]{10}$/;
+            if (!phone.match(phonePattern)) {
+                alert("El teléfono debe contener solo números y tener 10 dígitos.");
+                return;
+            }
+
+
+            fetch("http://localhost:3000/api/customers/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name, last_name, email, phone_number: phone, external_id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.log("data.error ", data.error)
+                    if (data.error === "The external_id already exists") {
+                        alert("La matricula ya existe.");  // Muestra el error específico de 'external_id'
+                    } else {
+                        alert("Error al generar el pago.");
+                        document.getElementById("new_customer").style.display = "none";
+                    }
+                    
+                } else if (data.payment_url) {
+                    document.getElementById("new_customer").style.display = "none";
+                    document.getElementById("payment-link").style.display = "block";                    
+                    document.getElementById("customer_id_button").style.display = "none";
+
+                    // Si el backend responde con un link de pago
+                    //document.getElementById("payment-url").href = data.payment_url;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Ocurrió un problema, intenta de nuevo.");
+                document.getElementById("new_customer").style.display = "none";
+            });
+        }
+
+        function generatePaymentId() {
+            const customer_id = document.getElementById("customer_id").value;
+            const description = "cargo inicial a mi cuenta prueba link de pago";
+
+            if (!customer_id || !description) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
+            fetch("http://localhost:3000/api/orders/createId", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    customer_id,
+                    description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.payment_url) {
+                    document.getElementById("payment-link").style.display = "block";
+                    document.getElementById("customer_id_button").style.display = "none";
+                    //document.getElementById("payment-url").href = data.payment_url;
+                } else {
+                    alert("Error al generar el pago.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Ocurrió un problema, intenta de nuevo.");
+            });
+        }
+    </script>
+
+</body>
+</html>
