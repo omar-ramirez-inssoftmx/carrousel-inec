@@ -1,7 +1,7 @@
 const Openpay = require('openpay');
 const axios = require('axios');
 const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
-
+const { getStudentPaymentDetails } = require('../models/customerModel');
 // Importamos la función getCustomerChargesCount desde el servicio
 const { getCustomerChargesCount } = require('./chargesList');  // Asegúrate de la ruta correcta
 
@@ -65,6 +65,9 @@ exports.createPaymentLinkIdCustomer = async (req, res, next) => {
             amount = amount + (amount * 0.10);  // Aumentar el 10%
         }
 
+        const studentPaymentDetails = await getStudentPaymentDetails(customerData.external_id);
+
+        console.log("studentPaymentDetails ", studentPaymentDetails)
         // Crear la orden de pago con los datos completos del cliente
         const dueDate = new Date();
         dueDate.setHours(dueDate.getHours() + 1); // Seteamos la hora de vencimiento

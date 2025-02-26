@@ -26,8 +26,8 @@ const getCustomerChargesCount = (customer_id) => {
 
         // Parámetros de búsqueda con fechas del mes en curso
         const searchParams = {
-            'creation[gte]': startOfMonth, // Fecha de inicio del mes
-            'creation[lte]': endOfMonth,   // Fecha de fin del mes
+            //'creation[gte]': startOfMonth, // Fecha de inicio del mes
+            //'creation[lte]': endOfMonth,   // Fecha de fin del mes
             limit: 100 // Puedes ajustar el límite según lo necesario
         };
 
