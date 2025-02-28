@@ -63,6 +63,10 @@ app.use('/api/customers', customerRoutes);
 const ordersRoutes = require('./routes/ordersRoutes');
 app.use('/api/orders', ordersRoutes);
 
+
+const fileRoutes = require('./routes/fileRoutes');
+app.use('/api/files', fileRoutes);
+
 // Error handler
 app.use(errorHandler);
 
