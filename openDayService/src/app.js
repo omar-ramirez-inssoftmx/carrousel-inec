@@ -35,7 +35,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'API for processing payments with OpenPay',
     },
-    servers: [{ url: 'http://localhost:3000' }],
+    servers: [{ url: 'http://localhost:3000' }],    
   },
   apis: ['./src/routes/*.js'],
 };

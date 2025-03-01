@@ -1,48 +1,170 @@
 const pool = require('../config/conexionAsync');
 
-async function getAllCustomers() {
-    const [rows] = await pool.query('SELECT * FROM customers');
-    return rows;
+async function createProduct(producto, precio_base, concepto, vencimiento) {
+    // Verificar si el concepto ya existe
+    const checkConceptQuery = 'SELECT sku FROM productos WHERE concepto = ?';
+    const [existingProducts] = await pool.query(checkConceptQuery, [concepto]);
+
+    let sku;
+    if (existingProducts.length < 1) {
+        // Si el concepto no existe, usar un SKU proporcionado o generar uno
+        sku = await generateUniqueSku(); // O puedes usar un SKU proporcionado si lo prefieres
+
+          // Insertar el nuevo producto
+            const insertQuery = `
+            INSERT INTO productos (sku, producto, precio_base, concepto, vencimiento)
+            VALUES (?, ?, ?, ?, ?);
+        `;
+
+        try {
+            const [result] = await pool.query(insertQuery, [sku, producto, precio_base, concepto, vencimiento]);
+            return result.sku
+            /*return { 
+                id_producto: result.insertId, 
+                sku, 
+                producto, 
+                precio_base, 
+                concepto, 
+                vencimiento 
+            };*/
+        } catch (error) {
+            console.error("Error al crear el producto:", error);
+            throw error;
+        }
+    }else{
+        const skuExist = existingProducts[0].sku;
+        return skuExist;
+    }
+  
 }
 
-async function getCustomerById(id) {
-    const [rows] = await pool.query('SELECT * FROM customers WHERE id = ?', [id]);
-    return rows[0] || null;
+// Función para generar un SKU único de 10 dígitos
+async function generateUniqueSku() {
+    let sku;
+    let isUnique = false;
+
+    while (!isUnique) {
+        // Generar un número aleatorio de 10 dígitos
+        sku = Math.floor(1000000000 + Math.random() * 9000000000);
+
+        // Verificar si el SKU ya existe en la base de datos
+        const checkSkuQuery = 'SELECT sku FROM productos WHERE sku = ?';
+        const [existingSku] = await pool.query(checkSkuQuery, [sku]);
+
+        if (existingSku.length === 0) {
+            isUnique = true; // El SKU es único
+        }
+    }
+
+    return sku;
 }
 
-async function createCustomer(name, email) {
-    const [result] = await pool.query('INSERT INTO customers (name, email) VALUES (?, ?)', [name, email]);
-    return { id: result.insertId, name, email };
+async function createAlumno(matricula, nombre, apellido_paterno, apellido_materno, email, celular) {
+    // Verificar si el alumno ya existe por matrícula
+    const checkQuery = 'SELECT id_alumno FROM alumno WHERE matricula = ?';
+    const [existingAlumno] = await pool.query(checkQuery, [matricula]);
+
+    console.log("existingAlumno ", existingAlumno)
+
+    if (existingAlumno.length < 1) {
+
+        // Si el alumno no existe, insertarlo
+        const insertQuery = `
+            INSERT INTO alumno (matricula, nombre, apellido_paterno, apellido_materno, email, celular, fecha_alta, fecha_modificacion)
+            VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW());
+        `;
+
+        try {
+            const [result] = await pool.query(insertQuery, [matricula, nombre, apellido_paterno, apellido_materno, email, celular]);
+            return result.insertId;
+            /*return { 
+                id_alumno: result.insertId, 
+                matricula, 
+                nombre, 
+                apellido_paterno, 
+                apellido_materno, 
+                email, 
+                celular 
+            };*/
+        } catch (error) {
+            console.error("Error al crear el alumno:", error);
+            throw error;
+        }
+
+    }else{
+        const idAlumno = existingAlumno[0].id_alumno;
+        return idAlumno;
+    }
 }
 
-
-async function getStudentPaymentDetails(matricula) {
+async function createPedido(
+    id_alumno, 
+    identificador_pago, 
+    identificador_pedido, 
+    sku, 
+    id_cat_estatus, 
+    pago_descuento, 
+    fecha_vigenica_descuento, 
+    pago, 
+    fecha_vigencia_pago, 
+    pago_recargo, 
+    fecha_vigencia_recargo
+) {
     const query = `
-        SELECT 
-            a.matricula, 
-            c.nombre_carrera, 
-            g.nombre_generacion, 
-            cat.nombre_categoria, 
-            tp.descripcion, 
-            tp.precio, 
-            tp.fecha_inicio, 
-            tp.fecha_fin
-        FROM alumnos a
-        JOIN carreras c ON a.id_carrera = c.id_carrera
-        JOIN generaciones g ON a.id_generacion = g.id_generacion
-        JOIN tabulador_de_pago tp ON a.id_carrera = tp.id_carrera 
-            AND a.id_generacion = tp.id_generacion
-        JOIN categorias cat ON tp.id_categoria = cat.id_categoria
-        WHERE a.matricula = ?;
+        INSERT INTO pedidos (
+            id_alumno, 
+            identificador_pago, 
+            identificador_pedido, 
+            sku, 
+            id_cat_estatus, 
+            pago_descuento, 
+            fecha_vigenica_descuento, 
+            pago, 
+            fecha_vigencia_pago, 
+            pago_recargo, 
+            fecha_vigencia_recargo, 
+            fecha_carga
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW());
     `;
 
-    const [rows] = await pool.query(query, [matricula]);
-    return rows.length ? rows : null;
+    try {
+        const [result] = await pool.query(query, [
+            id_alumno, 
+            identificador_pago, 
+            identificador_pedido, 
+            sku, 
+            id_cat_estatus, 
+            pago_descuento, 
+            fecha_vigenica_descuento, 
+            pago, 
+            fecha_vigencia_pago, 
+            pago_recargo, 
+            fecha_vigencia_recargo
+        ]);
+
+        return { 
+            id_pedido: result.insertId, 
+            id_alumno, 
+            identificador_pago, 
+            identificador_pedido, 
+            sku, 
+            id_cat_estatus, 
+            pago_descuento, 
+            fecha_vigenica_descuento, 
+            pago, 
+            fecha_vigencia_pago, 
+            pago_recargo, 
+            fecha_vigencia_recargo 
+        };
+    } catch (error) {
+        console.error("Error al crear el pedido:", error);
+        throw error;
+    }
 }
 
 module.exports = {
-    getAllCustomers,
-    getCustomerById,
-    createCustomer,
-    getStudentPaymentDetails
+    createProduct,
+    createAlumno,
+    createPedido
 };
