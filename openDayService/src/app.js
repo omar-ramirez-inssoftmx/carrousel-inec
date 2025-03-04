@@ -67,6 +67,9 @@ app.use('/api/orders', ordersRoutes);
 const fileRoutes = require('./routes/fileRoutes');
 app.use('/api/files', fileRoutes);
 
+
+const selectStudentRoutes = require('./routes/selectStudentRoutes');
+app.use('/api/student', selectStudentRoutes);
 // Error handler
 app.use(errorHandler);
 

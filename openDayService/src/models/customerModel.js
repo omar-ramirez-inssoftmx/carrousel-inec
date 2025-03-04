@@ -59,7 +59,7 @@ async function generateUniqueSku() {
     return sku;
 }
 
-async function createAlumno(matricula, nombre, apellido_paterno, apellido_materno, email, celular) {
+async function createAlumno(matricula, nombre, apellido_paterno, apellido_materno, email, celular, openPayId) {
     // Verificar si el alumno ya existe por matrícula
     const checkQuery = 'SELECT id_alumno FROM alumno WHERE matricula = ?';
     const [existingAlumno] = await pool.query(checkQuery, [matricula]);
@@ -70,12 +70,12 @@ async function createAlumno(matricula, nombre, apellido_paterno, apellido_matern
 
         // Si el alumno no existe, insertarlo
         const insertQuery = `
-            INSERT INTO alumno (matricula, nombre, apellido_paterno, apellido_materno, email, celular, fecha_alta, fecha_modificacion)
-            VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW());
+            INSERT INTO alumno (matricula, nombre, apellido_paterno, apellido_materno, email, celular, open_pay_id, fecha_alta, fecha_modificacion)
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW());
         `;
 
         try {
-            const [result] = await pool.query(insertQuery, [matricula, nombre, apellido_paterno, apellido_materno, email, celular]);
+            const [result] = await pool.query(insertQuery, [matricula, nombre, apellido_paterno, apellido_materno, email, celular,openPayId]);
             return result.insertId;
             /*return { 
                 id_alumno: result.insertId, 
@@ -108,7 +108,8 @@ async function createPedido(
     pago, 
     fecha_vigencia_pago, 
     pago_recargo, 
-    fecha_vigencia_recargo
+    fecha_vigencia_recargo,
+    link_de_pago
 ) {
     const query = `
         INSERT INTO pedidos (
@@ -123,9 +124,10 @@ async function createPedido(
             fecha_vigencia_pago, 
             pago_recargo, 
             fecha_vigencia_recargo, 
+            link_de_pago,
             fecha_carga
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW());
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW());
     `;
 
     try {
@@ -140,7 +142,8 @@ async function createPedido(
             pago, 
             fecha_vigencia_pago, 
             pago_recargo, 
-            fecha_vigencia_recargo
+            fecha_vigencia_recargo,
+            link_de_pago
         ]);
 
         return { 
@@ -155,7 +158,8 @@ async function createPedido(
             pago, 
             fecha_vigencia_pago, 
             pago_recargo, 
-            fecha_vigencia_recargo 
+            fecha_vigencia_recargo,
+            link_de_pago
         };
     } catch (error) {
         console.error("Error al crear el pedido:", error);
@@ -163,8 +167,30 @@ async function createPedido(
     }
 }
 
+async function updatePedidos(ids, actualizar) {
+    const { identificador_pedido, link_de_pago } = actualizar;
+    
+    const updateQuery = `
+        UPDATE pedidos
+        SET 
+            identificador_pedido = ?,
+            link_de_pago = ?
+        WHERE id_pedido IN (?)`;  // Corregido: eliminada la coma extra
+    
+    try {
+        // Ejecutar la consulta
+        const [result] = await pool.query(updateQuery, [identificador_pedido, link_de_pago, ids]);
+        console.log('Registros actualizados:', result.affectedRows);
+        return result;
+    } catch (error) {
+        console.error('Error al actualizar los pedidos:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     createProduct,
     createAlumno,
-    createPedido
+    createPedido,
+    updatePedidos
 };

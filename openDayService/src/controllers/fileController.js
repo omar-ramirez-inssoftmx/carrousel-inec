@@ -72,33 +72,29 @@ const uploadFile = async (req, res) => {
         
             try {
 
-                const resultProducto = await createProduct("producto", 1500, row[12], "2025-02-28");
+                const resultProducto = await createProduct("producto", 0, row[12], "2025-31-01");
 
                 console.log("resultProducto---> ", resultProducto);
-
-                const resultAlumno = await createAlumno(row[0], row[1], row[2], row[3], row[5], row[4]);
-
                 
-                (async () => {
-                    const customerData = {
-                        external_id: row[0],
-                        name: row[1],
-                        last_name: row[2] + ' '+ row[3],
-                        email: row[5],
-                        phone_number: row[4]
-                    };
                 
-                    try {
-                        const customer = await findOrCreateCustomer(customerData);                        
-                    } catch (error) {
-                        console.error("Error en la búsqueda o creación del cliente:", error);
-                    }
-                })();
+                const customerData = {
+                    external_id: row[0],
+                    name: row[1],
+                    last_name: row[2] + ' ' + row[3],
+                    email: row[5],
+                    phone_number: row[4]
+                };
+                
+                const customer = await findOrCreateCustomer(customerData);
+                console.log("customer", customer);
+                
+             
+                const resultAlumno = await createAlumno(row[0], row[1], row[2], row[3], row[5], row[4], customer.id);
                 
                 
                 console.log("resultAlumno---> ", resultAlumno);
 
-                await createPedido(resultAlumno, null, null, resultProducto, 3, row[6], excelSerialToDate(row[7]), row[8], excelSerialToDate(row[9]), row[10], excelSerialToDate(row[11]))
+                await createPedido(resultAlumno, null, null, resultProducto, 3, row[6], excelSerialToDate(row[7]), row[8], excelSerialToDate(row[9]), row[10], excelSerialToDate(row[11], null))
 
             } catch (error) {
                 console.error(`Error al insertar el alumno con matrícula ${row[0]}:`, error.message);
@@ -163,6 +159,44 @@ const findOrCreateCustomer = async (customerData) => {
         throw error;
     }
 };
+
+const findOrCreateOrder = async(OrderData)=>{
+    const { customer_id, description, amount, matricula} = OrderData;
+
+    try {
+
+        const dueDate = new Date();
+        dueDate.setHours(dueDate.getHours() + 1); // Seteamos la hora de vencimiento
+        const isoDueDate = dueDate.toISOString();
+
+        var chargeRequest = {
+            method: "card",
+            amount,
+            description,
+            order_id: matricula+ "-" + new Date().getTime(), // ID único por pedido
+            send_email: true,
+            confirm: false,
+            redirect_url: "http://localhost:3000/payment-success",
+            due_date: isoDueDate,
+        };
+
+        const newOrder = await new Promise((resolve, reject) => {
+            openpay.customers.charges.create(customer_id, chargeRequest, (error, order) => {
+                if (error) {
+                    console.error("Error al crear el pedido:", error);
+                    return res.status(400).json({ error: error.description });
+                }
+    
+                return  order.payment_method?.url || "No se generó un link de pago";
+                
+            });
+        });
+        return newOrder;
+    } catch (error) {
+        
+    }
+}
+
 module.exports = { uploadFile };
 
 
