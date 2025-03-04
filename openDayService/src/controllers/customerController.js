@@ -63,11 +63,22 @@ const createCustomer = async (req, res) => {
       });
     });
 
+     // Obtener el día del mes
+     const fecha = new Date();
+     const dia = fecha.getDate();
+     let amount = 1500;
+
+     // Si el día no es 1 ni 15, se agrega el 10%
+     if (dia !== 1 && dia !== 15) {
+         amount = amount + (amount * 0.10);  // Aumentar el 10%
+     }
+
+
     console.log('Cliente creado:', customer);
 
     const chargeRequest = {
       method: "card", // Método de pago, por ejemplo "card"
-      amount: 1500, // Monto en centavos (15.00 MXN)
+      amount: amount, // Monto en centavos (15.00 MXN)
       description: "Pago creando cliente y generando link de pago", // Descripción del pago
       order_id: "oid-" + new Date().getTime(), // ID único para el pedido
       send_email: true,

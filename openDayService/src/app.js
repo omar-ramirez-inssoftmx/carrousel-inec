@@ -35,7 +35,7 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'API for processing payments with OpenPay',
     },
-    servers: [{ url: 'http://localhost:3000' }],
+    servers: [{ url: 'http://localhost:3000' }],    
   },
   apis: ['./src/routes/*.js'],
 };
@@ -63,6 +63,13 @@ app.use('/api/customers', customerRoutes);
 const ordersRoutes = require('./routes/ordersRoutes');
 app.use('/api/orders', ordersRoutes);
 
+
+const fileRoutes = require('./routes/fileRoutes');
+app.use('/api/files', fileRoutes);
+
+
+const selectStudentRoutes = require('./routes/selectStudentRoutes');
+app.use('/api/student', selectStudentRoutes);
 // Error handler
 app.use(errorHandler);
 
