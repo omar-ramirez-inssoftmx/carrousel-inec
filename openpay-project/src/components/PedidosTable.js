@@ -1,23 +1,121 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { createOrder } from '../api';
 import logo from '../styles/image/logo.png';
-import fondo from '../styles/image/fondo.svg';
+import { Modal, Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
+
+
+
+const PaymentLinkModal = ({ show, onHide, paymentUrl }) => {
+    
+    return (
+      <Modal show={show} onHide={onHide} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Link de Pago Generado</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>El link de pago se ha generado con éxito.</p>
+          <p>Se ha generado con éxito el link de pago. Favor de revisar tu correo electrónico para proceder con el pagos </p>
+          <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
+            {paymentUrl}
+          </a>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onHide}>
+            Aceptar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  };
 
 const PedidosTable = () => {
+    const [modalShow, setModalShow] = useState(false);
+    const [paymentUrl, setPaymentUrl] = useState('');
     const location = useLocation();
     const { pedidos } = location.state || { pedidos: [] };
     const students = location.state?.student || [];
+    // Inicializa el estado 'seleccionados' como un objeto vacío
     const [seleccionados, setSeleccionados] = useState({});
+
     const [totalPagos, setTotalPagos] = useState(0);
-    const description = "Prueba desde sistema react";
+    const description = "Prueba desde sistema react"
+
+    const navigate = useNavigate();
+   
+  
+
+    const getPedidosOrdenadosPorAntiguedad = (pedidos) => {
+        return pedidos.slice().sort((a, b) => {
+          if (a.fecha_vigencia_recargo < b.fecha_vigencia_recargo) return -1;
+          if (a.fecha_vigencia_recargo > b.fecha_vigencia_recargo) return 1;
+          return 0;
+        });
+    };
+      
+    const handleModalClose = () => {
+        setModalShow(false);
+        navigate('/'); // Redirecciona a la página de login
+    };
+
+    // Función para obtener la colegiatura más antigua con recargo
+    const getColegiaturaMasAntiguaConRecargo = (pedidos) => {
+
+        const pedidosConRecargo = pedidos.filter((pedido) => {
+            console.log("pedido ",pedido);
+            const fechaActual = new Date();
+
+            console.log("fecha_vigencia_recargo ",pedido.fecha_vigencia_recargo);
+            console.log("fechaActual ",fechaActual); 
+            console.log("pedido.fecha_vigencia_recargo ",new Date(pedido.fecha_vigencia_recargo));
+            return (
+                pedido.fecha_vigencia_recargo && fechaActual >= new Date(pedido.fecha_vigencia_recargo)
+            );
+        });
+         console.log("pedidosConRecargo", pedidosConRecargo)
+            
+        if (pedidosConRecargo.length === 0) {
+            return null;
+        }
+
+        console.log("pedidosConRecargo", pedidosConRecargo)
+    
+        return pedidosConRecargo.reduce((masAntigua, pedido) => {
+            if (
+                new Date(pedido.fecha_vigencia_recargo) <
+                new Date(masAntigua.fecha_vigencia_recargo)
+            ) {
+                return pedido;
+            }
+            return masAntigua;
+        });
+    };
+    
+    const colegiaturaMasAntiguaConRecargo = getColegiaturaMasAntiguaConRecargo(pedidos);
+
+    console.log("colegiaturaMasAntiguaConRecargo",  colegiaturaMasAntiguaConRecargo)
+
+    useEffect(() => {
+        if (colegiaturaMasAntiguaConRecargo) {
+          const inicialSeleccionados = {
+            [colegiaturaMasAntiguaConRecargo.id_pedido]: true,
+          };
+          setSeleccionados(inicialSeleccionados);
+          calcularTotal(inicialSeleccionados);
+        }
+      }, [colegiaturaMasAntiguaConRecargo]);
 
     const mutation = useMutation({
-        mutationFn: (ids) => createOrder(students[0].open_pay_id, description, totalPagos.toFixed(2), ids),
+   
+        mutationFn: ({ ids, fechaVigencia, pedidosSeleccionados }) => createOrder(students[0].open_pay_id, description, totalPagos.toFixed(2), ids, fechaVigencia, pedidosSeleccionados),
         onSuccess: (data) => {
             if (data.payment_url) {
-                alert('Link de pago generado con éxito.');
+                setPaymentUrl(data.payment_url)
+                setModalShow(true);
             } else {
                 alert('Error al generar el pago.');
             }
@@ -27,53 +125,194 @@ const PedidosTable = () => {
         }
     });
     
-    // Función para manejar la generación del link de pago
     const handleGenerateLink = () => {
+        const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
+      
+        console.log("pedidosSeleccionados ", pedidosSeleccionados);
+      
         // Extraer los IDs de los pedidos seleccionados
-        const idsSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido])
-                                          .map((pedido) => pedido.id_pedido);
-    
-        // Llamar a la mutación pasando los IDs de los pedidos seleccionados
-        mutation.mutate(idsSeleccionados);
-    };
-
+        const idsSeleccionados = pedidos
+          .filter((pedido) => seleccionados[pedido.id_pedido])
+          .map((pedido) => pedido.id_pedido);
+        
+        // Obtener el pedido más viejo seleccionado
+        const pedidoMasViejoSeleccionado = getPedidosOrdenadosPorAntiguedad(
+          pedidos.filter((pedido) => seleccionados[pedido.id_pedido])
+        )[0];
+        
+        // Obtener la fecha de vigencia del pedido más viejo seleccionado
+        const fechaVigenciaMasViejo = pedidoMasViejoSeleccionado
+          ? getVigencia(pedidoMasViejoSeleccionado, getTipoPago(pedidoMasViejoSeleccionado), pedidosSeleccionados)
+          : null;
+        
+        // Llamar a la mutación pasando los IDs de los pedidos seleccionados y la fecha de vigencia del más viejo
+        mutation.mutate({ ids: idsSeleccionados, fechaVigencia: fechaVigenciaMasViejo, pedidosSeleccionados: pedidosSeleccionados });
+      };
+      
+      
     const handleCheckboxChange = (idPedido, pago) => {
         setSeleccionados((prevSeleccionados) => {
-            const nuevosSeleccionados = {
-                ...prevSeleccionados,
-                [idPedido]: !prevSeleccionados[idPedido],
-            };
-            calcularTotal(nuevosSeleccionados);
-            return nuevosSeleccionados;
+          const nuevosSeleccionados = { ...prevSeleccionados };
+          const isChecked = !prevSeleccionados[idPedido];
+          nuevosSeleccionados[idPedido] = isChecked;
+      
+          const pedidosOrdenados = getPedidosOrdenadosPorAntiguedad(pedidos);
+          const indicePedidoActual = pedidosOrdenados.findIndex(
+            (pedido) => pedido.id_pedido === idPedido
+          );
+      
+          if (indicePedidoActual === 0) {
+            // Si es la colegiatura más vieja, se desbloquea la siguiente
+            if (pedidosOrdenados.length > 1) {
+              nuevosSeleccionados[pedidosOrdenados[1].id_pedido] = false;
+            }
+          } else {
+            // Si no es la colegiatura más vieja, se bloquea la anterior
+            nuevosSeleccionados[pedidosOrdenados[indicePedidoActual - 1].id_pedido] = true;
+          }
+      
+          // Si se desmarca una colegiatura, se desmarcan automáticamente las posteriores
+          if (!isChecked) {
+            for (let i = indicePedidoActual + 1; i < pedidosOrdenados.length; i++) {
+              nuevosSeleccionados[pedidosOrdenados[i].id_pedido] = false;
+            }
+          }
+      
+          calcularTotal(nuevosSeleccionados);
+          return nuevosSeleccionados;
         });
     };
+      
+
 
     const calcularTotal = (seleccionados) => {
         let total = 0;
         pedidos.forEach((pedido) => {
-            if (seleccionados[pedido.id_pedido]) {
-                total += parseFloat(getPagoActual(pedido));
-            }
+          if (
+            seleccionados[pedido.id_pedido] ||
+            (colegiaturaMasAntiguaConRecargo && colegiaturaMasAntiguaConRecargo.id_pedido === pedido.id_pedido)
+          ) {
+            total += parseFloat(getPagoActual(pedido));
+          }
         });
         setTotalPagos(total);
     };
 
     const getPagoActual = (pedido) => {
         const fechaActual = new Date();
-        const fechaDescuento = new Date(pedido.fecha_vigenica_descuento);
-        const fechaPago = new Date(pedido.fecha_vigencia_pago);
-        const fechaRecargo = new Date(pedido.fecha_vigencia_recargo);
 
-        if (fechaActual <= fechaDescuento) {
-            return pedido.pago_descuento;
-        } else if (fechaActual <= fechaPago) {
-            return pedido.pago;
-        } else if (fechaActual <= fechaRecargo) {
-            return pedido.pago_recargo;
-        } else {
-            return "0";
+         // Verifica si la fecha de descuento existe y si aplica
+         if (pedido.fecha_vigenica_descuento && fechaActual <= new Date(pedido.fecha_vigenica_descuento)) {
+            return pedido.pago_descuento || "0";
         }
+    
+        // Verifica si la fecha de recargo existe y si aplica
+        if (pedido.fecha_vigencia_recargo && fechaActual >= new Date(pedido.fecha_vigencia_pago)) {
+            return pedido.pago_recargo || "0";
+        }
+    
+        // Verifica si la fecha de pago existe y si aplica
+        if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
+            return pedido.pago || "0";
+        }
+    
+        // Si no hay fechas o no aplica ninguna, se considera "normal"
+        return "0";
+      };
+      
+
+    const getMesDesdeFecha = (pedido, tipoPago) => {
+        
+        console.log("tipoPago ", tipoPago)
+        if (!pedido) return "Desconocido"; // En caso de que no haya datos
+        
+        let fecha;
+        if (tipoPago === "descuento") {
+            fecha = pedido.fecha_vigenica_descuento;
+           
+        } else if (tipoPago === "recargo") {
+            fecha = pedido.fecha_vigencia_recargo;
+             console.log("fecha ", pedido)
+        } else {
+            fecha = pedido.fecha_vigencia_pago;
+        }
+        console.log("fecha ", fecha)
+        if (!fecha) return "Desconocido"; // Si no hay fecha válida
+    
+        const meses = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        const fechaObj = new Date(fecha);
+        return meses[fechaObj.getMonth()]; // Obtiene el mes en texto
     };
+    
+    const getVigencia = (pedido, tipoPago, pedidosSeleccionados) => {
+        if (!pedido) return "Desconocido"; // En caso de que no haya datos
+      
+        // Verifica si al menos un pedido seleccionado tiene recargo
+        const tienePedidoRecargo = pedidosSeleccionados.some((p) => {
+          const fechaActual = new Date();
+          return p.fecha_vigencia_recargo && fechaActual >= new Date(p.fecha_vigencia_recargo);
+        });
+      
+        // Verifica si al menos un pedido seleccionado tiene descuento
+        const tienePedidoDescuento = pedidosSeleccionados.some((p) => {
+          const fechaActual = new Date();
+          return p.fecha_vigenica_descuento && fechaActual <= new Date(p.fecha_vigenica_descuento);
+        });
+      
+        // Verifica si al menos un pedido seleccionado es un pago normal
+        const tienePedidoNormal = pedidosSeleccionados.some((p) => {
+          const fechaActual = new Date();
+          return p.fecha_vigencia_pago && fechaActual <= new Date(p.fecha_vigencia_pago);
+        });
+      
+        if (tienePedidoRecargo && !tienePedidoDescuento && !tienePedidoNormal) {
+            // Si solo hay pedidos con recargo seleccionados, se usa el día 15 del mes actual
+            const fechaActual = new Date();
+            const diaQuince = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 15);
+            
+            // Ajustar la fecha sumando un día
+            diaQuince.setDate(diaQuince.getDate() + 1);
+            return diaQuince.toISOString().split("T")[0];
+          } else if (tienePedidoDescuento) {
+            // Si hay al menos un pedido con descuento seleccionado, se usa la fecha de vigencia de descuento del primer pedido con descuento
+            const pedidoDescuento = pedidosSeleccionados.find((p) => {
+              const fechaActual = new Date();
+              return p.fecha_vigenica_descuento && fechaActual <= new Date(p.fecha_vigenica_descuento);
+            });
+            
+            // Ajustar la fecha sumando un día
+            const fechaDescuento = new Date(pedidoDescuento.fecha_vigenica_descuento);
+            fechaDescuento.setDate(fechaDescuento.getDate() + 1);
+            return fechaDescuento.toISOString().split("T")[0];
+          } else if (tienePedidoNormal) {
+            // Si hay al menos un pedido normal seleccionado, se usa la fecha de vigencia de pago del primer pedido normal
+            const pedidoNormal = pedidosSeleccionados.find((p) => {
+              const fechaActual = new Date();
+              return p.fecha_vigencia_pago && fechaActual <= new Date(p.fecha_vigencia_pago);
+            });
+            
+            // Ajustar la fecha sumando un día
+            const fechaNormal = new Date(pedidoNormal.fecha_vigencia_pago);
+            fechaNormal.setDate(fechaNormal.getDate() + 1);
+            return fechaNormal.toISOString().split("T")[0];
+          } else {
+            // Si no hay pedidos seleccionados, se usa la fecha de vigencia correspondiente al tipo de pago del primer pedido
+            if (tipoPago === "descuento") {
+              const fechaDescuento = new Date(pedido.fecha_vigenica_descuento);
+              fechaDescuento.setDate(fechaDescuento.getDate() + 1);
+              return fechaDescuento.toISOString().split("T")[0];
+            } else {
+              const fechaPago = new Date(pedido.fecha_vigencia_pago);
+              fechaPago.setDate(fechaPago.getDate() + 1);
+              return fechaPago.toISOString().split("T")[0];
+            }
+          }
+    };
+      
+    
 
     const renderIconoPago = (tipo) => {
         if (tipo === "descuento") {
@@ -111,27 +350,32 @@ const PedidosTable = () => {
 
       const getTipoPago = (pedido) => {
         const fechaActual = new Date();
-      
+    
         // Verifica si la fecha de descuento existe y si aplica
         if (pedido.fecha_vigenica_descuento && fechaActual <= new Date(pedido.fecha_vigenica_descuento)) {
-          return "descuento";
+            return "descuento";
         }
-      
+    
+        // Verifica si la fecha de recargo existe y si aplica
+        if (pedido.fecha_vigencia_recargo && fechaActual >= new Date(pedido.fecha_vigencia_pago)) {
+            return "recargo";
+        }
+    
         // Verifica si la fecha de pago existe y si aplica
         if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
-          return "normal";
+            return "normal";
         }
-      
-        // Verifica si la fecha de recargo existe y si aplica
-        if (pedido.fecha_vigencia_recargo && fechaActual <= new Date(pedido.fecha_vigencia_recargo)) {
-          return "recargo";
-        }
-      
+    
         // Si no hay fechas o no aplica ninguna, se considera "normal"
         return "normal";
-      };
+    };
+    
     // Obtener los pedidos seleccionados para mostrar en el resumen
-    const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
+    const pedidosSeleccionados = pedidos.filter(
+        (pedido) =>
+          seleccionados[pedido.id_pedido] ||
+          (colegiaturaMasAntiguaConRecargo && colegiaturaMasAntiguaConRecargo.id_pedido === pedido.id_pedido)
+      );
 
     return (
         <main className="container-fluid p-0">
@@ -164,9 +408,23 @@ const PedidosTable = () => {
                                 <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                     <div className="accordion-body d-flex justify-content-center justify-content-xl-start flex-wrap gap32">
                                     {pedidos.map((pedido) => {
-                                        const tipoPago = getTipoPago(pedido); // Determina el tipo de pago
+                                        const tipoPago = getTipoPago(pedido);
+                                        const isMasAntigua = colegiaturaMasAntiguaConRecargo && colegiaturaMasAntiguaConRecargo.id_pedido === pedido.id_pedido;
+                                        const pedidosOrdenados = getPedidosOrdenadosPorAntiguedad(pedidos);
+                                        const indicePedidoActual = pedidosOrdenados.findIndex(
+                                          (p) => p.id_pedido === pedido.id_pedido
+                                        );
+                                        const isChecked = seleccionados[pedido.id_pedido] || isMasAntigua;
+                                        const isDisabled = isMasAntigua || (indicePedidoActual !== 0 && !seleccionados[pedidosOrdenados[indicePedidoActual - 1].id_pedido]);
+                                 
                                         return (
-                                            <label key={pedido.id_pedido} htmlFor={`pago${pedido.id_pedido}`} className="border d-flex px-3 py-3 rounded cardPago">
+                                            <label
+                                                key={pedido.id_pedido}
+                                                htmlFor={`pago${pedido.id_pedido}`}
+                                                className={`border d-flex px-3 py-3 rounded cardPago ${
+                                                isMasAntigua ? 'colegiatura-mas-antigua-con-recargo' : ''
+                                                }`}
+                                            > 
                                             <div className="col-7 d-flex flex-column">
                                                 <div className="d-flex flex-column">
                                                 <p className="m-0"><strong className="text-secondary">Mensualidad</strong></p>
@@ -177,18 +435,20 @@ const PedidosTable = () => {
                                                 </div>
                                                 <div>
                                                 <p className="m-0 mt-2 mb-1 text-secondary">
-                                                    Mes {tipoPago === "descuento" ? "con descuento" : tipoPago === "recargo" ? "con recargo" : "normal"} 2025
+                                                    {pedido.concepto_pedido} {tipoPago === "descuento" ? "con descuento" : tipoPago === "recargo" ? "con recargo" : "normal"}
                                                 </p>
+                                    
                                                 </div>
                                             </div>
                                             <div className="col-5 d-flex justify-content-end">
                                                 <div className="d-flex flex-column align-items-end justify-content-between">
                                                 <input
-                                                    checked={seleccionados[pedido.id_pedido] || false}
+                                                    checked={isChecked}
                                                     onChange={() => handleCheckboxChange(pedido.id_pedido, getPagoActual(pedido))}
                                                     className="form-check-input mb-1"
                                                     id={`pago${pedido.id_pedido}`}
                                                     type="checkbox"
+                                                    disabled={isDisabled}
                                                 />
                                                 {renderIconoPago(tipoPago)}
                                                 </div>
@@ -209,29 +469,35 @@ const PedidosTable = () => {
                             <div className="mt-lg-5">
                                 <h3 className="m-0 px-lg-3 pt-lg-4"><strong>Total a pagar</strong></h3>
                             </div>
-                            {/* Resumen de pagos seleccionados */}
-                            {pedidosSeleccionados.map((pedido) => (
+                           {/* Resumen de pagos seleccionados */}
+                           
+                            {pedidosSeleccionados.map((pedido) => {
+                            const tipoPago = getTipoPago(pedido);
+
+                            return (
                                 <div key={pedido.id_pedido} className="mt-3 border rounded px-3 py-4 bg-white">
-                                    <div className="container-fluid d-flex">
-                                        <div className="col-8 d-flex flex-wrap">
-                                            <h6 className="col-12 m-0"><strong>Mensualidad</strong></h6>
-                                            <p className="col-12 mb-2">Febrero 2025</p>
-                                            <p className="m-0">Cant. 1</p>
-                                        </div>
-                                        <div className="col-4 d-flex align-items-center justify-content-end">
-                                            <strong className="m-0 me-1">$</strong>
-                                            <h4 className="m-0"><strong>{getPagoActual(pedido)}</strong></h4>
-                                        </div>
+                                <div className="container-fluid d-flex">
+                                    <div className="col-8 d-flex flex-wrap">
+                                    <h6 className="col-12 m-0"><strong>Mensualidad</strong></h6>
+                                    <p className="col-12 mb-2">{pedido.concepto_pedido}</p>
+                                    <p className="m-0">Cant. 1</p>
+                                    </div>
+                                    <div className="col-4 d-flex align-items-center justify-content-end">
+                                    <strong className="m-0 me-1">$</strong>
+                                    <h4 className="m-0"><strong>{getPagoActual(pedido)}</strong></h4>
                                     </div>
                                 </div>
-                            ))}
-                            {/* Total a pagar */}
+                                </div>
+                            );
+                            })}
+
+
                             <div className="mt-3 border rounded px-3 py-4 bg-white">
                                 <div className="container-fluid d-flex">
                                     <div className="col-8 d-flex flex-wrap">
                                         <h6 className="col-12 m-0"><strong>Total a pagar</strong></h6>
-                                    </div>
-                                    <div className="col-4 d-flex align-items-center justify-content-end">
+                                        </div>
+                                        <div className="col-4 d-flex align-items-center justify-content-end">
                                         <strong className="m-0 me-1">$</strong>
                                         <h4 className="m-0"><strong>{totalPagos.toFixed(2)}</strong></h4>
                                     </div>
@@ -251,7 +517,13 @@ const PedidosTable = () => {
                     </section>
                 </div>
             </section>
+            <PaymentLinkModal
+                show={modalShow}
+                onHide={handleModalClose}
+             
+            />
         </main>
+        
     );
 };
 

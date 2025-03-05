@@ -45,7 +45,6 @@ const Login = () => {
                             <img src={logo} alt="Logo" />
                         </div>
                         <div className="text-center mt-3 px-4 mx-4">
-                            <h1 className="display-2"><b className="secontFont">Iniciar sesión</b></h1>
                             <h5 className="text-secondary">Ingresa tu número de matrícula para acceder a la plataforma de pagos en línea del <b className="colorMain">INEC.</b></h5>
                         </div>
                         <div className="inputCustom">

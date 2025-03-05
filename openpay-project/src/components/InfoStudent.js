@@ -68,7 +68,7 @@ const InfoStudent = () => {
                                     </svg>
                                     <h3 className="m-0 ms-2"><b>Regresar</b></h3>
                                 </button>
-                                <h5 className="col-auto text-secondary m-0">Lista de Estudiantes</h5>
+                                <h5 className="col-auto text-secondary m-0">Detalle de la matrícula</h5>
                             </section>
 
                             {students.length > 0 ? (
