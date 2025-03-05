@@ -68,6 +68,7 @@ const uploadFile = async (req, res) => {
             console.log("row[index]  ", row[9]);
             console.log("row[index]  ", row[10]);
             console.log("row[index]  ", row[11]);
+            console.log("row[index]  ", row[13]);
             
         
             try {
@@ -94,7 +95,7 @@ const uploadFile = async (req, res) => {
                 
                 console.log("resultAlumno---> ", resultAlumno);
 
-                await createPedido(resultAlumno, null, null, resultProducto, 3, row[6], excelSerialToDate(row[7]), row[8], excelSerialToDate(row[9]), row[10], excelSerialToDate(row[11], null))
+                await createPedido(resultAlumno, null, null, resultProducto, 3, row[6], excelSerialToDate(row[7]), row[8], excelSerialToDate(row[9]), row[10], excelSerialToDate(row[11]), null, row[13])
 
             } catch (error) {
                 console.error(`Error al insertar el alumno con matrícula ${row[0]}:`, error.message);

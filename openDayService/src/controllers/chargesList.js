@@ -2,7 +2,7 @@ const Openpay = require('openpay');
 const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
 
 // Función para obtener todos los cargos de un cliente sin preocuparse por la paginación
-const getCustomerChargesCount = (customer_id) => {
+const getCustomerChargesCount = (customer_id, order_id) => {
     return new Promise((resolve, reject) => {
         // Función para obtener el primer y el último día del mes
         const getStartAndEndOfMonth = () => {
@@ -28,7 +28,8 @@ const getCustomerChargesCount = (customer_id) => {
         const searchParams = {
             //'creation[gte]': startOfMonth, // Fecha de inicio del mes
             //'creation[lte]': endOfMonth,   // Fecha de fin del mes
-            limit: 100 // Puedes ajustar el límite según lo necesario
+            //limit: 100 // Puedes ajustar el límite según lo necesario
+            order_id
         };
 
         // Llamar a Openpay para obtener los cargos

@@ -121,7 +121,7 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
 
 
 const createPaymentLinkStudent = async (req, res, next) => {
-    const { customer_id, description, amount, pedidoIds, fechaVigencia } = req.body;
+    const { customer_id, description, amount, pedidoIds, fechaVigencia, pedidosSeleccionados } = req.body;
 
 
     try {
@@ -132,11 +132,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
         }
 
         // Crear la orden de pago con los datos completos del cliente
-        const dueDate = new Date();
-        dueDate.setHours(dueDate.getHours() + 1); // Seteamos la hora de vencimiento
-        const isoDueDate = dueDate.toISOString();
-        console.log("isoDueDate ",isoDueDate)
-        
+    
         var chargeRequest = {
             method: "card",
             amount,
@@ -145,9 +141,9 @@ const createPaymentLinkStudent = async (req, res, next) => {
             send_email: true,
             confirm: false,
             redirect_url: "http://localhost:3000/payment-success",
-            due_date: isoDueDate,
+            due_date: fechaVigencia,
         };
-
+        console.log("chargeRequest ", chargeRequest)
         // Envolver la llamada a OpenPay en una promesa
         const createCharge = (customer_id, chargeRequest) => {
             return new Promise((resolve, reject) => {
@@ -199,17 +195,25 @@ const createPaymentLinkStudent = async (req, res, next) => {
         } else {
             console.log("No se encontró un número de teléfono para el cliente.");
         }
-
-        sendMailOtp(nameFull, paymentUrl, student.email);
+        
+        const creaFecha = getCurrentDate();
+        sendMailOtp(student.matricula , creaFecha, fechaVigencia, pedidosSeleccionados, paymentUrl, student.email)
         res.json({ payment_url: paymentUrl });
-
+        console.log("fechaVigencia ", fechaVigencia);
     } catch (error) {
         console.error("Error en la creación del link de pago:", error);
         return res.status(400).json({ error: error.message });
     }
 };
 
-
+   
+function getCurrentDate() {
+    const currentDate = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return currentDate.toLocaleDateString('es-ES', options);
+  }
+  
+ 
 
 module.exports = {
     createPaymentLinkIdCustomer,

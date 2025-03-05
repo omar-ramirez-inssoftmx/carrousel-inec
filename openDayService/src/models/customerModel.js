@@ -109,8 +109,10 @@ async function createPedido(
     fecha_vigencia_pago, 
     pago_recargo, 
     fecha_vigencia_recargo,
-    link_de_pago
+    link_de_pago,
+    concepto
 ) {
+    console.log("concepto ", concepto)
     const query = `
         INSERT INTO pedidos (
             id_alumno, 
@@ -125,9 +127,10 @@ async function createPedido(
             pago_recargo, 
             fecha_vigencia_recargo, 
             link_de_pago,
+            concepto,
             fecha_carga
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW());
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW());
     `;
 
     try {
@@ -143,7 +146,8 @@ async function createPedido(
             fecha_vigencia_pago, 
             pago_recargo, 
             fecha_vigencia_recargo,
-            link_de_pago
+            link_de_pago,
+            concepto
         ]);
 
         return { 
@@ -159,7 +163,8 @@ async function createPedido(
             fecha_vigencia_pago, 
             pago_recargo, 
             fecha_vigencia_recargo,
-            link_de_pago
+            link_de_pago,
+            concepto
         };
     } catch (error) {
         console.error("Error al crear el pedido:", error);
@@ -188,9 +193,29 @@ async function updatePedidos(ids, actualizar) {
     }
 }
 
+async function getTempleteEmail(clave) {
+    const query = `
+    SELECT * FROM templates WHERE clave = ?;
+    `;
+
+    try {
+        const [result] = await pool.query(query, [clave]);
+       
+        if (result.length < 1) {
+            return null;
+        } else {
+            return result[0];
+        }
+    } catch (error) {
+        console.error("Error al obtener el template:", error);
+        throw new Error("Error al obtener la template");
+    }
+}
+
 module.exports = {
     createProduct,
     createAlumno,
     createPedido,
-    updatePedidos
+    updatePedidos,
+    getTempleteEmail
 };

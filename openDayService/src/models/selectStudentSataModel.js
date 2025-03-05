@@ -25,6 +25,7 @@ async function getPedidosByMatricula(matricula) {
             p.pago_recargo,
             p.fecha_vigencia_recargo,
             p.fecha_carga,
+            p.concepto AS concepto_pedido,
             a.matricula,
             a.open_pay_id,
             a.nombre AS nombre_alumno,
@@ -38,7 +39,7 @@ async function getPedidosByMatricula(matricula) {
         JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
         WHERE a.matricula = ?;
         `;
-
+        console.log("query ",query)
         try {
             const [result] = await pool.query(query, [matricula]);
             return result;
