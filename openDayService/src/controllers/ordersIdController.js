@@ -159,7 +159,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
 
         // Esperar la creación del cargo
         const order = await createCharge(customer_id, chargeRequest);
-
+        console.log("order creada", order)
         const paymentUrl = order.payment_method?.url || "No se generó un link de pago";
         const customerPhone = 52 + student.celular; // Asegúrate de que el cliente tenga un número de teléfono
         const nameFull = student.nombre + " " + student.apellido_paterno + " " + student.apellido_materno;
@@ -171,7 +171,8 @@ const createPaymentLinkStudent = async (req, res, next) => {
 
         const actualizar = {
             identificador_pago: order.order_id,  // Utilizamos el order_id como identificador
-            link_de_pago: paymentUrl,  // Link de pago generado
+            link_de_pago: paymentUrl, 
+            transaccion_Id: order.id// Link de pago generado
         };
 
         try {

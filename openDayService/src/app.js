@@ -70,6 +70,10 @@ app.use('/api/files', fileRoutes);
 
 const selectStudentRoutes = require('./routes/selectStudentRoutes');
 app.use('/api/student', selectStudentRoutes);
+
+
+const cancelRoutes = require('./routes/cancelRoutes');
+app.use('/api/cancel', cancelRoutes);
 // Error handler
 app.use(errorHandler);
 

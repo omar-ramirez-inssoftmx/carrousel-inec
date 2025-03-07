@@ -13,14 +13,34 @@ const InfoStudent = () => {
     const mutation = useMutation({
         mutationFn: loginWithMatricula,
         onSuccess: (data) => {
-            if (data && data.length > 0) {
-                navigate('/dashboard/pedidos', { state: { pedidos: data, student: students } });
+          if (data && data.length > 0) {
+            const hasOpenPayData = data.some((pedido) => pedido.open_pay_id && pedido.identificador_pago);
+           
+      
+            if (hasOpenPayData) {
+              const groupedData = data.reduce((acc, current) => {
+                const { transaccion_Id } = current;
+                if (transaccion_Id) {
+                  if (!acc[transaccion_Id]) {
+                    acc[transaccion_Id] = { transaccion: transaccion_Id, pedidos: [] };
+                  }
+                  acc[transaccion_Id].pedidos.push(current);
+                }
+                return acc;
+              }, {});
+      
+              const groupedDataArray = Object.values(groupedData);
+              console.log("groupedDataArray ", groupedDataArray);
+              navigate('/dashboard/CheckLinks', { state: { pedidos: groupedDataArray, student: students, todosLosPedidos: groupedDataArray } });
             } else {
-                alert("No se encontraron pedidos para esta matrícula.");
+              navigate('/dashboard/pedidos', { state: { pedidos: data, student: students } });
             }
+          } else {
+            alert("No se encontraron pedidos para esta matrícula.");
+          }
         },
         onError: (error) => {
-            alert("Error al iniciar sesión: " + (error.response?.data?.message || "Intente de nuevo"));
+          alert("Error al iniciar sesión: " + (error.response?.data?.message || "Intente de nuevo"));
         }
     });
 

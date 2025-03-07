@@ -4,8 +4,6 @@ async function getPedidosByMatricula(matricula) {
     const checkQuery = 'SELECT * FROM alumno WHERE matricula = ?';
     const [existingAlumno] = await pool.query(checkQuery, [matricula]);
 
-    console.log("existingAlumno ", existingAlumno);
-
     if (existingAlumno.length < 1) {
         return null;
     } else {
@@ -26,6 +24,7 @@ async function getPedidosByMatricula(matricula) {
             p.fecha_vigencia_recargo,
             p.fecha_carga,
             p.concepto AS concepto_pedido,
+            p.transaccion_Id,
             a.matricula,
             a.open_pay_id,
             a.nombre AS nombre_alumno,
@@ -37,9 +36,9 @@ async function getPedidosByMatricula(matricula) {
         JOIN alumno a ON p.id_alumno = a.id_alumno
         JOIN productos pr ON p.sku = pr.sku
         JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
-        WHERE a.matricula = ?;
+        WHERE a.matricula = ? AND p.id_cat_estatus != 1;
         `;
-        console.log("query ",query)
+       
         try {
             const [result] = await pool.query(query, [matricula]);
             return result;

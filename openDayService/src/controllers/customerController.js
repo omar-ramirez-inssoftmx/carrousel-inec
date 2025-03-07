@@ -140,7 +140,23 @@ const createCustomer = async (req, res) => {
     });
   }
 };
+const editCustomer = async (req, res) => {
 
+  const { email,customerId } = req.body;
+
+  const searchParams = {
+    name: "Jeny Álvarez Félix",
+    email, 
+  };
+
+  openpay.customers.update(customerId, searchParams, function(error, customers) {
+      if (error) {
+          console.error("Error al ediar clientes:", error);
+          return res.status(400).json({ error: error.description });
+      }
+      res.json(customers);
+  });
+}
 
 const listCustomer = async (req, res) => {
 
@@ -162,4 +178,5 @@ const listCustomer = async (req, res) => {
 module.exports = {
   createCustomer,
   listCustomer,
+  editCustomer
 };

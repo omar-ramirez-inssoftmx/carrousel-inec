@@ -173,22 +173,43 @@ async function createPedido(
 }
 
 async function updatePedidos(ids, actualizar) {
-    const { identificador_pago, link_de_pago } = actualizar;
+    const { identificador_pago, link_de_pago, transaccion_Id } = actualizar;
     
     const updateQuery = `
         UPDATE pedidos
         SET 
             identificador_pago = ?,
-            link_de_pago = ?
+            link_de_pago = ?,
+            transaccion_Id = ?
         WHERE id_pedido IN (?)`;  // Corregido: eliminada la coma extra
     
     try {
         // Ejecutar la consulta
-        const [result] = await pool.query(updateQuery, [identificador_pago, link_de_pago, ids]);
+        const [result] = await pool.query(updateQuery, [identificador_pago, link_de_pago, transaccion_Id, ids]);
         console.log('Registros actualizados:', result.affectedRows);
         return result;
     } catch (error) {
         console.error('Error al actualizar los pedidos:', error);
+        throw error;
+    }
+}
+
+async function updateStatus(id, status) {
+    
+    
+    const updateQuery = `
+        UPDATE pedidos
+        SET 
+            id_cat_estatus = ?
+        WHERE id_pedido = ?`;  // Corregido: eliminada la coma extra
+    
+    try {
+        // Ejecutar la consulta
+        const [result] = await pool.query(updateQuery, [status, id]);
+        console.log('Registros actualizados status:', result.affectedRows);
+        return result;
+    } catch (error) {
+        console.error('Error al actualizar los pedidos status:', error);
         throw error;
     }
 }
@@ -217,5 +238,6 @@ module.exports = {
     createAlumno,
     createPedido,
     updatePedidos,
-    getTempleteEmail
+    getTempleteEmail,
+    updateStatus
 };
