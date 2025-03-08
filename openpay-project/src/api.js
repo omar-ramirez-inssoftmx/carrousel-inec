@@ -31,3 +31,17 @@ export const createOrder = async (openPayId, description, totalAmount, pedidoIds
         throw new Error(error.response?.data?.message || 'Error al generar el link de pago');
     }
 };
+
+export const cancelOrder = async (pedidosConLinks, pedidosComp) => {
+    try {
+        // Asegúrate de que la URL es correcta
+        const response = await axios.post(`${API_URL}/cancel/cancel`, {
+            pedidosConLinks, 
+            pedidosComp        
+        });
+
+        return response.data;  
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Error al cancelar el link de pago');
+    }
+};

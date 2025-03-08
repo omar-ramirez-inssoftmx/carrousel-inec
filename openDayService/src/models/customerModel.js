@@ -39,13 +39,14 @@ async function createProduct(producto, precio_base, concepto, vencimiento) {
 }
 
 // Función para generar un SKU único de 10 dígitos
+// Función para generar un SKU único que quepa en un INT
 async function generateUniqueSku() {
     let sku;
     let isUnique = false;
 
     while (!isUnique) {
-        // Generar un número aleatorio de 10 dígitos
-        sku = Math.floor(1000000000 + Math.random() * 9000000000);
+        // Generar un número aleatorio que quepa en un INT
+        sku = Math.floor(Math.random() * 2147483648);
 
         // Verificar si el SKU ya existe en la base de datos
         const checkSkuQuery = 'SELECT sku FROM productos WHERE sku = ?';
@@ -58,6 +59,8 @@ async function generateUniqueSku() {
 
     return sku;
 }
+
+
 
 async function createAlumno(matricula, nombre, apellido_paterno, apellido_materno, email, celular, openPayId) {
     // Verificar si el alumno ya existe por matrícula
@@ -110,7 +113,8 @@ async function createPedido(
     pago_recargo, 
     fecha_vigencia_recargo,
     link_de_pago,
-    concepto
+    concepto,
+    transaccion_Id
 ) {
     console.log("concepto ", concepto)
     const query = `
@@ -128,9 +132,10 @@ async function createPedido(
             fecha_vigencia_recargo, 
             link_de_pago,
             concepto,
+            transaccion_Id,
             fecha_carga
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW());
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,NOW());
     `;
 
     try {
@@ -147,7 +152,8 @@ async function createPedido(
             pago_recargo, 
             fecha_vigencia_recargo,
             link_de_pago,
-            concepto
+            concepto,
+            transaccion_Id
         ]);
 
         return { 
@@ -164,7 +170,8 @@ async function createPedido(
             pago_recargo, 
             fecha_vigencia_recargo,
             link_de_pago,
-            concepto
+            concepto,
+            transaccion_Id
         };
     } catch (error) {
         console.error("Error al crear el pedido:", error);
@@ -190,6 +197,30 @@ async function updatePedidos(ids, actualizar) {
         return result;
     } catch (error) {
         console.error('Error al actualizar los pedidos:', error);
+        throw error;
+    }
+}
+
+async function updatePedidosTransaccion(transaccion_Id) {
+
+    console.log("transaccion_Id", transaccion_Id)
+    
+    const updateQuery = `
+        UPDATE pedidos
+        SET 
+            identificador_pago = ?,
+            id_cat_estatus = ?,
+            link_de_pago = ?,
+            transaccion_Id = ?
+        WHERE transaccion_Id = ?`;  // Corregido: eliminada la coma extra
+    
+    try {
+        // Ejecutar la consulta
+        const [result] = await pool.query(updateQuery, [null, 3, null, null, transaccion_Id]);
+        console.log('Registros actualizados cancelar:', result.affectedRows);
+        return result;
+    } catch (error) {
+        console.error('Error al cancelar update los pedidos:', error);
         throw error;
     }
 }
@@ -239,5 +270,6 @@ module.exports = {
     createPedido,
     updatePedidos,
     getTempleteEmail,
-    updateStatus
+    updateStatus,
+    updatePedidosTransaccion
 };

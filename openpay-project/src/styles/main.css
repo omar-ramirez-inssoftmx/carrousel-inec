@@ -10,7 +10,7 @@
       color: #212121;
   }
   b{
-    font-weight: 500;
+    font-weight: 600;
   }
   .secontFont{
     font-family: Montserrat;
@@ -19,6 +19,7 @@
       width: 100%;
   }
   .caratura{
+    background: no-repeat center / cover url("image/fondo.svg");
     height: 100vh;
     display: none;
   }
@@ -50,6 +51,9 @@
   }
   .backgroundMainColor{
     background-color: var(--main-color) ;
+  }
+  .borderMainColor{
+    border: solid 1px var(--main-color);
   }
   .backgroundMain{
       background-color: var(--background);
@@ -91,6 +95,11 @@
   }
   .descuentoTexto{
     top: 37px;left: 2px;width: 70px;font-size: 12px;
+  }
+  .alertCorrect{
+    border:solid 1px #09632D;
+    color: #09632D;
+    background: #DEFCE6;
   }
   @media (min-width: 992px) {
     .login{

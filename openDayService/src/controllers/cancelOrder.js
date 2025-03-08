@@ -4,9 +4,10 @@ const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY
 
 const cancelOrder = (customerId, transactionId) => {
 
- 
+ console.log("customerId ", customerId);
+ console.log("transactionId ", transactionId);
   return new Promise((resolve, reject) => {
-    openpay.customers.payouts.delete(customerId, transactionId, (error, payout) => {
+    openpay.customers.charges.delete(customerId, transactionId, (error, payout) => {
       if (error) {
         reject(error);
       } else {

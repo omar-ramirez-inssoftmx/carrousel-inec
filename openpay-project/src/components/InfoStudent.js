@@ -13,34 +13,33 @@ const InfoStudent = () => {
     const mutation = useMutation({
         mutationFn: loginWithMatricula,
         onSuccess: (data) => {
-          if (data && data.length > 0) {
-            const hasOpenPayData = data.some((pedido) => pedido.open_pay_id && pedido.identificador_pago);
-           
-      
-            if (hasOpenPayData) {
-              const groupedData = data.reduce((acc, current) => {
-                const { transaccion_Id } = current;
-                if (transaccion_Id) {
-                  if (!acc[transaccion_Id]) {
-                    acc[transaccion_Id] = { transaccion: transaccion_Id, pedidos: [] };
-                  }
-                  acc[transaccion_Id].pedidos.push(current);
+            if (data && data.length > 0) {
+                const hasOpenPayData = data.some((pedido) => pedido.open_pay_id && pedido.identificador_pago);
+    
+                if (hasOpenPayData) {
+                    const groupedData = data.reduce((acc, current) => {
+                        const { transaccion_Id, link_de_pago, open_pay_id, matricula } = current;
+                        if (transaccion_Id) {
+                            if (!acc[transaccion_Id]) {
+                                acc[transaccion_Id] = { transaccion: transaccion_Id, pedidos: [], link_de_pago: link_de_pago, open_pay_id:open_pay_id, matricula:matricula };
+                            }
+                            acc[transaccion_Id].pedidos.push(current);
+                        }
+                        return acc;
+                    }, {});
+    
+                    const groupedDataArray = Object.values(groupedData);
+                    console.log("groupedDataArray ", groupedDataArray);
+                    navigate('/dashboard/CheckLinks', { state: { pedidos: groupedDataArray, student: students, todosLosPedidos: data } });
+                } else {
+                    navigate('/dashboard/pedidos', { state: { pedidos: data, student: students } });
                 }
-                return acc;
-              }, {});
-      
-              const groupedDataArray = Object.values(groupedData);
-              console.log("groupedDataArray ", groupedDataArray);
-              navigate('/dashboard/CheckLinks', { state: { pedidos: groupedDataArray, student: students, todosLosPedidos: groupedDataArray } });
             } else {
-              navigate('/dashboard/pedidos', { state: { pedidos: data, student: students } });
+                alert("No se encontraron pedidos para esta matrícula.");
             }
-          } else {
-            alert("No se encontraron pedidos para esta matrícula.");
-          }
         },
         onError: (error) => {
-          alert("Error al iniciar sesión: " + (error.response?.data?.message || "Intente de nuevo"));
+            alert("Error al iniciar sesión: " + (error.response?.data?.message || "Intente de nuevo"));
         }
     });
 
@@ -88,7 +87,7 @@ const InfoStudent = () => {
                                     </svg>
                                     <h3 className="m-0 ms-2"><b>Regresar</b></h3>
                                 </button>
-                                <h5 className="col-auto text-secondary m-0">Detalle de la matrícula</h5>
+                                <h5 className="col-auto text-secondary m-0">Detalle de matrícula</h5>
                             </section>
 
                             {students.length > 0 ? (

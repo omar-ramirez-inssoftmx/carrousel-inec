@@ -9,29 +9,87 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 
 
-
 const PaymentLinkModal = ({ show, onHide, paymentUrl }) => {
-    
+
+  const location = useLocation();
+  const students = location.state?.student || [];
+    console.log("students---------->", students)
     return (
-      <Modal show={show} onHide={onHide} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Link de Pago Generado</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>El link de pago se ha generado con éxito.</p>
-          <p>Se ha generado con éxito el link de pago. Favor de revisar tu correo electrónico para proceder con el pagos </p>
-          <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
-            {paymentUrl}
-          </a>
+      <Modal show={show} onHide={onHide} centered size="lg">
+        <Modal.Body className="px-0">
+            <div className="d-flex flex-column justify-content-center align-items-center">
+                {/* Botón de cierre */}
+                <div className="w-100 d-flex justify-content-end px-3">
+                    <button
+                        type="button"
+                        className="btn-close"
+                        onClick={onHide}
+                        aria-label="Close"
+                    ></button>
+                </div>
+
+                {/* Contenido del modal */}
+                <div className="w-100 d-flex flex-column justify-content-center align-items-center">
+                    {/* Icono de éxito */}
+                    <div style={{ height: '120px', width: '120px' }} className="bg-success p-4 rounded-circle mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                            <path fill="#FFF" d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
+                        </svg>
+                    </div>
+
+                    {/* Título y descripción */}
+                    <div className="w-100 text-center border-bottom px-5 pb-3">
+                        <h3 className="m-0"><strong>Enlace de pago creado correctamente</strong></h3>
+                        <h5 className="text-secondary mt-1 mx-md-3">
+                            Se ha enviado el enlace de pago a través de los medios de contacto (Correo electrónico y Teléfono celular).
+                        </h5>
+                    </div>
+
+                    {/* Detalles del enlace */}
+                    <div className="w-100 d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
+                        <div className="d-flex flex-column">
+                            <p className="m-0 text-secondary">Creación de enlace</p>
+                            <h5><strong>18 febrero 2025</strong></h5>
+                        </div>
+                        <div className="d-flex flex-column">
+                            <p className="m-0 text-secondary">Enlace válido hasta</p>
+                            <h5><strong>28 febrero 2025</strong></h5>
+                        </div>
+                        <div className="d-flex flex-column">
+                            <p className="m-0 text-secondary">Estatus de enlace</p>
+                            <h6 className="alertCorrect rounded-2 px-3 py-1"><b>Activo durante 10 días</b></h6>
+                        </div>
+                    </div>
+
+                    {/* Información de contacto */}
+                    <div className="w-100 d-flex flex-column justify-content-center flex-wrap mt-4 mb-3 px-5 gap32">
+                        <div className="d-flex flex-column">
+                            <p className="m-0 text-secondary">Correo electrónico</p>
+                            <h5><strong>{students[0].email}</strong></h5>
+                        </div>
+                        <div className="d-flex flex-column">
+                            <p className="m-0 text-secondary">Teléfono celular</p>
+                            <h5><strong>{students[0].celular}</strong></h5>
+                        </div>
+                    </div>
+
+                    {/* Botón de enlace de pago */}
+                    <div className="w-100 d-flex justify-content-center my-4">
+                        <Button
+                            variant="primary"
+                            className="px-5 py-3 rounded backgroundMainColor border-0"
+                            onClick={onHide}
+                        >
+                            <h5 className="m-0"><strong className="secontFont text-light">Aceptar</strong></h5>
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={onHide}>
-            Aceptar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+    </Modal>
     );
   };
+
 
 const PedidosTable = () => {
     const [modalShow, setModalShow] = useState(false);
@@ -267,6 +325,12 @@ const PedidosTable = () => {
           const fechaActual = new Date();
           return p.fecha_vigencia_pago && fechaActual <= new Date(p.fecha_vigencia_pago);
         });
+
+        console.log("tienePedidoRecargo ", tienePedidoRecargo);
+        console.log("tienePedidoDescuento ", tienePedidoDescuento);
+
+        console.log("tienePedidoNormal ", tienePedidoNormal);
+
       
         if (tienePedidoRecargo && !tienePedidoDescuento && !tienePedidoNormal) {
             // Si solo hay pedidos con recargo seleccionados, se usa el día 15 del mes actual

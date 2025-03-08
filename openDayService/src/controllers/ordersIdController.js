@@ -6,7 +6,7 @@ const { sendMailOtp } = require('../utils/sendEmail');
 const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
 
 // Método para enviar el mensaje de WhatsApp
-const sendWhatsappMessage = (fecha, link, nombre, phoneNumber) => {
+const sendWhatsappMessage = (fecha, link, nombre, phoneNumber, matricula) => {
     const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
     const messagePayload = {
@@ -14,13 +14,14 @@ const sendWhatsappMessage = (fecha, link, nombre, phoneNumber) => {
       to: phoneNumber, // El número de teléfono del alumno
       type: "template",
       template: {
-        name: "confirma_orden", // El nombre de la plantilla
+        name: "inec_link_pago", // El nombre de la plantilla
         language: { code: "es_MX" }, // El idioma de la plantilla
         components: [
           {
             type: "body",
             parameters: [
               { type: "text", text: nombre }, 
+              { type: "text", text: matricula }, 
               { type: "text", text: link }, 
               { type: "text", text: fecha },            
             ]
@@ -186,7 +187,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
         // Enviar mensaje por WhatsApp y email después de actualizar los registros
         if (customerPhone) {
             const message = `${paymentUrl}`;
-            sendWhatsappMessage("Aquí va la fecha", message, nameFull, customerPhone)
+            sendWhatsappMessage(fechaVigencia, message, nameFull, customerPhone, student.matricula)
                 .then(response => {
                     console.log("Mensaje enviado a WhatsApp:", response.data);
                 })

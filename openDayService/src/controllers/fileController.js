@@ -73,7 +73,7 @@ const uploadFile = async (req, res) => {
         
             try {
 
-                const resultProducto = await createProduct("producto", 0, row[12], "2025-31-01");
+                const resultProducto = await createProduct("producto", 0, row[12], "2025-12-31");
 
                 console.log("resultProducto---> ", resultProducto);
                 
@@ -94,9 +94,23 @@ const uploadFile = async (req, res) => {
                 
                 
                 console.log("resultAlumno---> ", resultAlumno);
-
-                await createPedido(resultAlumno, null, null, resultProducto, 3, row[6], excelSerialToDate(row[7]), row[8], excelSerialToDate(row[9]), row[10], excelSerialToDate(row[11]), null, row[13])
-
+                await createPedido(
+                    resultAlumno, 
+                    null, 
+                    null, 
+                    resultProducto, 
+                    3, 
+                    (typeof row[6] !== 'undefined' && !isNaN(parseFloat(row[6]))) ? parseFloat(row[6]) : 0, 
+                    excelSerialToDate(row[7]), 
+                    (typeof row[8] !== 'undefined' && !isNaN(parseFloat(row[8]))) ? parseFloat(row[8]) : 0, 
+                    excelSerialToDate(row[9]), 
+                    (typeof row[10] !== 'undefined' && !isNaN(parseFloat(row[10]))) ? parseFloat(row[10]) : 0, 
+                    excelSerialToDate(row[11]), 
+                    null, 
+                    row[13],
+                    null
+                );
+                
             } catch (error) {
                 console.error(`Error al insertar el alumno con matrícula ${row[0]}:`, error.message);
             }
@@ -111,20 +125,21 @@ const uploadFile = async (req, res) => {
         res.status(500).json({ error: 'Error al procesar el archivo', details: error.message });
     }
 };
+function excelSerialToDate(excelSerialDate) {
+    console.log("excelSerialDate ", excelSerialDate)
+    if (typeof excelSerialDate === 'undefined' || !excelSerialDate || isNaN(parseFloat(excelSerialDate))) {
+        return null; // Devolver una fecha por defecto si el valor es vacío, no válido o undefined
+    }
 
-function excelSerialToDate(serial) {
-    // Excel considera que el 1 de enero de 1900 es el día 1
-    const excelEpoch = new Date(1900, 0, 1);
-    
-    // Restar 1 porque Excel considera incorrectamente que 1900 fue un año bisiesto
-    const date = new Date(excelEpoch.getTime() + (serial - 1) * 24 * 60 * 60 * 1000);
-    
-    // Formatear la fecha como YYYY-MM-DD
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses van de 0 a 11
-    const day = String(date.getDate()).padStart(2, '0');    
-    
-    return year + '-' + month + '-' + day;
+    const date = new Date(Math.round((excelSerialDate - 25569) * 86400 * 1000));
+    const timezoneOffset = date.getTimezoneOffset() * 60 * 1000; // Obtener el desplazamiento de la zona horaria en milisegundos
+    const adjustedDate = new Date(date.getTime() + timezoneOffset); // Ajustar la fecha teniendo en cuenta la zona horaria
+
+    const year = adjustedDate.getFullYear();
+    const month = adjustedDate.getMonth() + 1;
+    const day = adjustedDate.getDate();
+
+    return `${year}-${month}-${day}`;
 }
 
 

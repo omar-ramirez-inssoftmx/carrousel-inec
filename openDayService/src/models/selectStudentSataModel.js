@@ -25,6 +25,7 @@ async function getPedidosByMatricula(matricula) {
             p.fecha_carga,
             p.concepto AS concepto_pedido,
             p.transaccion_Id,
+            p.link_de_pago,
             a.matricula,
             a.open_pay_id,
             a.nombre AS nombre_alumno,
