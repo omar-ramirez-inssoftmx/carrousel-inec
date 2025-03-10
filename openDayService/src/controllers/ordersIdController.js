@@ -9,6 +9,17 @@ const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY
 const sendWhatsappMessage = (fecha, link, nombre, phoneNumber, matricula) => {
     const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
+    const vigeniaFechaDate = new Date(fecha); // Crear un objeto Date a partir de la fecha ajustada
+
+    const opciones = {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    };
+    
+    const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", opciones); // Formatear la fecha
+    
+
     const messagePayload = {
       messaging_product: "whatsapp",
       to: phoneNumber, // El número de teléfono del alumno
@@ -23,7 +34,7 @@ const sendWhatsappMessage = (fecha, link, nombre, phoneNumber, matricula) => {
               { type: "text", text: nombre }, 
               { type: "text", text: matricula }, 
               { type: "text", text: link }, 
-              { type: "text", text: fecha },            
+              { type: "text", text: vigeniaFechaFormateada },            
             ]
           }
         ]
@@ -141,7 +152,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
             order_id: student.matricula + "-" + new Date().getTime(), // ID único por pedido
             send_email: true,
             confirm: false,
-            redirect_url: "http://localhost:3000/payment-success",
+            redirect_url: "http://localhost:3001/",
             due_date: fechaVigencia,
         };
         console.log("chargeRequest ", chargeRequest)
@@ -201,7 +212,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
         const creaFecha = getCurrentDate();
         sendMailOtp(student.matricula , creaFecha, fechaVigencia, pedidosSeleccionados, paymentUrl, student.email)
         res.json({ payment_url: paymentUrl });
-        console.log("fechaVigencia ", fechaVigencia);
+        
     } catch (error) {
         console.error("Error en la creación del link de pago:", error);
         return res.status(400).json({ error: error.message });
