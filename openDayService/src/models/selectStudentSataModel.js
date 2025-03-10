@@ -55,7 +55,6 @@ async function getMyMatricula(matricula) {
         const query = `
         SELECT * FROM alumno WHERE matricula = ?;
         `;
-
         try {
             const [result] = await pool.query(query, [matricula]);
            

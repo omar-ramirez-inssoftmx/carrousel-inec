@@ -16,7 +16,7 @@ const selectStudentData = async (req, res) => {
       const pedidos = await getPedidosByMatricula(matricula);
   
       if (!pedidos || pedidos.length === 0) {
-        return res.status(404).json({ message: 'No se encontraron datos de la matrícula' });
+        return res.status(404).json({ message: 'No se encontraron pagos para la matrícula' });
       }
   
       // Procesar los pedidos para obtener el estado de cada uno y actualizarlo en la base de datos
