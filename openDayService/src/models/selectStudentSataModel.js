@@ -53,7 +53,7 @@ async function getPedidosByMatricula(matricula) {
 async function getMyMatricula(matricula) {
    
         const query = `
-        SELECT * FROM alumno WHERE matricula = ?;
+        SELECT * FROM inec_qa.alumno WHERE matricula = ?;
         `;
         try {
             const [result] = await pool.query(query, [matricula]);
@@ -65,7 +65,7 @@ async function getMyMatricula(matricula) {
             }
         } catch (error) {
             console.error("Error al obtener la matrícula:", error);
-            throw new Error("Error al obtener la matrícula");
+            throw new Error("Error al obtener la matrícula" + error);
         }
     
 }

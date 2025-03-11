@@ -23,7 +23,7 @@
             formData.append('file', fileInput.files[0]);
 
             try {
-                const response = await fetch('http://localhost:3000/api/files/upload', {
+                const response = await fetch('http://10.38.2.135:3000/api/files/upload', {
                     method: 'POST',
                     body: formData
                 });
