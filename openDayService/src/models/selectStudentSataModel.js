@@ -65,7 +65,7 @@ async function getMyMatricula(matricula) {
             }
         } catch (error) {
             console.error("Error al obtener la matrícula:", error);
-            throw new Error("Error al obtener la matrícula" + error);
+            throw new Error("Error al obtener la matrícula");
         }
     
 }

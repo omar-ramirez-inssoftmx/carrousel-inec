@@ -91,7 +91,7 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
             order_id: customerData.external_id + "-" + new Date().getTime(), // ID único por pedido
             send_email: true,
             confirm: false,
-            redirect_url: "http://localhost:3000/payment-success",
+            redirect_url: "http://inecestudiantes.s3-website-us-east-1.amazonaws.com/",
             due_date: isoDueDate,
         };
 
@@ -143,16 +143,22 @@ const createPaymentLinkStudent = async (req, res, next) => {
             return res.status(404).json({ message: 'No se encontraron datos de la matrícula' });
         }
 
+        let concepto = "";
+        if(pedidosSeleccionados.length > 2){
+            concepto = "Varios pagos";
+        }else{
+            concepto = pedidosSeleccionados[0].concepto_pedido;
+        }
         // Crear la orden de pago con los datos completos del cliente
     
         var chargeRequest = {
             method: "card",
             amount,
-            description,
+            description:concepto,
             order_id: student.matricula + "-" + new Date().getTime(), // ID único por pedido
             send_email: true,
             confirm: false,
-            redirect_url: "http://localhost:3001/",
+            redirect_url: "http://inecestudiantes.s3-website-us-east-1.amazonaws.com/",
             due_date: fechaVigencia,
         };
         console.log("chargeRequest ", chargeRequest)

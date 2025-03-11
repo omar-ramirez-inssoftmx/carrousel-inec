@@ -39,9 +39,14 @@ const uploadFile = async (req, res) => {
 
         // Filtramos la primera fila con encabezados reales (ignorando comentarios)
         let headerRowIndex = data.findIndex(row => row.some(cell => {
+
+            console.log("typeof cell ", typeof cell)
             if (typeof cell !== 'string') return false;
+            console.log("Object.keys(columnMapping).some(key => cell.includes(key)); ", Object.keys(columnMapping).some(key => cell.includes(key)))
             return Object.keys(columnMapping).some(key => cell.includes(key));
         }));
+
+        console.log("headerRowIndex ", headerRowIndex)
 
         if (headerRowIndex === -1) {
             return res.status(400).json({ error: 'No se encontraron encabezados válidos en el archivo' });
@@ -82,7 +87,7 @@ const uploadFile = async (req, res) => {
                     external_id: row[0],
                     name: row[1],
                     last_name: row[2] + ' ' + row[3],
-                    email: row[5],
+                    email: row[5].trim(),
                     phone_number: row[4]
                 };
                 
@@ -90,7 +95,7 @@ const uploadFile = async (req, res) => {
                 console.log("customer", customer);
                 
              
-                const resultAlumno = await createAlumno(row[0], row[1], row[2], row[3], row[5], row[4], customer.id);
+                const resultAlumno = await createAlumno(row[0], row[1], row[2], row[3], row[5].trim(), row[4], customer.id);
                 
                 
                 console.log("resultAlumno---> ", resultAlumno);
