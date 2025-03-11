@@ -53,7 +53,7 @@ async function getPedidosByMatricula(matricula) {
 async function getMyMatricula(matricula) {
    
         const query = `
-        SELECT * FROM inec_qa.alumno WHERE matricula = ?;
+        SELECT * FROM alumno WHERE matricula = ?;
         `;
         try {
             const [result] = await pool.query(query, [matricula]);
