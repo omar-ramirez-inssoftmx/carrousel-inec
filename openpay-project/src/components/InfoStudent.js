@@ -35,11 +35,11 @@ const InfoStudent = () => {
                     navigate('/dashboard/pedidos', { state: { pedidos: data, student: students } });
                 }
             } else {
-                alert("No se encontraron pedidos para esta matrícula.");
+                alert("No se encontraron pagos para esta matrícula.");
             }
         },
         onError: (error) => {
-            alert("Error al iniciar sesión: " + (error.response?.data?.message || "Intente de nuevo"));
+            alert(" Error: " + (error.response?.data?.message || "Intente de nuevo"));
         }
     });
 

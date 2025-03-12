@@ -7,13 +7,14 @@ import logo from '../styles/image/logo.png';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment/moment';
 
 
-const PaymentLinkModal = ({ show, onHide, paymentUrl }) => {
+const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
 
   const location = useLocation();
   const students = location.state?.student || [];
-    console.log("students---------->", students)
+  
     return (
       <Modal show={show} onHide={onHide} centered size="lg">
         <Modal.Body className="px-0">
@@ -49,15 +50,15 @@ const PaymentLinkModal = ({ show, onHide, paymentUrl }) => {
                     <div className="w-100 d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
                         <div className="d-flex flex-column">
                             <p className="m-0 text-secondary">Creación de enlace</p>
-                            <h5><strong>18 febrero 2025</strong></h5>
+                            <h5><strong>{currentDate}</strong></h5>
                         </div>
                         <div className="d-flex flex-column">
                             <p className="m-0 text-secondary">Enlace válido hasta</p>
-                            <h5><strong>28 febrero 2025</strong></h5>
+                            <h5><strong>{modalDate}</strong></h5>
                         </div>
                         <div className="d-flex flex-column">
                             <p className="m-0 text-secondary">Estatus de enlace</p>
-                            <h6 className="alertCorrect rounded-2 px-3 py-1"><b>Activo durante 10 días</b></h6>
+                            <h6 className="alertCorrect rounded-2 px-3 py-1"><b>Activo durante {dayDate} días</b></h6>
                         </div>
                     </div>
 
@@ -94,6 +95,9 @@ const PaymentLinkModal = ({ show, onHide, paymentUrl }) => {
 const PedidosTable = () => {
     const [modalShow, setModalShow] = useState(false);
     const [paymentUrl, setPaymentUrl] = useState('');
+    const [modalDate, setModalDate] = useState('');
+    const [currentDate, setCurrentDate] = useState('');
+    const [dayDate, setDayDate] = useState('');
     const location = useLocation();
     const { pedidos } = location.state || { pedidos: [] };
     const students = location.state?.student || [];
@@ -120,27 +124,26 @@ const PedidosTable = () => {
         navigate('/'); // Redirecciona a la página de login
     };
 
+    const closePage = () => {        
+        navigate('/'); // Redirecciona a la página de login
+    };
+
     // Función para obtener la colegiatura más antigua con recargo
     const getColegiaturaMasAntiguaConRecargo = (pedidos) => {
 
-        const pedidosConRecargo = pedidos.filter((pedido) => {
-            console.log("pedido ",pedido);
-            const fechaActual = new Date();
+        const pedidosConRecargo = pedidos.filter((pedido) => {     
 
-            console.log("fecha_vigencia_recargo ",pedido.fecha_vigencia_recargo);
-            console.log("fechaActual ",fechaActual); 
-            console.log("pedido.fecha_vigencia_recargo ",new Date(pedido.fecha_vigencia_recargo));
+            const fechaActual = new Date();
             return (
                 pedido.fecha_vigencia_recargo && fechaActual >= new Date(pedido.fecha_vigencia_recargo)
             );
+            
         });
-         console.log("pedidosConRecargo", pedidosConRecargo)
+        
             
         if (pedidosConRecargo.length === 0) {
             return null;
         }
-
-        console.log("pedidosConRecargo", pedidosConRecargo)
     
         return pedidosConRecargo.reduce((masAntigua, pedido) => {
             if (
@@ -154,8 +157,6 @@ const PedidosTable = () => {
     };
     
     const colegiaturaMasAntiguaConRecargo = getColegiaturaMasAntiguaConRecargo(pedidos);
-
-    console.log("colegiaturaMasAntiguaConRecargo",  colegiaturaMasAntiguaConRecargo)
 
     useEffect(() => {
         if (colegiaturaMasAntiguaConRecargo) {
@@ -173,13 +174,13 @@ const PedidosTable = () => {
         onSuccess: (data) => {
             if (data.payment_url) {
                 setPaymentUrl(data.payment_url)
-                setModalShow(true);
+                setModalShow(true);                
             } else {
                 alert('Error al generar el pago.');
             }
         },
-        onError: () => {
-            alert('Ocurrió un problema, intenta de nuevo.');
+        onError: (error) => {
+            alert("Error: " + (error.response?.data?.message || "Intente de nuevo"));
         }
     });
     
@@ -202,11 +203,42 @@ const PedidosTable = () => {
         const fechaVigenciaMasViejo = pedidoMasViejoSeleccionado
           ? getVigencia(pedidoMasViejoSeleccionado, getTipoPago(pedidoMasViejoSeleccionado), pedidosSeleccionados)
           : null;
-        
+
+
+        const vigeniaFechaDate = new Date(fechaVigenciaMasViejo); // Crear un objeto Date a partir de la fecha ajustada
+        const fechaAcual = new Date();
+       
+        const vigent = dateFormatCurrent(vigeniaFechaDate);
+        const current = dateFormatCurrent(fechaAcual);
+        const diferenciaDias = dias(vigeniaFechaDate);
+        console.log("diferenciaDias ", diferenciaDias)
+
+        setCurrentDate(current)    
+        setModalDate(vigent)
+        setDayDate(diferenciaDias)
         // Llamar a la mutación pasando los IDs de los pedidos seleccionados y la fecha de vigencia del más viejo
         mutation.mutate({ ids: idsSeleccionados, fechaVigencia: fechaVigenciaMasViejo, pedidosSeleccionados: pedidosSeleccionados });
       };
+
+    const dateFormatCurrent = (date =>{
+
+        const opciones = {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        };
+          
+        return date.toLocaleDateString("es-Mx", opciones); // Formatear la fecha
+    })
       
+    const dias = (vigencia) => {
+        const fechaVigencia = moment(vigencia)
+        const fechaActual = moment();
+
+        return Math.abs(fechaActual.diff(fechaVigencia, 'days'));
+
+       
+    }
       
     const handleCheckboxChange = (idPedido, pago) => {
         setSeleccionados((prevSeleccionados) => {
@@ -328,7 +360,6 @@ const PedidosTable = () => {
 
         console.log("tienePedidoRecargo ", tienePedidoRecargo);
         console.log("tienePedidoDescuento ", tienePedidoDescuento);
-
         console.log("tienePedidoNormal ", tienePedidoNormal);
 
       
@@ -340,7 +371,7 @@ const PedidosTable = () => {
             // Ajustar la fecha sumando un día
             diaQuince.setDate(diaQuince.getDate() + 1);
             return diaQuince.toISOString().split("T")[0];
-          } else if (tienePedidoDescuento) {
+        } else if (tienePedidoDescuento) {
             // Si hay al menos un pedido con descuento seleccionado, se usa la fecha de vigencia de descuento del primer pedido con descuento
             const pedidoDescuento = pedidosSeleccionados.find((p) => {
               const fechaActual = new Date();
@@ -351,7 +382,7 @@ const PedidosTable = () => {
             const fechaDescuento = new Date(pedidoDescuento.fecha_vigenica_descuento);
             fechaDescuento.setDate(fechaDescuento.getDate() + 1);
             return fechaDescuento.toISOString().split("T")[0];
-          } else if (tienePedidoNormal) {
+        } else if (tienePedidoNormal) {
             // Si hay al menos un pedido normal seleccionado, se usa la fecha de vigencia de pago del primer pedido normal
             const pedidoNormal = pedidosSeleccionados.find((p) => {
               const fechaActual = new Date();
@@ -362,7 +393,7 @@ const PedidosTable = () => {
             const fechaNormal = new Date(pedidoNormal.fecha_vigencia_pago);
             fechaNormal.setDate(fechaNormal.getDate() + 1);
             return fechaNormal.toISOString().split("T")[0];
-          } else {
+        } else {
             // Si no hay pedidos seleccionados, se usa la fecha de vigencia correspondiente al tipo de pago del primer pedido
             if (tipoPago === "descuento") {
               const fechaDescuento = new Date(pedido.fecha_vigenica_descuento);
@@ -376,15 +407,13 @@ const PedidosTable = () => {
           }
     };
       
-    
-
     const renderIconoPago = (tipo) => {
         if (tipo === "descuento") {
           return (
             <>
               <div class="position-relative">
                     <div class="descuento position-absolute text-center">
-                        <h5 class="m-0"><strong class="text-light">10%</strong></h5>
+                        <h5 class="m-0"><strong class="text-light">%</strong></h5>
                     </div>
                     <div class="descuentoTexto position-absolute text-center">
                         <span class="m-0"><strong class="text-light">Menos</strong></span>
@@ -398,7 +427,7 @@ const PedidosTable = () => {
             <>
                 <div class="position-relative">
                     <div class="descuento position-absolute text-center">
-                        <h5 class="m-0"><strong class="text-light">10%</strong></h5>
+                        <h5 class="m-0"><strong class="text-light">%</strong></h5>
                     </div>
                     <div class="descuentoTexto position-absolute text-center">
                          <span class="m-0"><strong class="text-light">Más</strong></span>
@@ -440,22 +469,31 @@ const PedidosTable = () => {
           seleccionados[pedido.id_pedido] ||
           (colegiaturaMasAntiguaConRecargo && colegiaturaMasAntiguaConRecargo.id_pedido === pedido.id_pedido)
       );
-
+    const hayPedidosSeleccionados = Object.values(seleccionados).some((seleccionado) => seleccionado);
     return (
         <main className="container-fluid p-0">
             <section className="d-flex flex-column justify-content-center align-items-center">
-                <div style={{ height: '90px' }} className="border-bottom px-md-3 px-lg-5 container-fluid bg-white fixed-top d-flex justify-content-center align-items-center">
-                    <nav className="row w-100 justify-content-between">
-                        <div className="col-auto d-flex align-items-center">
-                            <img width="120px" src={logo} alt="Logo" />
+                <div style={{ height: '90px' }} class="border-bottom px-md-3 px-lg-5 container-fluid bg-white fixed-top d-flex justify-content-center align-items-center">
+                    <nav class="row w-100 justify-content-between">
+                        <div class="col-auto d-flex align-items-center">
+                            <img style={{ maxWidth: '120px', width: '25vw' }} src={logo} />
                         </div>
-                        <div className="col-auto">
-                            <h5 className="m-0">
-                                {`${students[0]?.nombre || 'Nombre no disponible'} ${students[0]?.apellido_paterno || ''} ${students[0]?.apellido_materno || ''}`}
-                            </h5>
-                            <p className="m-0 text-secondary">
-                                Matricula - {students[0]?.matricula || 'N/A'}
-                            </p>
+                        <div class="col-auto">
+                            <div class="dropdown">
+                                <button class="border-0 btn dropdown-toggle d-flex align-items-center p-0 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="flex flex-column me-2">
+                                        <h5 className="m-0">
+                                            {`${students[0]?.nombre || 'Nombre no disponible'} ${students[0]?.apellido_paterno || ''} ${students[0]?.apellido_materno || ''}`}
+                                        </h5>
+                                        <p className="m-0 text-secondary">
+                                            Matricula - {students[0]?.matricula || 'N/A'}
+                                        </p>
+                                    </div>
+                                </button>
+                                <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/">Salir</a></li>                                
+                                </ul>
+                            </div>
                         </div>
                     </nav>
                 </div>
@@ -480,7 +518,9 @@ const PedidosTable = () => {
                                         );
                                         const isChecked = seleccionados[pedido.id_pedido] || isMasAntigua;
                                         const isDisabled = isMasAntigua || (indicePedidoActual !== 0 && !seleccionados[pedidosOrdenados[indicePedidoActual - 1].id_pedido]);
-                                 
+                                 // Verificar si hay al menos un pedido seleccionado
+                                       
+
                                         return (
                                             <label
                                                 key={pedido.id_pedido}
@@ -570,8 +610,16 @@ const PedidosTable = () => {
                         </div>
                         <div>
                             <div className="mt-5 w-100 d-flex justify-content-center">
-                                <button className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0" onClick={handleGenerateLink} disabled={mutation.isLoading}>
-                                    <h5 className="m-0"><b className="secontFont text-light">{mutation.isLoading ? 'Generando...' : 'Generar Link'}</b></h5>
+                                <button 
+                                    className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0" 
+                                    onClick={handleGenerateLink} 
+                                    disabled={!hayPedidosSeleccionados || mutation.isLoading}
+                                >
+                                    <h5 className="m-0">
+                                        <b className="secontFont text-light">
+                                            {mutation.isLoading ? 'Generando...' : 'Generar Link'}
+                                        </b>
+                                    </h5>
                                 </button>
                             </div>
                             <div className="container-fluid py-3 text-center">
@@ -584,7 +632,9 @@ const PedidosTable = () => {
             <PaymentLinkModal
                 show={modalShow}
                 onHide={handleModalClose}
-             
+                modalDate = {modalDate}
+                currentDate = {currentDate}
+                dayDate = {dayDate}
             />
         </main>
         
