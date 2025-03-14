@@ -7,8 +7,9 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const errorHandler = require('./middlewares/errorHandler');
 const cors = require('cors'); // Importa el paquete cors
 const authMiddleware = require('./middlewares/authMiddleware');
-//const pool = require('./config/db');
 
+//const pool = require('./config/db');
+const cron = require("node-cron");
 
 const app = express();
 
@@ -42,12 +43,13 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Routes
-/*const chargeRoutes = require('./routes/chargeRoutes');
-app.use('/api/charges', chargeRoutes);
-
-const customerRoutes = require('./routes/customerRoutes');
-app.use('/api/customers', customerRoutes); // Rutas relacionadas con clientes*/
+//cada 5 min
+const {procesoProgramado} = require('./utils/CronOpenPay');
+cron.schedule("*/5 * * * *", () => {
+  console.log("Tarea programada ejecutándose cada minuto...");
+  procesoProgramado();
+  
+});
 
 // Rutas públicas
 const authRoutes = require('./routes/authRoutes');
