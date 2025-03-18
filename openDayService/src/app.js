@@ -7,6 +7,7 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const errorHandler = require('./middlewares/errorHandler');
 const cors = require('cors'); // Importa el paquete cors
 const authMiddleware = require('./middlewares/authMiddleware');
+const { obtenerExpresionCron } = require('./models/cronModel');
 
 //const pool = require('./config/db');
 const cron = require("node-cron");
@@ -45,11 +46,20 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 //cada 5 min
 const {procesoProgramado} = require('./utils/CronOpenPay');
-cron.schedule("*/5 * * * *", () => {
-  console.log("Tarea programada ejecutándose cada 5 minutos...");
-  procesoProgramado();
-  
-});
+
+// Función para iniciar el CRON dinámicamente
+const iniciarCronJob = async () => {
+  const expresionCron = await obtenerExpresionCron(); // Obtener la expresión desde la BD  
+  cron.schedule(expresionCron, () => {
+    console.log(` Tarea programada ejecutándose con expresión: ${expresionCron}`);
+    procesoProgramado();
+  });
+
+  console.log(`CRON job iniciado con la expresión: ${expresionCron}`);
+};
+
+// Iniciar el cron job
+iniciarCronJob();
 
 // Rutas públicas
 const authRoutes = require('./routes/authRoutes');
