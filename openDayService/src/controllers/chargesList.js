@@ -16,12 +16,26 @@ const getCustomerChargesStatus = (customer_id, order_id) => {
       } else {
         // Buscar el cargo asociado al pedido
         const charge = charges.find((charge) => charge.order_id === order_id);
-        console.log("charge ", charge)
-        if (charge) {
-          resolve(charge.status); // Retornar el estado del cargo
-        } else {
-          resolve(null); // Retornar null si no se encontró el cargo
+        console.log("Cargo encontrado: ", charge)
+        
+        if (!charge) {
+          return resolve(null); // No se encontró el cargo
         }
+        
+        if (charge.status === "charge_pending") {
+          const dueDate = new Date(charge.due_date);
+          const now = new Date();
+  
+          if (dueDate < now) {
+            console.log(`Cargo ${charge.id} vencido, marcando como CANCELLED`);
+            return resolve("CANCELLED");
+          }else{
+            resolve(charge.status);
+          }
+        }else {
+          resolve(charge.status); // Retornar el estado del cargo
+        }
+        
       }
     });
   });

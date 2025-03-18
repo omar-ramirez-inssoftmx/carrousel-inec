@@ -11,7 +11,7 @@ async function procesoProgramado() {
  
         const pedidos = await getPedidosAllMatricula();
 
-        console.log("pedidos ", pedidos)
+        console.log("pedidos.length -----> ", pedidos)
   
         if (!pedidos || pedidos.length === 0) {
             console.log('No se encontraron pagos para el proceso programado');
@@ -19,7 +19,7 @@ async function procesoProgramado() {
             // Procesar los pedidos para obtener el estado de cada uno y actualizarlo en la base de datos
             const pedidosConEstado = await Promise.all(
                 pedidos.map(async (pedido) => {
-                    const openpayStatus = await getCustomerChargesStatus(pedido.open_pay_id, pedido.identificador_pago);
+                    const openpayStatus = await getCustomerChargesStatus(pedido.open_pay_id, pedido.identificador_pago, pedido);
                     const estado = mapOpenpayStatusToDBStatus(openpayStatus);
 
                     // Actualizar el estado del pedido en la base de datos si tiene identificador_pago y transaccion_Id

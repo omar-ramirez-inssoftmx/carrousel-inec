@@ -46,7 +46,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 //cada 5 min
 const {procesoProgramado} = require('./utils/CronOpenPay');
 cron.schedule("*/5 * * * *", () => {
-  console.log("Tarea programada ejecutándose cada minuto...");
+  console.log("Tarea programada ejecutándose cada 5 minutos...");
   procesoProgramado();
   
 });
