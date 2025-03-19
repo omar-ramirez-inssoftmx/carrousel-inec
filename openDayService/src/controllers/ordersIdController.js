@@ -233,10 +233,53 @@ function getCurrentDate() {
   }
   
  
+  const createCharge = async (customerId, token, amount, description, orderId, deviceSessionId, ids, fechaVigencia, pedidosSeleccionados) => {
+    return new Promise((resolve, reject) => {
+      const chargeRequest = {
+        source_id: token, // Token de la tarjeta generado desde el frontend
+        method: 'card',
+        amount: amount,
+        description: description,
+        order_id: orderId + "-" + new Date().getTime(), // Agregar un timestamp único al orderId
+        currency: 'MXN',
+        device_session_id: deviceSessionId // Debes generarlo desde el frontend
+      };
+  
+      // Crear el cargo en OpenPay
+      openpay.customers.charges.create(customerId, chargeRequest, async (error, charge) => {
+        if (error) {
+          reject(error); // Rechazar la promesa si hay un error
+        } else {
+          try {
+            console.log("charge card ", charge)
+            // Datos para actualizar los pedidos
+            const actualizar = {
+              identificador_pago: charge.order_id, // Utilizamos el order_id del cargo como identificador
+              link_de_pago: charge.authorization, // Link de pago generado (si aplica)
+              transaccion_Id: charge.id // ID de la transacción
+            };
+            console.log("charge ids ", ids)
+            console.log("charge actualizar ", actualizar)
+  
+            // Actualizar los pedidos en la base de datos
+            await updatePedidos(ids, actualizar); // Actualizamos los registros
+            console.log("Pedidos actualizados correctamente.");
+  
+            // Resolver la promesa con el cargo y el resultado de la actualización
+            resolve({ charge });
+          } catch (error) {
+            console.error("Error al actualizar los pedidos:", error);
+            reject(error); // Rechazar la promesa si hay un error en la actualización
+          }
+        }
+      });
+    });
+  };
 
 module.exports = {
     createPaymentLinkIdCustomer,
-    createPaymentLinkStudent
+    createPaymentLinkStudent,
+    createCharge
 
 };
   

@@ -1,6 +1,7 @@
 :root {
   --main-color: #AB861E;
   --background: #F0F0F0;
+  --backgroundInput: #F6F6F6;
 }
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
   *{
@@ -79,7 +80,7 @@
     top: 20px;
   }
   .cardPago{
-    min-width: 360px;
+    min-width: 100%;
   }
   .cardPago .form-check-input{
     width: 2em;
@@ -101,7 +102,17 @@
     color: #09632D;
     background: #DEFCE6;
   }
+  .minWidth100vh{
+    min-width: 90vw;
+  }
+  .inputCustom{
+    border: var(--background);
+    background: var(--backgroundInput);
+  }
   @media (min-width: 992px) {
+    .cardPago{
+      min-width: 360px;
+    }
     .login{
       width: 60%;
     }
@@ -114,6 +125,9 @@
     }
     .minHeight100vhLg{
       min-height: 100vh;
+    }
+    .minHeight90vhLg{
+      min-height: 90vh;
     }
   }
   @media (min-width: 1200px){

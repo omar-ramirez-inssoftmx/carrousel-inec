@@ -8,7 +8,7 @@ import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
-
+import PaymentForm from './PaymentForm';
 
 const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
 
@@ -90,6 +90,62 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
     </Modal>
     );
   };
+  
+  const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia, getTipoPago }) => {
+  const location = useLocation();
+  const students = location.state?.student || [];
+
+  // Filtrar los pedidos seleccionados
+  const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
+
+  // Extraer los IDs de los pedidos seleccionados
+  const idsSeleccionados = pedidos
+    .filter((pedido) => seleccionados[pedido.id_pedido])
+    .map((pedido) => pedido.id_pedido);
+
+  // Obtener el pedido más viejo seleccionado
+  const pedidoMasViejoSeleccionado = getPedidosOrdenadosPorAntiguedad(
+    pedidos.filter((pedido) => seleccionados[pedido.id_pedido])
+  )[0];
+
+  // Obtener la fecha de vigencia del pedido más viejo seleccionado
+  const fechaVigenciaMasViejo = pedidoMasViejoSeleccionado
+    ? getVigencia(pedidoMasViejoSeleccionado, getTipoPago(pedidoMasViejoSeleccionado), pedidosSeleccionados)
+    : null;
+
+  return (
+    <Modal show={show} onHide={onHide} centered size="xl">
+       <Modal.Body className="px-0">
+        <div className="d-flex flex-column justify-content-center align-items-center">
+          {/* Botón de cierre */}
+          <div className="w-100 d-flex justify-content-end px-3">
+            <button
+              type="button"
+              className="btn-close"
+              onClick={onHide}
+              aria-label="Close"
+            ></button>
+          </div>
+
+          {/* Contenido del modal */}
+          <div className="w-100 d-flex flex-column justify-content-center align-items-center">
+            {/* Icono de éxito */}
+            <div className="w-100 d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
+              <PaymentForm
+                students={students} // Pasar students
+                totalPagos={totalPagos} // Pasar totalPagos
+                pedidosSeleccionados={pedidosSeleccionados} // Pasar pedidosSeleccionados
+                getVigencia={getVigencia} // Pasar getVigencia
+                getTipoPago={getTipoPago} // Pasar getTipoPago
+                pedidoMasViejoSeleccionado={pedidoMasViejoSeleccionado} // Pasar pedidoMasViejoSeleccionado
+              />
+            </div>
+          </div>
+        </div>
+      </Modal.Body>
+    </Modal>
+  );
+};
 
 
 const PedidosTable = () => {
@@ -106,6 +162,8 @@ const PedidosTable = () => {
 
     const [totalPagos, setTotalPagos] = useState(0);
     const description = "Prueba desde sistema react"
+    const [showPaymentForm, setShowPaymentForm] = useState(false);
+
 
     const navigate = useNavigate();
    
@@ -309,33 +367,7 @@ const PedidosTable = () => {
         // Si no hay fechas o no aplica ninguna, se considera "normal"
         return "0";
       };
-      
-
-    const getMesDesdeFecha = (pedido, tipoPago) => {
-        
-        console.log("tipoPago ", tipoPago)
-        if (!pedido) return "Desconocido"; // En caso de que no haya datos
-        
-        let fecha;
-        if (tipoPago === "descuento") {
-            fecha = pedido.fecha_vigenica_descuento;
-           
-        } else if (tipoPago === "recargo") {
-            fecha = pedido.fecha_vigencia_recargo;
-             console.log("fecha ", pedido)
-        } else {
-            fecha = pedido.fecha_vigencia_pago;
-        }
-        console.log("fecha ", fecha)
-        if (!fecha) return "Desconocido"; // Si no hay fecha válida
     
-        const meses = [
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-        const fechaObj = new Date(fecha);
-        return meses[fechaObj.getMonth()]; // Obtiene el mes en texto
-    };
     
     const getVigencia = (pedido, tipoPago, pedidosSeleccionados) => {
         if (!pedido) return "Desconocido"; // En caso de que no haya datos
@@ -622,6 +654,17 @@ const PedidosTable = () => {
                             </div>
                         </div>
                         <div>
+
+                            <div className="mt-5 w-100 d-flex justify-content-center">
+                                <button 
+                                    className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0" 
+                                    onClick={() => setShowPaymentForm(true)}
+                                >
+                                    <h5 className="m-0">
+                                        <b className="secontFont text-light">Proceder al pago</b>
+                                    </h5>
+                                </button>
+                            </div>
                             <div className="mt-5 w-100 d-flex justify-content-center">
                                 <button 
                                     className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0" 
@@ -634,7 +677,9 @@ const PedidosTable = () => {
                                         </b>
                                     </h5>
                                 </button>
+                               
                             </div>
+                            
                             <div className="container-fluid py-3 text-center">
                                 <span>Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.</span>
                             </div>
@@ -648,6 +693,16 @@ const PedidosTable = () => {
                 modalDate = {modalDate}
                 currentDate = {currentDate}
                 dayDate = {dayDate}
+            />
+            <PayModal 
+                show={showPaymentForm}
+                onHide={() => setShowPaymentForm(false)}
+                totalPagos = {totalPagos.toFixed(2)}
+                pedidos = {pedidos}
+                seleccionados = {seleccionados}
+                getPedidosOrdenadosPorAntiguedad = {getPedidosOrdenadosPorAntiguedad}
+                getVigencia = {getVigencia}
+                getTipoPago = {getTipoPago}
             />
         </main>
         
