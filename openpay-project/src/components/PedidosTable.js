@@ -339,7 +339,7 @@ const PedidosTable = () => {
     
     const getVigencia = (pedido, tipoPago, pedidosSeleccionados) => {
         if (!pedido) return "Desconocido"; // En caso de que no haya datos
-      
+        const fechaActual = new Date();
         // Verifica si al menos un pedido seleccionado tiene recargo
         const tienePedidoRecargo = pedidosSeleccionados.some((p) => {
           const fechaActual = new Date();
@@ -364,13 +364,26 @@ const PedidosTable = () => {
 
       
         if (tienePedidoRecargo && !tienePedidoDescuento && !tienePedidoNormal) {
-            // Si solo hay pedidos con recargo seleccionados, se usa el día 15 del mes actual
-            const fechaActual = new Date();
-            const diaQuince = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 15);
-            
-            // Ajustar la fecha sumando un día
-            diaQuince.setDate(diaQuince.getDate() + 1);
-            return diaQuince.toISOString().split("T")[0];
+            const pedidoRecargo = pedidosSeleccionados.find((p) => p.fecha_vigencia_recargo);
+            const fechaRecargo = new Date(pedidoRecargo.fecha_vigencia_recargo);
+    
+            if (fechaRecargo < fechaActual) {
+                // Si la fecha de recargo ya pasó, tomar el día 15 del mes actual o siguiente
+                let diaQuince = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 15);
+    
+                if (fechaActual > diaQuince) {
+                    // Si el día 15 ya pasó, tomar el 15 del próximo mes
+                    diaQuince = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 15);
+                }
+    
+                // Ajustar la fecha sumando un día
+                diaQuince.setDate(diaQuince.getDate() + 1);
+                return diaQuince.toISOString().split("T")[0];
+            } else {
+                // Si la fecha de recargo es futura, usarla directamente
+                fechaRecargo.setDate(fechaRecargo.getDate() + 1);
+                return fechaRecargo.toISOString().split("T")[0];
+            }
         } else if (tienePedidoDescuento) {
             // Si hay al menos un pedido con descuento seleccionado, se usa la fecha de vigencia de descuento del primer pedido con descuento
             const pedidoDescuento = pedidosSeleccionados.find((p) => {

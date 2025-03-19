@@ -119,23 +119,25 @@ const CheckLinks = () => {
     return (
         <main className="container-fluid p-0">
             <section className="d-flex flex-column justify-content-center align-items-center">
-                <div style={{ height: '90px' }} className="border-bottom px-md-3 px-lg-5 container-fluid bg-white fixed-top d-flex justify-content-center align-items-center">
-                    <nav className="row w-100 justify-content-between">
-                        <div className="col-auto d-flex align-items-center">
-                            <img style={{ maxWidth: '120px', width: '25vw' }} src={logo} alt="Logo" />
+                <div style={{ height: '90px' }} class="border-bottom px-md-3 px-lg-5 container-fluid bg-white fixed-top d-flex justify-content-center align-items-center">
+                    <nav class="row w-100 justify-content-between">
+                        <div class="col-auto d-flex align-items-center">
+                            <img style={{ maxWidth: '120px', width: '25vw' }} src={logo} />
                         </div>
-                        <div className="col-auto">
-                            <div className="dropdown">
-                                <button className="border-0 btn dropdown-toggle d-flex align-items-center p-0 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div className="flex flex-column me-2">
-                                        <h5 className="m-0">Juan Carlos C..</h5>
-                                        <p className="m-0 text-secondary">Matricula - 1213434</p>
+                        <div class="col-auto">
+                            <div class="dropdown">
+                                <button class="border-0 btn dropdown-toggle d-flex align-items-center p-0 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="flex flex-column me-2">
+                                        <h5 className="m-0">
+                                            {`${students[0]?.nombre || 'Nombre no disponible'} ${students[0]?.apellido_paterno || ''} ${students[0]?.apellido_materno || ''}`}
+                                        </h5>
+                                        <p className="m-0 text-secondary">
+                                            Matricula - {students[0]?.matricula || 'N/A'}
+                                        </p>
                                     </div>
                                 </button>
-                                <ul className="dropdown-menu">
-                                    <li><a className="dropdown-item" href="#">Action</a></li>
-                                    <li><a className="dropdown-item" href="#">Another action</a></li>
-                                    <li><a className="dropdown-item" href="#">Something else here</a></li>
+                                <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/">Salir</a></li>                                
                                 </ul>
                             </div>
                         </div>
@@ -197,13 +199,21 @@ const CheckLinks = () => {
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="mt-5 w-100 d-flex justify-content-center">
+                                        <div className="mt-5 w-100 d-flex justify-content-center">                                                
+                                                {grupo.estatus !== "Vencido" ? (
                                                 <button
                                                     className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
-                                                    onClick={() => window.open(grupo.link_de_pago, '_blank')}
+                                                    onClick={() => window.open(grupo.link_de_pago, "_blank")}
                                                 >
-                                                    <h5 className="m-0"><b className="secontFont text-light">Pagar LinK</b></h5>
+                                                    <h5 className="m-0">
+                                                    <b className="secontFont text-light">Pagar Link</b>
+                                                    </h5>
                                                 </button>
+                                                ) : (
+                                                <h5 className="m-0">
+                                                    <b className="secontFont text-danger">Link de pago: {grupo.estatus}</b>
+                                                </h5>
+                                                )}
                                             </div>
                                             <div className="container-fluid py-3 text-center">
                                                 <span>Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.</span>

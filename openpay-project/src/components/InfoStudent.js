@@ -18,10 +18,10 @@ const InfoStudent = () => {
     
                 if (hasOpenPayData) {
                     const groupedData = data.reduce((acc, current) => {
-                        const { transaccion_Id, link_de_pago, open_pay_id, matricula } = current;
+                        const { transaccion_Id, link_de_pago, open_pay_id, matricula, estatus } = current;
                         if (transaccion_Id) {
                             if (!acc[transaccion_Id]) {
-                                acc[transaccion_Id] = { transaccion: transaccion_Id, pedidos: [], link_de_pago: link_de_pago, open_pay_id:open_pay_id, matricula:matricula };
+                                acc[transaccion_Id] = { transaccion: transaccion_Id, pedidos: [], link_de_pago: link_de_pago, open_pay_id:open_pay_id, matricula:matricula, estatus:estatus	};
                             }
                             acc[transaccion_Id].pedidos.push(current);
                         }
