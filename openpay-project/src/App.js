@@ -5,6 +5,12 @@ import Login from './components/Login';
 import PedidosTable from './components/PedidosTable';
 import InfoStudent from './components/InfoStudent';
 import CheckLinks from './components/CheckLinks';
+import CreateCard from './components/CreateCard'
+import Activity from './components/Activity';
+import ListCard from './components/ListCard';
+import DetailCard from './components/DetailCard';
+import EditCard from './components/EditCard';
+
 
 const queryClient = new QueryClient();
 
@@ -17,6 +23,11 @@ function App() {
                     <Route path="/info/student" element={<InfoStudent />} />
                     <Route path="/dashboard/pedidos" element={<PedidosTable />} />
                     <Route path="/dashboard/CheckLinks" element={<CheckLinks />} />
+                    <Route path="/dashboard/CreateCard" element={<CreateCard />} />
+                    <Route path="/dashboard/Activity" element={<Activity />} />
+                    <Route path="/dashboard/ListCard" element={<ListCard />} />
+                    <Route path="/dashboard/DetailCard" element={<DetailCard />} />
+                    <Route path="/dashboard/EditCard" element={<EditCard />} />                    
                 </Routes>
             </Router>
         </QueryClientProvider>

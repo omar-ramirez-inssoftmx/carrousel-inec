@@ -23,6 +23,7 @@ const Login = () => {
             }
         },
         onError: (error) => {
+            console.log("error ", error)
             alert("Error al iniciar sesión: " + (error.response?.data?.message || "Intente de nuevo"));
         }
     });

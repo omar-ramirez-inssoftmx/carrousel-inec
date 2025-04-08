@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { loginWithMatricula } from "../api";
 import logo from "../styles/image/logo.png";
 import fondo from "../styles/image/fondo.svg";
+import Navbar from "../components/Navbar";
 
 const InfoStudent = () => {
     const location = useLocation();
@@ -70,16 +71,15 @@ const InfoStudent = () => {
     return (
         <main className="container-fluid p-0">
             <section className="d-flex flex-column justify-content-center align-items-center">
-                <div className="border-bottom px-md-3 px-lg-5 py-4 container-fluid bg-white fixed-top">
-                    <img width="120px" src={logo} alt="Logo" />
-                </div>
+                 {/* Navbar */}
+                <Navbar students={students} logo={logo} />
 
                 <div className="container-fluid backgroundMain minHeight100vh pt-5">
                     <section className="d-flex justify-content-center align-items-center mt-5">
                         <div className="d-flex flex-column justify-content-center align-items-center bg-white rounded py-4 px-3 mt-4">
                             <section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
                                 <button 
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => navigate("/")}
                                     className="col-auto me-4 btn btn-link text-decoration-none d-flex align-items-center"
                                 >
                                     <svg style={{ height: 24 }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">

@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
 import PaymentForm from './PaymentForm';
+import Navbar from "../components/Navbar";
 
 const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
 
@@ -89,62 +90,62 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
         </Modal.Body>
     </Modal>
     );
-  };
+};
   
-  const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia, getTipoPago }) => {
-  const location = useLocation();
-  const students = location.state?.student || [];
+const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia, getTipoPago }) => {
+    const location = useLocation();
+    const students = location.state?.student || [];
 
-  // Filtrar los pedidos seleccionados
-  const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
+    // Filtrar los pedidos seleccionados
+    const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
 
-  // Extraer los IDs de los pedidos seleccionados
-  const idsSeleccionados = pedidos
-    .filter((pedido) => seleccionados[pedido.id_pedido])
-    .map((pedido) => pedido.id_pedido);
+    // Extraer los IDs de los pedidos seleccionados
+    const idsSeleccionados = pedidos
+        .filter((pedido) => seleccionados[pedido.id_pedido])
+        .map((pedido) => pedido.id_pedido);
 
-  // Obtener el pedido más viejo seleccionado
-  const pedidoMasViejoSeleccionado = getPedidosOrdenadosPorAntiguedad(
-    pedidos.filter((pedido) => seleccionados[pedido.id_pedido])
-  )[0];
+    // Obtener el pedido más viejo seleccionado
+    const pedidoMasViejoSeleccionado = getPedidosOrdenadosPorAntiguedad(
+        pedidos.filter((pedido) => seleccionados[pedido.id_pedido])
+    )[0];
 
-  // Obtener la fecha de vigencia del pedido más viejo seleccionado
-  const fechaVigenciaMasViejo = pedidoMasViejoSeleccionado
-    ? getVigencia(pedidoMasViejoSeleccionado, getTipoPago(pedidoMasViejoSeleccionado), pedidosSeleccionados)
-    : null;
+    // Obtener la fecha de vigencia del pedido más viejo seleccionado
+    const fechaVigenciaMasViejo = pedidoMasViejoSeleccionado
+        ? getVigencia(pedidoMasViejoSeleccionado, getTipoPago(pedidoMasViejoSeleccionado), pedidosSeleccionados)
+        : null;
 
-  return (
-    <Modal show={show} onHide={onHide} centered size="xl">
-       <Modal.Body className="px-0">
-        <div className="d-flex flex-column justify-content-center align-items-center">
-          {/* Botón de cierre */}
-          <div className="w-100 d-flex justify-content-end px-3">
-            <button
-              type="button"
-              className="btn-close"
-              onClick={onHide}
-              aria-label="Close"
-            ></button>
-          </div>
-
-          {/* Contenido del modal */}
-          <div className="w-100 d-flex flex-column justify-content-center align-items-center">
-            {/* Icono de éxito */}
-            <div className="w-100 d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
-              <PaymentForm
-                students={students} // Pasar students
-                totalPagos={totalPagos} // Pasar totalPagos
-                pedidosSeleccionados={pedidosSeleccionados} // Pasar pedidosSeleccionados
-                getVigencia={getVigencia} // Pasar getVigencia
-                getTipoPago={getTipoPago} // Pasar getTipoPago
-                pedidoMasViejoSeleccionado={pedidoMasViejoSeleccionado} // Pasar pedidoMasViejoSeleccionado
-              />
+    return (
+        <Modal show={show} onHide={onHide} centered size="xl">
+        <Modal.Body className="px-0">
+            <div className="d-flex flex-column justify-content-center align-items-center">
+            {/* Botón de cierre */}
+            <div className="w-100 d-flex justify-content-end px-3">
+                <button
+                type="button"
+                className="btn-close"
+                onClick={onHide}
+                aria-label="Close"
+                ></button>
             </div>
-          </div>
-        </div>
-      </Modal.Body>
-    </Modal>
-  );
+
+            {/* Contenido del modal */}
+            <div className="w-100 d-flex flex-column justify-content-center align-items-center">
+                
+                <div className="w-100 d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
+                <PaymentForm
+                    students={students} // Pasar students
+                    totalPagos={totalPagos} // Pasar totalPagos
+                    pedidosSeleccionados={pedidosSeleccionados} // Pasar pedidosSeleccionados
+                    getVigencia={getVigencia} // Pasar getVigencia
+                    getTipoPago={getTipoPago} // Pasar getTipoPago
+                    pedidoMasViejoSeleccionado={pedidoMasViejoSeleccionado} // Pasar pedidoMasViejoSeleccionado
+                />
+                </div>
+            </div>
+            </div>
+        </Modal.Body>
+        </Modal>
+    );
 };
 
 
@@ -176,10 +177,14 @@ const PedidosTable = () => {
           return 0;
         });
     };
-      
+
     const handleModalClose = () => {
         setModalShow(false);
         navigate('/'); // Redirecciona a la página de login
+    };
+      
+    const proceedPayment = () => {
+        setShowPaymentForm(true)
     };
 
     const closePage = () => {        
@@ -518,30 +523,7 @@ const PedidosTable = () => {
     return (
         <main className="container-fluid p-0">
             <section className="d-flex flex-column justify-content-center align-items-center">
-                <div style={{ height: '90px' }} class="border-bottom px-md-3 px-lg-5 container-fluid bg-white fixed-top d-flex justify-content-center align-items-center">
-                    <nav class="row w-100 justify-content-between">
-                        <div class="col-auto d-flex align-items-center">
-                            <img style={{ maxWidth: '120px', width: '25vw' }} src={logo} />
-                        </div>
-                        <div class="col-auto">
-                            <div class="dropdown">
-                                <button class="border-0 btn dropdown-toggle d-flex align-items-center p-0 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="flex flex-column me-2">
-                                        <h5 className="m-0">
-                                            {`${students[0]?.nombre || 'Nombre no disponible'} ${students[0]?.apellido_paterno || ''} ${students[0]?.apellido_materno || ''}`}
-                                        </h5>
-                                        <p className="m-0 text-secondary">
-                                            Matricula - {students[0]?.matricula || 'N/A'}
-                                        </p>
-                                    </div>
-                                </button>
-                                <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/">Salir</a></li>                                
-                                </ul>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
+                <Navbar students={students} logo={logo} />
                 <div className="w-100 d-flex flex-wrap justify-content-center">
                     <section className="container-fluid col-12 col-lg-7 col-xl-9 bg-white pt-5">
                         <div className="accordion mt-5 mb-3 py-4" id="accordionPagos">
@@ -658,7 +640,7 @@ const PedidosTable = () => {
                             <div className="mt-5 w-100 d-flex justify-content-center">
                                 <button 
                                     className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0" 
-                                    onClick={() => setShowPaymentForm(true)}
+                                    onClick={proceedPayment}
                                 >
                                     <h5 className="m-0">
                                         <b className="secontFont text-light">Proceder al pago</b>
