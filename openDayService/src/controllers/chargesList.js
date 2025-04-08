@@ -3,7 +3,7 @@ const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY
 // Función para obtener el estado de un pedido a partir de los cargos de un cliente
 const getCustomerChargesStatus = (customer_id, order_id) => {
 
-    console.log("customer_id ", order_id)
+    
   return new Promise((resolve, reject) => {
     const searchParams = {
       order_id,

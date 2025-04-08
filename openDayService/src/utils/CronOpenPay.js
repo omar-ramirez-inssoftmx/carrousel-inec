@@ -22,6 +22,9 @@ async function procesoProgramado() {
                     const openpayStatus = await getCustomerChargesStatus(pedido.open_pay_id, pedido.identificador_pago, pedido);
                     const estado = mapOpenpayStatusToDBStatus(openpayStatus);
 
+                    console.log("estado ", estado)
+                    console.log("openpayStatus ", openpayStatus)
+
                     // Actualizar el estado del pedido en la base de datos si tiene identificador_pago y transaccion_Id
                     if (pedido.identificador_pago && pedido.transaccion_Id && estado != 'Desconocido') {
                         await updateStatus(pedido.id_pedido, estado);
@@ -34,7 +37,7 @@ async function procesoProgramado() {
                 })
             );
 
-            console.log("pedidosConEstado ", pedidosConEstado)
+           
         }
     
        

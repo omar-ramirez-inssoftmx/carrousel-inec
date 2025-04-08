@@ -86,6 +86,10 @@ app.use('/api/student', selectStudentRoutes);
 
 const cancelRoutes = require('./routes/cancelRoutes');
 app.use('/api/cancel', cancelRoutes);
+
+const cardRoutes = require('./routes/cardRoutes');
+app.use('/api/payment/method', cardRoutes);
+
 // Error handler
 app.use(errorHandler);
 

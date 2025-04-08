@@ -70,7 +70,7 @@ const selectMyMatricula = async (req, res) => {
 
         res.json(student);
     } catch (error) {
-        console.error("Error al obtener pedidos:", error);
+        console.error("Error al obtener alumno:", error);
         res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
     }
 };
