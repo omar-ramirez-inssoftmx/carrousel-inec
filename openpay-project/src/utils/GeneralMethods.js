@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { listMatriculaStudentCard, listMatriculaStudentCardActive  } from '../api';
+import { listMatriculaStudentCard, listMatriculaStudentCardActive, listMatriculaStudentOrders  } from '../api';
 
 //Tarjetas del alumno
 export const fetchStudentCards = async (openPayId, matricula) => {
@@ -25,4 +25,22 @@ export const fetchStudentCardsActive = async (openPayId, matricula) => {
         throw error; // Relanzamos el error para manejarlo en el componente
     }
 };
+
+
+export const fetchStudentActivity = async (matricula) => {
+    try {
+        const response = await listMatriculaStudentOrders(matricula);
+        return {
+            payments: response.payments || [],
+            availableMonths: response.availableMonths || []
+        };
+    } catch (error) {
+        console.error("Error en fetchStudentActivity:", error);
+        throw error;
+    }
+};
+
+
+
+
 

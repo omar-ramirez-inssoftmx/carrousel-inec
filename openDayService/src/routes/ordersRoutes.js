@@ -1,6 +1,8 @@
 const express = require('express');
 const { createPaymentLink } = require('../controllers/ordersController');
 const { createPaymentLinkIdCustomer,createPaymentLinkStudent, createCharge } = require('../controllers/ordersIdController');
+const { selectStudentOrders } = require('../controllers/actividadController');
+
 const validateRequest = require('../middlewares/validateRequest');
 const router = express.Router();
 
@@ -9,6 +11,11 @@ router.post('/create', createPaymentLink);
 router.post('/createId', createPaymentLinkIdCustomer);
 
 router.post('/createOrderStudent', createPaymentLinkStudent);
+
+
+router.post('/activity', selectStudentOrders);
+
+
 
 router.post('/pay', async (req, res) => {
     try {

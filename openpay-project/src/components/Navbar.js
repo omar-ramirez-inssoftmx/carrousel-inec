@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { fetchStudentCards } from '../utils/GeneralMethods';
+import { fetchStudentCards, fetchStudentActivity } from '../utils/GeneralMethods';
 
 const Navbar = ({ students, logo }) => {
   const navigate = useNavigate();
@@ -15,14 +15,12 @@ const Navbar = ({ students, logo }) => {
     }
 
     try {
-      console.log("students[0].open_pay_id ", students[0].open_pay_id);
-      console.log("students[0].matricula", students[0].matricula);
-        const tarjetas = await fetchStudentCards(
+       const tarjetas = await fetchStudentCards(
             students[0].open_pay_id, 
             students[0].matricula
         );
 
-        console.log("tarjetas", tarjetas);
+      
         
         navigate("/dashboard/ListCard", { 
             state: { 
@@ -36,8 +34,25 @@ const Navbar = ({ students, logo }) => {
     }
   };
 
-  const handleActivityClick = () => {
-    navigate("/dashboard/Activity", { state: { student: students} });
+  const handleActivityClick = async (month = 'Todos') => {
+    if (!students[0]?.matricula) {
+      alert("Matrícula no disponible");
+      return;
+    } 
+
+    try {
+   
+      const orders = await fetchStudentActivity(           
+            students[0].matricula
+        );
+
+      
+        navigate("/dashboard/Activity", { state: { student: students, orders} });
+    } catch (error) {
+        console.error("Error al obtener tarjetas:", error);
+        alert("No se pudieron cargar las tarjetas.");
+    }
+   
   };
 
   return (

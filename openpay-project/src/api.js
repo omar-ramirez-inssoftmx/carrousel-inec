@@ -47,6 +47,19 @@ export const listMatriculaStudentCard = async (customer_id, matricula) => {
     return response.data; // Suponiendo que el backend devuelve un objeto con la info del usuario
 };
 
+export const listMatriculaStudentOrders = async (matricula) => {
+    try {
+    
+      console.log("listMatriculaStudentOrders ===>", matricula);
+      const response = await axios.post(`${API_URL}/orders/activity`, {matricula});
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      throw error;
+    }
+  };
+  
+
 export const listMatriculaStudentCardActive = async (customer_id, matricula) => {
     const response = await axios.post(`${API_URL}/payment/method/activateCard`, { customer_id, matricula });
     return response.data; // Suponiendo que el backend devuelve un objeto con la info del usuario

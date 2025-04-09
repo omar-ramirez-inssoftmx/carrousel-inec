@@ -226,21 +226,25 @@ async function updatePedidosTransaccion(transaccion_Id) {
 }
 
 async function updateStatus(id, status) {
-    
-    
     const updateQuery = `
         UPDATE pedidos
         SET 
-            id_cat_estatus = ?
-        WHERE id_pedido = ?`;  // Corregido: eliminada la coma extra
+            id_cat_estatus = ?,
+            fecha_pago = IF(? = 1, CURRENT_TIMESTAMP(), fecha_pago)
+        WHERE id_pedido = ?`;
     
     try {
-        // Ejecutar la consulta
-        const [result] = await pool.query(updateQuery, [status, id]);
-        console.log('Registros actualizados status:', result.affectedRows);
+        const [result] = await pool.query(updateQuery, [status, status, id]);
+        
+        if (result.affectedRows === 0) {
+            console.log('No se encontró el pedido con ID:', id);
+        } else {
+            console.log(`Pedido ${id} actualizado - Estatus: ${status} | Fecha pago: ${status === 1 ? 'actualizada' : 'sin cambios'}`);
+        }
+        
         return result;
     } catch (error) {
-        console.error('Error al actualizar los pedidos status:', error);
+        console.error('Error al actualizar el pedido:', error);
         throw error;
     }
 }
