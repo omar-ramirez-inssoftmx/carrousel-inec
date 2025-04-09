@@ -10,7 +10,7 @@ import Activity from './components/Activity';
 import ListCard from './components/ListCard';
 import DetailCard from './components/DetailCard';
 import EditCard from './components/EditCard';
-
+import DetailActivity from './components/DetailActivity';
 
 const queryClient = new QueryClient();
 
@@ -28,6 +28,7 @@ function App() {
                     <Route path="/dashboard/ListCard" element={<ListCard />} />
                     <Route path="/dashboard/DetailCard" element={<DetailCard />} />
                     <Route path="/dashboard/EditCard" element={<EditCard />} />                    
+                    <Route path="/dashboard/DetailActivity" element={<DetailActivity />} />                    
                 </Routes>
             </Router>
         </QueryClientProvider>

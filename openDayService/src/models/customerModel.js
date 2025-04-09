@@ -225,21 +225,42 @@ async function updatePedidosTransaccion(transaccion_Id) {
     }
 }
 
-async function updateStatus(id, status) {
+async function updateStatus(id, status, pedido) {
+    console.log("updateStatus ===>", pedido.operation_date);
+
+    // Determinar si es un pago completado
+    const isCompleted = status === 1;
+    
+    // Preparar la fecha de pago (usar operation_date si está completado, de lo contrario mantener el valor actual)
+    const fechaPago = isCompleted && pedido.operation_date 
+        ? new Date(pedido.operation_date).toISOString().slice(0, 19).replace('T', ' ') 
+        : null;
+
     const updateQuery = `
         UPDATE pedidos
         SET 
             id_cat_estatus = ?,
-            fecha_pago = IF(? = 1, CURRENT_TIMESTAMP(), fecha_pago)
+            fecha_pago = ${isCompleted ? '?' : 'fecha_pago'},
+            monto_real_pago = ?,
+            transaccion_Id = ?
         WHERE id_pedido = ?`;
     
+    const queryParams = [
+        status,
+        ...(isCompleted ? [fechaPago] : []),
+        pedido.amount,
+        pedido.id,
+        id
+    ];
+
     try {
-        const [result] = await pool.query(updateQuery, [status, status, id]);
+        const [result] = await pool.query(updateQuery, queryParams);
         
         if (result.affectedRows === 0) {
             console.log('No se encontró el pedido con ID:', id);
         } else {
-            console.log(`Pedido ${id} actualizado - Estatus: ${status} | Fecha pago: ${status === 1 ? 'actualizada' : 'sin cambios'}`);
+            console.log(`Pedido ${id} actualizado - Estatus: ${status} | 
+                        ${isCompleted ? `Fecha pago: ${fechaPago}` : 'Sin cambio de fecha'}`);
         }
         
         return result;

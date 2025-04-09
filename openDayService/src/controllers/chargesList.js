@@ -22,19 +22,9 @@ const getCustomerChargesStatus = (customer_id, order_id) => {
           return resolve(null); // No se encontró el cargo
         }
         
-        if (charge.status === "charge_pending") {
-          const dueDate = new Date(charge.due_date);
-          const now = new Date();
-  
-          if (dueDate < now) {
-            console.log(`Cargo ${charge.id} vencido, marcando como CANCELLED`);
-            return resolve("CANCELLED");
-          }else{
-            resolve(charge.status);
-          }
-        }else {
-          resolve(charge.status); // Retornar el estado del cargo
-        }
+
+        resolve(charge);
+       
         
       }
     });

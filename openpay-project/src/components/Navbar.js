@@ -44,8 +44,9 @@ const Navbar = ({ students, logo }) => {
    
       const orders = await fetchStudentActivity(           
             students[0].matricula
-        );
+      );
 
+      console.log("orders ===>", orders)
       
         navigate("/dashboard/Activity", { state: { student: students, orders} });
     } catch (error) {

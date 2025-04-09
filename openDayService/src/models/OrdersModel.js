@@ -17,7 +17,9 @@ async function getOrdersStudent(matricula) {
         p.pago_descuento,
         p.fecha_vigenica_descuento,
         p.pago,
+        p.monto_real_pago,
         p.fecha_vigencia_pago,
+        p.fecha_pago,
         p.pago_recargo,
         p.fecha_vigencia_recargo,
         p.fecha_carga,
@@ -47,6 +49,23 @@ async function getOrdersStudent(matricula) {
     }
 }
 
+
+const getAvailableMonths = async (matricula) => {
+    const query = `
+      SELECT 
+        DISTINCT DATE_FORMAT(fecha_pago, '%b-%y') AS month_display,
+        DATE_FORMAT(fecha_pago, '%Y-%m') AS month_value
+      FROM pedidos p
+      JOIN alumno a ON p.id_alumno = a.id_alumno
+      WHERE a.matricula = ? AND p.id_cat_estatus = 1 
+      ORDER BY month_value DESC
+    `;
+    
+    const [months] = await pool.query(query, [matricula]);
+    return [{month_display: 'Todos', month_value: 'Todos'}, ...months];
+  };
+
 module.exports = {
-    getOrdersStudent
+    getOrdersStudent,
+    getAvailableMonths
 };

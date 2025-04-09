@@ -30,10 +30,7 @@ export const fetchStudentCardsActive = async (openPayId, matricula) => {
 export const fetchStudentActivity = async (matricula) => {
     try {
         const response = await listMatriculaStudentOrders(matricula);
-        return {
-            payments: response.payments || [],
-            availableMonths: response.availableMonths || []
-        };
+        return response;
     } catch (error) {
         console.error("Error en fetchStudentActivity:", error);
         throw error;
