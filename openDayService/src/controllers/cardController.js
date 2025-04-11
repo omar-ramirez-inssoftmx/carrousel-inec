@@ -2,7 +2,8 @@ const Openpay = require('openpay');
 const axios = require('axios');
 const { createCardForStudent, getStudentCardsByMatricula, activateStudentCard, deleteStudentCard, getStudentCardsByMatriculaActive } = require('../models/cardModel');
 // Configuración de Openpay
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, process.env.OPENPAY_PRIVATE_TYPR);
+const isProduction = process.env.OPENPAY_PRIVATE_TYPE === 'true'; // Solo será `true` si la variable es "true"
+const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, isProduction);
 
 
 const createCard = async (req, res) => {
