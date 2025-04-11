@@ -14,6 +14,21 @@ const Activity = () => {
 
   const [mesSeleccionado, setMesSeleccionado] = useState("Todos");
 
+  const detailComponent = (detail) => {
+    console.log("detail detailComponent", detail);
+    navigate("/dashboard/DetailActivity", { 
+      state: { 
+        student: student, 
+        detail: detail, // Enviamos solo el array de detalles
+        orderData: { // Enviamos datos generales del pago
+          numero: detail[0]?.numero,
+          fecha: detail[0]?.fecha,
+          card: detail[0]?.card
+        }
+      } 
+    });
+  };
+
   // Función para obtener el mes en formato "YYYY-MM" desde el texto del pago
   const extraerMesFiltro = (fechaStr) => {
     console.log("fechaStr ", fechaStr);
@@ -62,15 +77,14 @@ const pagosEnriquecidos = pedidos.map((pago) => ({
             <div className="d-flex flex-column justify-content-center align-items-center bg-white rounded py-4 px-3 mt-4">
               {/* Header */}
               <section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
-                <button
-                  onClick={() => navigate("/")}
-                  className="col-auto me-4 btn btn-link text-decoration-none d-flex align-items-center"
-                >
-                  <h3 className="m-0 ms-2"><b>Pagos</b></h3>
-                </button>
-                <h5 className="col-auto text-secondary m-0">
-                  Selecciona un pago para ver su detalle
-                </h5>
+              <div className="d-flex flex-wrap align-items-center col-auto">
+                    <h3 className="m-0 mb-3"><strong>Pagos</strong></h3>                                  
+                    <h5 className="mt-1 ms-3 ms-md-5 text-secondary m-0 mb-3 me-lg-5">
+                      Selecciona un pago para ver su detalle
+                    </h5>
+                                  
+              </div>
+             
               </section>
 
               {/* Botones de Meses */}
@@ -117,7 +131,7 @@ const pagosEnriquecidos = pedidos.map((pago) => ({
                         </tr>
                       ) : (
                         pagosFiltrados.map((pago, index) => (
-                          <tr key={index} onClick={() => navigate("/dashboard/DetailActivity")}>
+                          <tr key={index}  onClick={() => detailComponent(pago.pedidosDetail)}>
                             <td>{pago.numero ?? "—"}</td>
                             <td>{pago.pago}</td>
                             <td>{pago.fecha}</td>

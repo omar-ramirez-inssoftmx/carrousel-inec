@@ -1,5 +1,5 @@
 const Openpay = require('openpay');
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
+const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, process.env.OPENPAY_PRIVATE_TYPR);
 // Función para obtener el estado de un pedido a partir de los cargos de un cliente
 const getCustomerChargesStatus = (customer_id, order_id) => {
 

@@ -5,7 +5,7 @@ const { updatePedidos } = require('../models/customerModel');
 const { sendMailOtp } = require('../utils/sendEmail');
 const { createCardForStudent } = require('../models/cardModel');
 
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
+const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, process.env.OPENPAY_PRIVATE_TYPR);
 
 // Método para enviar el mensaje de WhatsApp
 const sendWhatsappMessage = (fecha, link, nombre, phoneNumber, matricula) => {
