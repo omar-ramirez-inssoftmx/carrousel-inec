@@ -106,17 +106,21 @@ async function createPedido(
     identificador_pedido, 
     sku, 
     id_cat_estatus, 
-    pago_descuento, 
-    fecha_vigenica_descuento, 
+    tipo_pago,
+    producto_servicio_motivo_pago,
+    concepto_pago,
+    ciclo,
+    mes,
+    anio,
     pago, 
-    fecha_vigencia_pago, 
-    pago_recargo, 
-    fecha_vigencia_recargo,
+    fecha_vigencia_pago,
     link_de_pago,
     concepto,
-    transaccion_Id
+    transaccion_Id,
+    fecha_carga = null,
+    fecha_pago = null,
+    monto_real_pago = 0.00
 ) {
-    console.log("concepto ", concepto)
     const query = `
         INSERT INTO pedidos (
             id_alumno, 
@@ -124,18 +128,22 @@ async function createPedido(
             identificador_pedido, 
             sku, 
             id_cat_estatus, 
-            pago_descuento, 
-            fecha_vigenica_descuento, 
+            tipo_pago,
+            producto_servicio_motivo_pago,
+            concepto_pago,
+            ciclo,
+            mes,
+            anio,
             pago, 
             fecha_vigencia_pago, 
-            pago_recargo, 
-            fecha_vigencia_recargo, 
             link_de_pago,
             concepto,
             transaccion_Id,
-            fecha_carga
+            fecha_carga,
+            fecha_pago,
+            monto_real_pago
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,NOW());
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
     try {
@@ -145,15 +153,20 @@ async function createPedido(
             identificador_pedido, 
             sku, 
             id_cat_estatus, 
-            pago_descuento, 
-            fecha_vigenica_descuento, 
+            tipo_pago,
+            producto_servicio_motivo_pago,
+            concepto_pago,
+            ciclo,
+            mes,
+            anio,
             pago, 
-            fecha_vigencia_pago, 
-            pago_recargo, 
-            fecha_vigencia_recargo,
+            fecha_vigencia_pago,
             link_de_pago,
             concepto,
-            transaccion_Id
+            transaccion_Id,
+            fecha_carga || new Date().toISOString().split('T')[0], // Fecha actual si no se proporciona
+            fecha_pago,
+            monto_real_pago
         ]);
 
         return { 
@@ -162,22 +175,28 @@ async function createPedido(
             identificador_pago, 
             identificador_pedido, 
             sku, 
-            id_cat_estatus, 
-            pago_descuento, 
-            fecha_vigenica_descuento, 
+            id_cat_estatus,
+            tipo_pago,
+            producto_servicio_motivo_pago,
+            concepto_pago,
+            ciclo,
+            mes,
+            anio,
             pago, 
-            fecha_vigencia_pago, 
-            pago_recargo, 
-            fecha_vigencia_recargo,
+            fecha_vigencia_pago,
             link_de_pago,
             concepto,
-            transaccion_Id
+            transaccion_Id,
+            fecha_carga,
+            fecha_pago,
+            monto_real_pago
         };
     } catch (error) {
         console.error("Error al crear el pedido:", error);
         throw error;
     }
 }
+
 
 async function updatePedidos(ids, actualizar) {
     const { identificador_pago, link_de_pago, transaccion_Id } = actualizar;

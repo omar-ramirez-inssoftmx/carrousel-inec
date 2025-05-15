@@ -12,14 +12,14 @@ const columnMapping = {
     "Apellido Materno": "apellido_materno",
     "Celular": "celular",
     "Correo *": "correo",
-    "Pago con descuento": "pago_con_descuento",
-    "Fecha de Vencimiento Pago con descuento": "fecha_vencimiento_descuento",
-    "Pago sin descuento": "pago_sin_descuento",
-    "Fecha de Vencimiento Pago sin descuento": "fecha_vencimiento_sin_descuento",
-    "Pago con RECARGO": "pago_con_recargo",
-    "Fecha de Vencimiento Pago con RECARGO": "fecha_vencimiento_recargo",
-    "Producto / Servicio Motivo de pago": "motivo_pago",
-    "Concepto de pago *": "concepto_pago"
+    "Pago": "pago",
+    "Fecha de Vencimiento Pago": "fecha_vencimiento_pago",
+    "Tipo de Pago": "tipo_pago",
+    "Producto / Servicio Motivo de pago": "producto_servicio_motivo_pago",
+    "Concepto de pago *": "concepto_pago",
+    "Ciclo": "ciclo",
+    "Mes": "mes",
+    "Año": "anio"
 };
 
 // Controlador para manejar la carga y lectura del archivo
@@ -99,21 +99,28 @@ const uploadFile = async (req, res) => {
                 
                 
                 console.log("resultAlumno---> ", resultAlumno);
+          
+
                 await createPedido(
                     resultAlumno, 
-                    null, 
-                    null, 
+                    null, // identificador_pago
+                    null, // identificador_pedido
                     resultProducto, 
-                    3, 
-                    (typeof row[6] !== 'undefined' && !isNaN(parseFloat(row[6]))) ? parseFloat(row[6]) : 0, 
-                    excelSerialToDate(row[7]), 
-                    (typeof row[8] !== 'undefined' && !isNaN(parseFloat(row[8]))) ? parseFloat(row[8]) : 0, 
-                    excelSerialToDate(row[9]), 
-                    (typeof row[10] !== 'undefined' && !isNaN(parseFloat(row[10]))) ? parseFloat(row[10]) : 0, 
-                    excelSerialToDate(row[11]), 
-                    null, 
-                    row[13],
-                    null
+                    3, // id_cat_estatus (asumiendo que 3 es "Por pagar" o similar)
+                    row[8],
+                    row[9],
+                    row[10],
+                    parseInt(row[11]) || 0,
+                    parseInt(row[12]) || 1,
+                    parseInt(row[13]) || new Date().getFullYear(),
+                    parseFloat(row[6]) || 0,
+                    excelSerialToDate(row[7]),
+                    null, // link_de_pago (se generará después)
+                    row[10],
+                    null, // transaccion_Id
+                    new Date().toISOString().split('T')[0], // fecha_carga (hoy)
+                    null, // fecha_pago
+                    0.00 // monto_real_pago
                 );
                 
             } catch (error) {
