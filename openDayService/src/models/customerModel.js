@@ -1,3 +1,4 @@
+
 const pool = require('../config/conexionAsync');
 
 async function createProduct(producto, precio_base, concepto, vencimiento) {
@@ -106,17 +107,21 @@ async function createPedido(
     identificador_pedido, 
     sku, 
     id_cat_estatus, 
-    pago_descuento, 
-    fecha_vigenica_descuento, 
+    tipo_pago,
+    producto_servicio_motivo_pago,
+    concepto_pago,
+    ciclo,
+    mes,
+    anio,
     pago, 
-    fecha_vigencia_pago, 
-    pago_recargo, 
-    fecha_vigencia_recargo,
+    fecha_vigencia_pago,
     link_de_pago,
     concepto,
-    transaccion_Id
+    transaccion_Id,
+    fecha_carga = null,
+    fecha_pago = null,
+    monto_real_pago = 0.00
 ) {
-    console.log("concepto ", concepto)
     const query = `
         INSERT INTO pedidos (
             id_alumno, 
@@ -124,18 +129,22 @@ async function createPedido(
             identificador_pedido, 
             sku, 
             id_cat_estatus, 
-            pago_descuento, 
-            fecha_vigenica_descuento, 
+            tipo_pago,
+            producto_servicio_motivo_pago,
+            concepto_pago,
+            ciclo,
+            mes,
+            anio,
             pago, 
             fecha_vigencia_pago, 
-            pago_recargo, 
-            fecha_vigencia_recargo, 
             link_de_pago,
             concepto,
             transaccion_Id,
-            fecha_carga
+            fecha_carga,
+            fecha_pago,
+            monto_real_pago
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,NOW());
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
     try {
@@ -145,15 +154,20 @@ async function createPedido(
             identificador_pedido, 
             sku, 
             id_cat_estatus, 
-            pago_descuento, 
-            fecha_vigenica_descuento, 
+            tipo_pago,
+            producto_servicio_motivo_pago,
+            concepto_pago,
+            ciclo,
+            mes,
+            anio,
             pago, 
-            fecha_vigencia_pago, 
-            pago_recargo, 
-            fecha_vigencia_recargo,
+            fecha_vigencia_pago,
             link_de_pago,
             concepto,
-            transaccion_Id
+            transaccion_Id,
+            fecha_carga || new Date().toISOString().split('T')[0], // Fecha actual si no se proporciona
+            fecha_pago,
+            monto_real_pago
         ]);
 
         return { 
@@ -162,22 +176,28 @@ async function createPedido(
             identificador_pago, 
             identificador_pedido, 
             sku, 
-            id_cat_estatus, 
-            pago_descuento, 
-            fecha_vigenica_descuento, 
+            id_cat_estatus,
+            tipo_pago,
+            producto_servicio_motivo_pago,
+            concepto_pago,
+            ciclo,
+            mes,
+            anio,
             pago, 
-            fecha_vigencia_pago, 
-            pago_recargo, 
-            fecha_vigencia_recargo,
+            fecha_vigencia_pago,
             link_de_pago,
             concepto,
-            transaccion_Id
+            transaccion_Id,
+            fecha_carga,
+            fecha_pago,
+            monto_real_pago
         };
     } catch (error) {
         console.error("Error al crear el pedido:", error);
         throw error;
     }
 }
+
 
 async function updatePedidos(ids, actualizar) {
     const { identificador_pago, link_de_pago, transaccion_Id } = actualizar;
@@ -225,47 +245,22 @@ async function updatePedidosTransaccion(transaccion_Id) {
     }
 }
 
-async function updateStatus(id, status, pedido) {
-    console.log("updateStatus ===>", pedido.operation_date);
-
-    // Determinar si es un pago completado
-    const isCompleted = status === 1;
+async function updateStatus(id, status) {
     
-    // Preparar la fecha de pago (usar operation_date si está completado, de lo contrario mantener el valor actual)
-    const fechaPago = isCompleted && pedido.operation_date 
-        ? new Date(pedido.operation_date).toISOString().slice(0, 19).replace('T', ' ') 
-        : null;
-
+    
     const updateQuery = `
         UPDATE pedidos
         SET 
-            id_cat_estatus = ?,
-            fecha_pago = ${isCompleted ? '?' : 'fecha_pago'},
-            monto_real_pago = ?,
-            transaccion_Id = ?
-        WHERE id_pedido = ?`;
+            id_cat_estatus = ?
+        WHERE id_pedido = ?`;  // Corregido: eliminada la coma extra
     
-    const queryParams = [
-        status,
-        ...(isCompleted ? [fechaPago] : []),
-        pedido.amount,
-        pedido.id,
-        id
-    ];
-
     try {
-        const [result] = await pool.query(updateQuery, queryParams);
-        
-        if (result.affectedRows === 0) {
-            console.log('No se encontró el pedido con ID:', id);
-        } else {
-            console.log(`Pedido ${id} actualizado - Estatus: ${status} | 
-                        ${isCompleted ? `Fecha pago: ${fechaPago}` : 'Sin cambio de fecha'}`);
-        }
-        
+        // Ejecutar la consulta
+        const [result] = await pool.query(updateQuery, [status, id]);
+        console.log('Registros actualizados status:', result.affectedRows);
         return result;
     } catch (error) {
-        console.error('Error al actualizar el pedido:', error);
+        console.error('Error al actualizar los pedidos status:', error);
         throw error;
     }
 }
