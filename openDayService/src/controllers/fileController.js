@@ -78,9 +78,9 @@ const uploadFile = async (req, res) => {
         
             try {
 
-                const resultProducto = await createProduct("producto", 0, row[12], "2025-12-31");
+                //const resultProducto = await createProduct("producto", 0, row[10], "2025-12-31");
 
-                console.log("resultProducto---> ", resultProducto);
+                //console.log("resultProducto---> ", resultProducto);
                 
                 
                 const customerData = {
@@ -99,9 +99,47 @@ const uploadFile = async (req, res) => {
                 
                 
                 console.log("resultAlumno---> ", resultAlumno);
+
+                const ciclo = parseInt(row[11]) || 0;
+                const mesInicial = parseInt(row[12]) || 1;
+                const anio = parseInt(row[13]) || new Date().getFullYear();
+
+                for (let i = 0; i < ciclo; i++) {
+                    const mesActual = mesInicial + i;
+                    let mes = mesActual;
+                    let anioActual = anio;
+                    
+                    // Si el mes supera 12, ajustamos al año siguiente
+                    if (mesActual > 12) {
+                        mes = mesActual % 12 || 12;
+                        anioActual += Math.floor((mesActual - 1) / 12);
+                    }
+                    
+                    await createPedido(
+                        resultAlumno, 
+                        null, 
+                        null, 
+                        0, 
+                        3, 
+                        row[8],
+                        row[9],
+                        row[10],
+                        ciclo,
+                        mes,
+                        anioActual,
+                        parseFloat(row[6]) || 0,
+                        excelSerialToDate(row[7]),
+                        null,
+                        row[10],
+                        null,
+                        new Date().toISOString().split('T')[0],
+                        null,
+                        0.00
+                    );
+                }
           
 
-                await createPedido(
+                /*await createPedido(
                     resultAlumno, 
                     null, // identificador_pago
                     null, // identificador_pedido
@@ -121,7 +159,7 @@ const uploadFile = async (req, res) => {
                     new Date().toISOString().split('T')[0], // fecha_carga (hoy)
                     null, // fecha_pago
                     0.00 // monto_real_pago
-                );
+                );*/
                 
             } catch (error) {
                 console.error(`Error al insertar el alumno con matrícula ${row[0]}:`, error.message);

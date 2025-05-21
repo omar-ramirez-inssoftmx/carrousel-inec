@@ -50,58 +50,49 @@ async function getPedidosByMatricula(matricula) {
     }
 }
 
-
 async function getPedidosAllMatricula() {
-    
-        const query = `
-        SELECT p.id_pedido,
-            p.identificador_pago,
-            p.identificador_pedido,
-            p.sku,
-            pr.producto AS nombre_producto,
-            pr.concepto AS concepto,
-            p.id_cat_estatus,
-            ce.descripcion AS estatus,
-            p.pago_descuento,
-            p.fecha_vigenica_descuento,
-            p.pago,
-            p.fecha_vigencia_pago,
-            p.pago_recargo,
-            p.fecha_vigencia_recargo,
-            p.fecha_carga,
-            p.concepto AS concepto_pedido,
-            p.transaccion_Id,
-            p.link_de_pago,
-            a.matricula,
-            a.open_pay_id,
-            a.nombre AS nombre_alumno,
-            a.apellido_paterno,
-            a.apellido_materno,
-            a.email,
-            a.celular
-        FROM pedidos p
-        JOIN alumno a ON p.id_alumno = a.id_alumno
-        JOIN productos pr ON p.sku = pr.sku
-        JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
-        WHERE p.id_cat_estatus != 1
-        AND identificador_pago IS NOT NULL 
-        AND identificador_pago != '';
-        `;
-       
-        try {
-            const [result] = await pool.query(query);
-             
-            if (!result || result.length === 0) {
-                console.log("No se encontraron pedidos con matrícula.");
-                return [];
-            }
-
-            return result;
-        } catch (error) {
-            console.error("Error al obtener todos los pedidos por matrícula:", error);
-            throw new Error("Error al obtener todos los pedidos por matrícula");
-        }
+    const query = `
+    SELECT p.id_pedido,
+        p.identificador_pago,
+        p.identificador_pedido,
+        p.sku,
+        p.producto_servicio_motivo_pago AS nombre_producto,
+        p.concepto_pago AS concepto,
+        p.id_cat_estatus,
+        ce.descripcion AS estatus,
+        p.pago,
+        p.fecha_vigencia_pago,
+        p.link_de_pago,
+        p.concepto_pago AS concepto_pedido,
+        p.transaccion_Id,
+        a.matricula,
+        a.open_pay_id,
+        a.nombre AS nombre_alumno,
+        a.apellido_paterno,
+        a.apellido_materno,
+        a.email,
+        a.celular
+    FROM pedidos p
+    JOIN alumno a ON p.id_alumno = a.id_alumno        
+    JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
+    WHERE p.id_cat_estatus != 1
+    AND identificador_pago IS NOT NULL 
+    AND identificador_pago != '';
+    `;
    
+    try {
+        const [result] = await pool.query(query);
+         
+        if (!result || result.length === 0) {
+            console.log("No se encontraron pedidos con matrícula.");
+            return [];
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Error al obtener todos los pedidos por matrícula:", error);
+        throw new Error("Error al obtener todos los pedidos por matrícula");
+    }
 }
 
 async function getMyMatricula(matricula) {
