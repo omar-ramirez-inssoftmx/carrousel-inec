@@ -11,8 +11,7 @@ async function getPedidosByMatricula(matricula) {
         const query = `
         SELECT p.id_pedido,
             p.identificador_pago,
-            p.identificador_pedido,
-            p.sku,
+            p.identificador_pedido,         
             p.producto_servicio_motivo_pago AS nombre_producto,
             p.concepto_pago AS concepto,
             p.id_cat_estatus,
@@ -51,8 +50,7 @@ async function getPedidosAllMatricula() {
     const query = `
     SELECT p.id_pedido,
         p.identificador_pago,
-        p.identificador_pedido,
-        p.sku,
+        p.identificador_pedido,        
         p.producto_servicio_motivo_pago AS nombre_producto,
         p.concepto_pago AS concepto,
         p.id_cat_estatus,
@@ -72,9 +70,8 @@ async function getPedidosAllMatricula() {
     FROM pedidos p
     JOIN alumno a ON p.id_alumno = a.id_alumno        
     JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
-    WHERE p.id_cat_estatus != 1
-    AND identificador_pago IS NOT NULL 
-    AND identificador_pago != '';
+    WHERE p.id_cat_estatus = 3
+    ;
     `;
    
     try {

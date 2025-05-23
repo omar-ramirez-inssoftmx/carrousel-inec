@@ -7,7 +7,7 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const errorHandler = require('./middlewares/errorHandler');
 const cors = require('cors'); // Importa el paquete cors
 const authMiddleware = require('./middlewares/authMiddleware');
-const { obtenerExpresionCron } = require('./models/cronModel');
+const { obtenerExpresionCronUpdateStatus, obtenerExpresionCronRecargos } = require('./models/cronModel');
 
 //const pool = require('./config/db');
 const cron = require("node-cron");
@@ -45,21 +45,35 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 //cada 5 min
-const {procesoProgramado} = require('./utils/CronOpenPay');
+const {procesoProgramadoUpdateStatus} = require('./utils/CronOpenPay');
 
 // Función para iniciar el CRON dinámicamente
-const iniciarCronJob = async () => {
-  const expresionCron = await obtenerExpresionCron(); // Obtener la expresión desde la BD  
-  cron.schedule(expresionCron, () => {
-    console.log(` Tarea programada ejecutándose con expresión: ${expresionCron}`);
-    procesoProgramado();
+const iniciarCronJobUpdateStatus = async () => {
+  const expresionCronUpdateStatus = await obtenerExpresionCronUpdateStatus(); // Obtener la expresión desde la BD  
+  cron.schedule(expresionCronUpdateStatus, () => {
+    console.log(` Tarea programada ejecutándose con expresión: ${expresionCronUpdateStatus}`);
+    procesoProgramadoUpdateStatus();
   });
 
-  console.log(`CRON job iniciado con la expresión: ${expresionCron}`);
+  console.log(`CRON job iniciado con la expresión: ${expresionCronUpdateStatus}`);
+};
+
+const {procesoProgramadoRecargo} = require('./utils/CronRecargo');
+
+// Función para iniciar el CRON dinámicamente
+const iniciarCronJobRecardo = async () => {
+  const expresionCronRecargo= await obtenerExpresionCronRecargos(); // Obtener la expresión desde la BD  
+  cron.schedule(expresionCronRecargo, () => {
+    console.log(` Tarea programada ejecutándose con expresión: ${expresionCronRecargo}`);
+    procesoProgramadoRecargo();
+  });
+
+  console.log(`CRON job iniciado Recargo con la expresión: ${expresionCronRecargo}`);
 };
 
 // Iniciar el cron job
-iniciarCronJob();
+iniciarCronJobUpdateStatus();
+iniciarCronJobRecardo();
 
 // Rutas públicas
 const authRoutes = require('./routes/authRoutes');

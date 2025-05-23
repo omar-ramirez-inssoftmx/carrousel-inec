@@ -6,7 +6,7 @@ const Openpay = require('openpay');
 const { getCustomerChargesStatus } = require('.././controllers/chargesList');
 const { updateStatus } = require('../models/customerModel');
 
-async function procesoProgramado() {
+async function procesoProgramadoUpdateStatus() {
     try {
  
         const pedidos = await getPedidosAllMatricula();
@@ -19,8 +19,7 @@ async function procesoProgramado() {
             // Procesar los pedidos para obtener el estado de cada uno y actualizarlo en la base de datos
             const pedidosConEstado = await Promise.all(
                 pedidos.map(async (pedido) => {
-                    
-                    
+                                        
                     const openpayStatus = await getCustomerChargesStatus(pedido.open_pay_id, pedido.identificador_pago);
                     
                     let estatus = null;
@@ -40,10 +39,8 @@ async function procesoProgramado() {
                       }
                     }
                     
-
                     const estado = mapOpenpayStatusToDBStatus(estatus);
-                    
-                                    
+                                                        
                     console.log("estado ", estado)
                     console.log("openpayStatus ", openpayStatus)
 
@@ -65,7 +62,7 @@ async function procesoProgramado() {
        
 
     } catch (error) {
-        console.error("Error proceso programado: ", error);
+        console.error("Error proceso procesoProgramadoUpdateStatus: ", error);
     }
 
 }
@@ -91,4 +88,4 @@ function mapOpenpayStatusToDBStatus(openpayStatus) {
     }
   }
   
-module.exports = { procesoProgramado };
+module.exports = { procesoProgramadoUpdateStatus };

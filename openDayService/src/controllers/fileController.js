@@ -128,7 +128,7 @@ const uploadFile = async (req, res) => {
                         mes,
                         anioActual,
                         parseFloat(row[6]) || 0,
-                        excelSerialToDate(row[7]),
+                        excelSerialToDate(row[7], mes, anioActual),
                         null,
                         row[10],
                         null,
@@ -137,29 +137,7 @@ const uploadFile = async (req, res) => {
                         0.00
                     );
                 }
-          
-
-                /*await createPedido(
-                    resultAlumno, 
-                    null, // identificador_pago
-                    null, // identificador_pedido
-                    resultProducto, 
-                    3, // id_cat_estatus (asumiendo que 3 es "Por pagar" o similar)
-                    row[8],
-                    row[9],
-                    row[10],
-                    parseInt(row[11]) || 0,
-                    parseInt(row[12]) || 1,
-                    parseInt(row[13]) || new Date().getFullYear(),
-                    parseFloat(row[6]) || 0,
-                    excelSerialToDate(row[7]),
-                    null, // link_de_pago (se generará después)
-                    row[10],
-                    null, // transaccion_Id
-                    new Date().toISOString().split('T')[0], // fecha_carga (hoy)
-                    null, // fecha_pago
-                    0.00 // monto_real_pago
-                );*/
+                        
                 
             } catch (error) {
                 console.error(`Error al insertar el alumno con matrícula ${row[0]}:`, error.message);
@@ -175,7 +153,7 @@ const uploadFile = async (req, res) => {
         res.status(500).json({ error: 'Error al procesar el archivo', details: error.message });
     }
 };
-function excelSerialToDate(excelSerialDate) {
+function excelSerialToDate(excelSerialDate, mes, anio) {
     console.log("excelSerialDate ", excelSerialDate)
     if (typeof excelSerialDate === 'undefined' || !excelSerialDate || isNaN(parseFloat(excelSerialDate))) {
         return null; // Devolver una fecha por defecto si el valor es vacío, no válido o undefined
@@ -189,7 +167,7 @@ function excelSerialToDate(excelSerialDate) {
     const month = adjustedDate.getMonth() + 1;
     const day = adjustedDate.getDate();
 
-    return `${year}-${month}-${day}`;
+    return `${anio}-${mes}-${day}`;
 }
 
 
