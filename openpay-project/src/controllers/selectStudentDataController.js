@@ -20,10 +20,8 @@ const selectStudentData = async (req, res) => {
 
         // Procesar los pedidos para garantizar que las fechas sean correctas
         const pedidosProcesados = pedidos.map((pedido) => ({
-            ...pedido,
-            fecha_vigenica_descuento: pedido.fecha_vigenica_descuento || null,
-            fecha_vigencia_pago: pedido.fecha_vigencia_pago || null,
-            fecha_vigencia_recargo: pedido.fecha_vigencia_recargo || null,
+            ...pedido,            
+            fecha_vigencia_pago: pedido.fecha_vigencia_pago || null,        
         }));
 
         res.json(pedidosProcesados);

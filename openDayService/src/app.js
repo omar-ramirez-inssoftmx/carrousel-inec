@@ -104,6 +104,9 @@ app.use('/api/cancel', cancelRoutes);
 const cardRoutes = require('./routes/cardRoutes');
 app.use('/api/payment/method', cardRoutes);
 
+const avisoTerminosRoutes = require('./routes/avisoTerminosRoutes');
+app.use('/api/avisoTerminos', avisoTerminosRoutes);
+
 // Error handler
 app.use(errorHandler);
 

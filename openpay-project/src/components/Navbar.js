@@ -34,7 +34,7 @@ const Navbar = ({ students, logo }) => {
     }
   };
 
-  const handleActivityClick = async (month = 'Todos') => {
+  const handleActivityClick = async () => {
     if (!students[0]?.matricula) {
       alert("Matrícula no disponible");
       return;
@@ -50,8 +50,8 @@ const Navbar = ({ students, logo }) => {
       
         navigate("/dashboard/Activity", { state: { student: students, orders} });
     } catch (error) {
-        console.error("Error al obtener tarjetas:", error);
-        alert("No se pudieron cargar las tarjetas.");
+        console.error("Error al obtener actividad:", error);
+        alert("No se posible cargar la actividad.");
     }
    
   };

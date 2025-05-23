@@ -102,23 +102,7 @@ function calcularTotal(pedidos) {
 const getPagoActual = (pedido) => {
   const fechaActual = new Date();
 
-  // Verifica si la fecha de descuento existe y si aplica
-  if (pedido.fecha_vigenica_descuento && fechaActual <= new Date(pedido.fecha_vigenica_descuento)) {
-    return pedido.pago_descuento || "0";
-  }
-
-  // Verifica si la fecha de recargo existe y si aplica
-  if (pedido.fecha_vigencia_recargo && fechaActual >= new Date(pedido.fecha_vigencia_pago)) {
-    return pedido.pago_recargo || "0";
-  }
-
-  // Verifica si la fecha de pago existe y si aplica
-  if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
-    return pedido.pago || "0";
-  }
-
-  // Si no hay fechas o no aplica ninguna, se considera "normal"
-  return "0";
+  return pedido.pago || "0";
 };
 
 module.exports = { sendMailOtp };

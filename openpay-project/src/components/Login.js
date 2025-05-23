@@ -66,6 +66,18 @@ const Login = () => {
                                 <h5 className="m-0"><b className="secontFont text-light">{mutation.isLoading ? "Ingresando..." : "Buscar"}</b></h5>
                             </button>
                         </div>
+                        {/* Enlaces agregados aquí */}
+                        <div className="d-flex flex-wrap justify-content-center gap-3 mt-3">
+                            <a href="/terminos-condiciones" className="text-decoration-none text-secondary small">
+                                Términos y condiciones
+                            </a>
+                            <a href="/aviso-privacidad" className="text-decoration-none text-secondary small">
+                                Aviso de privacidad
+                            </a>
+                            <a href="/contacto" className="text-decoration-none text-secondary small">
+                                Contacto
+                            </a>
+                        </div>
                         
                     </section>
                 </div>

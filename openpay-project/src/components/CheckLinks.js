@@ -96,19 +96,11 @@ const CheckLinks = () => {
     const getPagoActual = (pedido) => {
         const fechaActual = new Date();
 
-        if (pedido.fecha_vigenica_descuento && fechaActual <= new Date(pedido.fecha_vigenica_descuento)) {
-            return pedido.pago_descuento || "0";
-        }
+        
+        return pedido.pago || "0";
+        
 
-        if (pedido.fecha_vigencia_recargo && fechaActual >= new Date(pedido.fecha_vigencia_pago)) {
-            return pedido.pago_recargo || "0";
-        }
-
-        if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
-            return pedido.pago || "0";
-        }
-
-        return "0";
+        
     };
 
     const getTotalPagos = (pedidos) => {

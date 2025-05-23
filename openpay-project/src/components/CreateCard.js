@@ -5,6 +5,7 @@ import { createCard } from "../api";
 import logo from "../styles/image/logo.png";
 import fondo from "../styles/image/fondo.svg";
 import Navbar from "../components/Navbar";
+import { fetchStudentCards, fetchStudentActivity } from '../utils/GeneralMethods';
 
 const CreateCard = () => {
     const location = useLocation();
@@ -80,9 +81,31 @@ const CreateCard = () => {
                 ciudad,
                 postal
             ),
-        onSuccess: (data) => {
-            if (data) {
-                alert('Tarjeta registrada correctamente.');                
+        onSuccess: async (data) => {
+            if (data) {               
+                
+                if (!students[0]?.matricula) {
+                    alert("Matrícula no disponible");
+                    return;
+                }
+    
+                try {
+                    const tarjetas = await fetchStudentCards(
+                        students[0].open_pay_id, 
+                        students[0].matricula
+                    );
+                    
+                    navigate("/dashboard/ListCard", { 
+                        state: { 
+                            student: students, 
+                            tarjetas 
+                        } 
+                    });
+                } catch (error) {
+                    console.error("Error al obtener tarjetas:", error);
+                    alert("No se pudieron cargar las tarjetas.");
+                }
+                               
             } else {
                 alert('Error al guardar la tarjeta.');
             }
