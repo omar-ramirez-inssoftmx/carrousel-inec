@@ -175,7 +175,7 @@ const uploadFile = async (req, res) => {
         res.status(500).json({ error: 'Error al procesar el archivo', details: error.message });
     }
 };
-function excelSerialToDate(excelSerialDate) {
+function excelSerialToDate(excelSerialDate, mes, anio) {
     console.log("excelSerialDate ", excelSerialDate)
     if (typeof excelSerialDate === 'undefined' || !excelSerialDate || isNaN(parseFloat(excelSerialDate))) {
         return null; // Devolver una fecha por defecto si el valor es vacío, no válido o undefined
@@ -189,7 +189,7 @@ function excelSerialToDate(excelSerialDate) {
     const month = adjustedDate.getMonth() + 1;
     const day = adjustedDate.getDate();
 
-    return `${year}-${month}-${day}`;
+    return `${anio}-${mes}-${day}`;
 }
 
 
@@ -265,7 +265,3 @@ const findOrCreateOrder = async(OrderData)=>{
 
 module.exports = { uploadFile };
 
-
-
-
-    

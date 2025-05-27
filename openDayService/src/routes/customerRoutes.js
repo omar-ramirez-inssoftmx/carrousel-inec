@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createCustomer, listCustomer, editCustomer } = require('../controllers/customerController');
+const { createCustomer, listCustomer, editCustomer, createCard } = require('../controllers/customerController');
 
 // Ruta para crear un cliente
 router.post('/create', createCustomer);

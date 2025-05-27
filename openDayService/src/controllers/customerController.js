@@ -1,7 +1,8 @@
 const Openpay = require('openpay');
 const axios = require('axios');
 // Configuración de Openpay
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
+const isProduction = process.env.OPENPAY_PRIVATE_TYPE === 'true'; // Solo será `true` si la variable es "true"
+const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, isProduction);
 
 // Función para crear un cliente
 
@@ -174,6 +175,8 @@ const listCustomer = async (req, res) => {
       res.json(customers);
   });
 }
+
+
 
 module.exports = {
   createCustomer,

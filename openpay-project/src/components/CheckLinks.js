@@ -5,6 +5,7 @@ import { cancelOrder } from "../api";
 import logo from "../styles/image/logo.png";
 import fondo from "../styles/image/fondo.svg";
 import { Modal, Button } from 'react-bootstrap';
+import Navbar from "../components/Navbar";
 
 const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
     const location = useLocation();
@@ -95,19 +96,11 @@ const CheckLinks = () => {
     const getPagoActual = (pedido) => {
         const fechaActual = new Date();
 
-        if (pedido.fecha_vigenica_descuento && fechaActual <= new Date(pedido.fecha_vigenica_descuento)) {
-            return pedido.pago_descuento || "0";
-        }
+        
+        return pedido.pago || "0";
+        
 
-        if (pedido.fecha_vigencia_recargo && fechaActual >= new Date(pedido.fecha_vigencia_pago)) {
-            return pedido.pago_recargo || "0";
-        }
-
-        if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
-            return pedido.pago || "0";
-        }
-
-        return "0";
+        
     };
 
     const getTotalPagos = (pedidos) => {
@@ -119,30 +112,9 @@ const CheckLinks = () => {
     return (
         <main className="container-fluid p-0">
             <section className="d-flex flex-column justify-content-center align-items-center">
-                <div style={{ height: '90px' }} class="border-bottom px-md-3 px-lg-5 container-fluid bg-white fixed-top d-flex justify-content-center align-items-center">
-                    <nav class="row w-100 justify-content-between">
-                        <div class="col-auto d-flex align-items-center">
-                            <img style={{ maxWidth: '120px', width: '25vw' }} src={logo} />
-                        </div>
-                        <div class="col-auto">
-                            <div class="dropdown">
-                                <button class="border-0 btn dropdown-toggle d-flex align-items-center p-0 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="flex flex-column me-2">
-                                        <h5 className="m-0">
-                                            {`${students[0]?.nombre || 'Nombre no disponible'} ${students[0]?.apellido_paterno || ''} ${students[0]?.apellido_materno || ''}`}
-                                        </h5>
-                                        <p className="m-0 text-secondary">
-                                            Matricula - {students[0]?.matricula || 'N/A'}
-                                        </p>
-                                    </div>
-                                </button>
-                                <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/">Salir</a></li>                                
-                                </ul>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
+                {/* Navbar */}
+                <Navbar students={students} logo={logo} />
+
 
                 <div className="container-fluid backgroundMain minHeight100vh pt-5">
                     <section className="d-flex justify-content-center align-items-center mt-5">

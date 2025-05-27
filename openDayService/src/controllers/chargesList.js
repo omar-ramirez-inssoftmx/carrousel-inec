@@ -1,9 +1,10 @@
 const Openpay = require('openpay');
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
+const isProduction = process.env.OPENPAY_PRIVATE_TYPE === 'true'; // Solo será `true` si la variable es "true"
+const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, isProduction);
 // Función para obtener el estado de un pedido a partir de los cargos de un cliente
 const getCustomerChargesStatus = (customer_id, order_id) => {
 
-    console.log("customer_id ", order_id)
+    
   return new Promise((resolve, reject) => {
     const searchParams = {
       order_id,
@@ -22,19 +23,9 @@ const getCustomerChargesStatus = (customer_id, order_id) => {
           return resolve(null); // No se encontró el cargo
         }
         
-        if (charge.status === "charge_pending") {
-          const dueDate = new Date(charge.due_date);
-          const now = new Date();
-  
-          if (dueDate < now) {
-            console.log(`Cargo ${charge.id} vencido, marcando como CANCELLED`);
-            return resolve("CANCELLED");
-          }else{
-            resolve(charge.status);
-          }
-        }else {
-          resolve(charge.status); // Retornar el estado del cargo
-        }
+
+        resolve(charge);
+       
         
       }
     });

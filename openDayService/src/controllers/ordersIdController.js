@@ -3,7 +3,10 @@ const axios = require('axios');
 const { getMyOpenPay } = require('../models/selectStudentSataModel');
 const { updatePedidos } = require('../models/customerModel');
 const { sendMailOtp } = require('../utils/sendEmail');
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
+const { createCardForStudent } = require('../models/cardModel');
+
+const isProduction = process.env.OPENPAY_PRIVATE_TYPE === 'true'; // Solo será `true` si la variable es "true"
+const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, isProduction);
 
 // Método para enviar el mensaje de WhatsApp
 const sendWhatsappMessage = (fecha, link, nombre, phoneNumber, matricula) => {
@@ -233,47 +236,67 @@ function getCurrentDate() {
   }
   
  
-  const createCharge = async (customerId, token, amount, description, orderId, deviceSessionId, ids, fechaVigencia, pedidosSeleccionados) => {
-    return new Promise((resolve, reject) => {
+  const createCharge = async (customerId, token, amount, description, orderId, deviceSessionId, ids, fechaVigencia, pedidosSeleccionados, saveCard, tokenGuardar, telefono, ciudad, postal, idAlumno, nombreTarjeta) => {
+    try {
+      // Usaremos el token directamente si no vamos a guardar la tarjeta
+      let cardId = token; 
+      
+      // Si debemos guardar la tarjeta
+      if (saveCard) {
+        const card = await new Promise((resolve, reject) => {
+          openpay.customers.cards.create(customerId, {
+            token_id: token,
+            device_session_id: deviceSessionId,
+          }, (err, card) => {
+            if (err) reject(err);
+            else resolve(card);
+          });
+        });                
+        cardId = card.id; // Usamos el ID de la tarjeta guardada
+        const vencimiento = card.expiration_month + "/" + card.expiration_year;
+        const insertCard = await createCardForStudent(idAlumno, card.card_number, card.id, nombreTarjeta, card.brand, card.holder_name, vencimiento, telefono, ciudad, postal);
+      }
+  
+      // Preparamos la solicitud de cargo
       const chargeRequest = {
-        source_id: token, // Token de la tarjeta generado desde el frontend
+        source_id: cardId, // ID de la tarjeta (nueva o guardada)
         method: 'card',
         amount: amount,
         description: description,
-        order_id: orderId + "-" + new Date().getTime(), // Agregar un timestamp único al orderId
+        order_id: orderId + "-" + new Date().getTime(), // ID único de orden
         currency: 'MXN',
-        device_session_id: deviceSessionId // Debes generarlo desde el frontend
+        device_session_id: deviceSessionId
       };
   
-      // Crear el cargo en OpenPay
-      openpay.customers.charges.create(customerId, chargeRequest, async (error, charge) => {
-        if (error) {
-          reject(error); // Rechazar la promesa si hay un error
-        } else {
-          try {
-            console.log("charge card ", charge)
-            // Datos para actualizar los pedidos
-            const actualizar = {
-              identificador_pago: charge.order_id, // Utilizamos el order_id del cargo como identificador
-              link_de_pago: charge.authorization, // Link de pago generado (si aplica)
-              transaccion_Id: charge.id // ID de la transacción
-            };
-            console.log("charge ids ", ids)
-            console.log("charge actualizar ", actualizar)
-  
-            // Actualizar los pedidos en la base de datos
-            await updatePedidos(ids, actualizar); // Actualizamos los registros
-            console.log("Pedidos actualizados correctamente.");
-  
-            // Resolver la promesa con el cargo y el resultado de la actualización
-            resolve({ charge });
-          } catch (error) {
-            console.error("Error al actualizar los pedidos:", error);
-            reject(error); // Rechazar la promesa si hay un error en la actualización
-          }
-        }
+      // Creamos el cargo en OpenPay
+      const charge = await new Promise((resolve, reject) => {
+        openpay.customers.charges.create(customerId, chargeRequest, (error, charge) => {
+          if (error) reject(error);
+          else resolve(charge);
+        });
       });
-    });
+  
+      console.log("Cargo creado:", charge);
+  
+      // Datos para actualizar los pedidos
+      const actualizar = {
+        identificador_pago: charge.order_id,
+        link_de_pago: charge.authorization,
+        transaccion_Id: charge.id
+      };
+  
+      console.log("IDs de pedidos:", ids);
+      console.log("Datos a actualizar:", actualizar);
+  
+      // Actualizamos los pedidos en la base de datos
+      await updatePedidos(ids, actualizar);
+      console.log("Pedidos actualizados correctamente.");
+  
+      return { charge };
+    } catch (error) {
+      console.error("Error en createCharge:", error);
+      throw error; // Relanzamos el error para manejarlo arriba
+    }
   };
 
 module.exports = {

@@ -1,3 +1,4 @@
+
 const pool = require('../config/conexionAsync');
 
 async function createProduct(producto, precio_base, concepto, vencimiento) {
