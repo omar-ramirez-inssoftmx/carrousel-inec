@@ -2,6 +2,7 @@ const pool = require('../config/conexionAsync');
 
 async function getOrdersStudent(matricula) {
 
+  
     console.log("matricula ===>", matricula)
 
     const query = `
