@@ -134,7 +134,7 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
                     students={students}
                     totalPagos={totalPagos}
                     pedidosSeleccionados={pedidosSeleccionados}
-                    getVigencia={getVigencia}
+                    getVigencia={getVigencia}                    
                     pedidoMasViejoSeleccionado={pedidoMasViejoSeleccionado}
                 />
                 </div>
@@ -327,7 +327,7 @@ const PedidosTable = () => {
         setTotalPagos(total);
     };
 
-    const getVigencia = (pedido, pedidosSeleccionados) => {
+    const getVigencia = (pedido) => {
         if (!pedido) return "Desconocido";
         const fechaActual = new Date();
         

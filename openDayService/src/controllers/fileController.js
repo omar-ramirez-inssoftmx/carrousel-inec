@@ -128,7 +128,7 @@ const uploadFile = async (req, res) => {
                         mes,
                         anioActual,
                         parseFloat(row[6]) || 0,
-                        excelSerialToDate(row[7]),
+                        excelSerialToDate(row[7], mes, anioActual),
                         null,
                         row[10],
                         null,

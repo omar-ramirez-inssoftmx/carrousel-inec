@@ -6,7 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { fetchStudentCardsActive } from '../utils/GeneralMethods';
 
-const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, getTipoPago, pedidoMasViejoSeleccionado, onHide }) => {
+const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, pedidoMasViejoSeleccionado, onHide }) => {
   // Estados
   const [cardData, setCardData] = useState({
     holder_name: "",
@@ -177,7 +177,7 @@ const handlePayment = async () => {
     const description = "Pago de pedidos seleccionados";
     const totalAmount = totalPagos;
     const pedidoIds = pedidosSeleccionados.map((pedido) => pedido.id_pedido);
-    const fechaVigencia = getVigencia(pedidoMasViejoSeleccionado, getTipoPago(pedidoMasViejoSeleccionado), pedidosSeleccionados);
+    const fechaVigencia = getVigencia(pedidoMasViejoSeleccionado);
     const pedidosSeleccionadosData = pedidosSeleccionados;
     const orderId = students[0].matricula;
     const telefono = formData.telefono;
@@ -254,6 +254,14 @@ const handlePayment = async () => {
     
    
   };
+
+  const getNombreMes = (numeroMes) => {
+    const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+    return meses[numeroMes - 1] || "";
+};
 
   // Render condicional de la sección de pago
   const renderPaymentSection = () => {
@@ -487,7 +495,7 @@ const handlePayment = async () => {
             <div className="container-fluid d-flex flex-wrap">
               {pedidosSeleccionados.map((pedido) => (
                 <div key={pedido.id_pedido} className="col-12 d-flex flex-wrap mt-3">
-                  <h6 className="col-8 m-0"><strong>{pedido.concepto_pedido}</strong></h6>
+                  <h6 className="col-8 m-0"><strong>Mensualidad {getNombreMes(pedido.mes)}</strong></h6>
                   <div className="col-4 d-flex align-items-center justify-content-end">
                     <strong className="m-0 me-1">$</strong>
                     <h6 className="m-0"><strong>{getPagoActual(pedido)}</strong></h6>

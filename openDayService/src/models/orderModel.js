@@ -25,8 +25,7 @@ async function getOrdersStudent(matricula) {
         a.email,
         a.celular
     FROM pedidos p
-    JOIN alumno a ON p.id_alumno = a.id_alumno
-    JOIN productos pr ON p.sku = pr.sku
+    JOIN alumno a ON p.id_alumno = a.id_alumno  
     JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
     WHERE a.matricula = ? AND p.id_cat_estatus = 1;
     `;

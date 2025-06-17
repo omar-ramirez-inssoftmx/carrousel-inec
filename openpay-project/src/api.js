@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
-//const API_URL = 'http://10.38.2.135:3000/api';
+//const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://10.38.2.135:3000/api';
 
 //const API_URL = 'http://52.23.252.184:3000/api';
 
