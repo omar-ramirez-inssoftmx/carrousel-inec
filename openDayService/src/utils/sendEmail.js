@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const { getTempleteEmail } = require('../models/customerModel');
+const { formatCurrency } = require('./utils');
 
 async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, email) {
   try {
@@ -15,9 +16,8 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
       month: "long",
       year: "numeric"
     };
-    
-    const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", opciones); // Formatear la fecha
-    
+
+    const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", opciones);
 
     // Genera el HTML de los pedidos
     let pedidosHtml = '';
@@ -35,7 +35,7 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
                       <p style="margin: 5px 0;">Cant. 1</p>
                     </td>
                     <td style="text-align: right;">
-                      <h4 style="font-size: 20px; font-weight: bold; margin: 0;">${formatPesos(monto)}</h4>
+                      <h4 style="font-size: 20px; font-weight: bold; margin: 0;">${formatCurrency(monto)}</h4>
                     </td>
                   </tr>
                 </table>
@@ -45,7 +45,6 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
     }
 
     const total = calcularTotal(pedidos);
-
 
     let transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
@@ -65,44 +64,34 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
       to: email,
       subject: subject,
       html: body
-        .replace('${matricula}', matricula)
+        .replace('${matricula}', matricula) 
         .replace('${creaFecha}', creaFecha)
         .replace('${vigeniaFecha}', vigeniaFechaFormateada)
         .replace('${pedidos}', pedidosHtml)
-        .replace('${total}', formatPesos(total))
+        .replace('${total}', formatCurrency(total))
         .replace('${link}', link)
     };
 
-    let info = await transporter.sendMail(mailOptions);
-   
+    await transporter.sendMail(mailOptions);
+
   } catch (error) {
     console.error("Error al enviar el correo: ", error);
   }
 }
 
-function formatPesos(monto) {
-  const formatter = new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2
-  });
-  return formatter.format(monto);
-}
-
 function calcularTotal(pedidos) {
-    let total = 0;
-    for (let i = 0; i < pedidos.length; i++) {
-      const pedido = pedidos[i];
-      const monto = getPagoActual(pedido);
-      total += parseFloat(monto);
-    }
-    return total.toFixed(2);
+  let total = 0;
+  for (let i = 0; i < pedidos.length; i++) {
+    const pedido = pedidos[i];
+    const monto = getPagoActual(pedido);
+    total += parseFloat(monto);
   }
+  return total.toFixed(2);  
+}
 
 const getPagoActual = (pedido) => {
   const fechaActual = new Date();
 
-  
   return pedido.pago || "0";
 };
 
