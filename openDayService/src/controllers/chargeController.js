@@ -3,8 +3,14 @@ const isProduction = process.env.OPENPAY_PRIVATE_TYPE === 'true'; // Solo será 
 const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, isProduction);
 
 exports.createCharge = (req, res, next) => {
-
-  const { token_id, device_session_id, customer, amount, description, currency } = req.body;
+  const {
+    token_id,
+    device_session_id,
+    customer,
+    amount,
+    description,
+    currency
+  } = req.body;
 
   // Crear el cargo
   const chargeRequest = {
