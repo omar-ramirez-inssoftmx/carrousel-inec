@@ -1,4 +1,4 @@
-const Openpay = require('openpay');
+const { openpay } = require('../utils/openPay');
 const {
   createCardForStudent,
   getStudentCardsByMatricula,
@@ -6,10 +6,6 @@ const {
   deleteStudentCard,
   getStudentCardsByMatriculaActive
 } = require('../models/cardModel');
-
-// Configuración de Openpay
-const isProduction = process.env.OPENPAY_PRIVATE_TYPE === 'true'; // Solo será `true` si la variable es "true"
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, isProduction);
 
 const createCard = async (req, res) => {
   const { card_number, holder_name, expiration_year, expiration_month, cvv2, device_session_id, customer_id, id_alumno, nombre_tarjeta, telefono, ciudad, postal } = req.body;

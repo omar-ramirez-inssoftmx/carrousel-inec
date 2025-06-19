@@ -2,8 +2,7 @@ const xlsx = require('xlsx');
 const fs = require('fs');
 const { createAlumno, createPedido } = require('../models/customerModel')
 
-const Openpay = require('openpay');
-const openpay = new Openpay(process.env.OPENPAY_MERCHANT_ID, process.env.OPENPAY_PRIVATE_KEY, false);
+const { openpay } = require('../utils/openPay');
 
 const columnMapping = {
   "Matrícula *": "matricula",
