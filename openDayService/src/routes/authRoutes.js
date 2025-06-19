@@ -7,7 +7,6 @@ const router = express.Router();
 // Simulación de base de datos
 const users = [];
 
-// Ruta de registro
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
@@ -21,7 +20,6 @@ router.post('/register', async (req, res) => {
   res.status(201).json({ message: 'User registered successfully.' });
 });
 
-// Ruta de login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
