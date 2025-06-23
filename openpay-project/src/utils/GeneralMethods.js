@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { listMatriculaStudentCard, listMatriculaStudentCardActive, listMatriculaStudentOrders  } from '../api';
 
 //Tarjetas del alumno
