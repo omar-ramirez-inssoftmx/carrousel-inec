@@ -85,8 +85,6 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
 };
 
 const CheckLinks = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
   const { pedidos } = location.state || { pedidos: [] };
   const { todosLosPedidos } = location.state || { todosLosPedidos: [] };
   const students = location.state?.student || [];
@@ -94,12 +92,7 @@ const CheckLinks = () => {
 
   const getPagoActual = (pedido) => {
     const fechaActual = new Date();
-
-
     return pedido.pago || "0";
-
-
-
   };
 
   const getTotalPagos = (pedidos) => {

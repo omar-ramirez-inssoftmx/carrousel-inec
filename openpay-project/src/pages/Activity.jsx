@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import logo from "../styles/image/logo.png";
-import Navbar from "../components/Navbar";
 
 const Activity = () => {
   const location = useLocation();
@@ -82,9 +80,7 @@ const Activity = () => {
                   <h5 className="mt-1 ms-3 ms-md-5 text-secondary m-0 mb-3 me-lg-5">
                     Selecciona un pago para ver su detalle
                   </h5>
-
                 </div>
-
               </section>
 
               {/* Botones de Meses */}
@@ -118,7 +114,6 @@ const Activity = () => {
                         <th>Pago</th>
                         <th>Fecha</th>
                         <th>Monto</th>
-
                       </tr>
                     </thead>
                     <tbody>
