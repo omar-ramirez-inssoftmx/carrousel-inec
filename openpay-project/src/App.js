@@ -1,19 +1,19 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Login from './components/Login';
-import PedidosTable from './components/PedidosTable';
-import InfoStudent from './components/InfoStudent';
-import CheckLinks from './components/CheckLinks';
-import CreateCard from './components/CreateCard'
-import Activity from './components/Activity';
-import ListCard from './components/ListCard';
-import DetailCard from './components/DetailCard';
-import EditCard from './components/EditCard';
-import DetailActivity from './components/DetailActivity';
-import TerminosCondiciones from './components/TerminosCondiciones';
-import AvisoPrivacidad from './components/AvisoPrivacidad';
-import Contacto from './components/Contacto';
+import Login from './pages/Login';
+import PedidosTable from './pages/PedidosTable';
+import InfoStudent from './pages/InfoStudent';
+import CheckLinks from './pages/CheckLinks';
+import CreateCard from './pages/CreateCard'
+import Activity from './pages/Activity';
+import ListCard from './pages/ListCard';
+import DetailCard from './pages/DetailCard';
+import EditCard from './pages/EditCard';
+import DetailActivity from './pages/DetailActivity';
+import TerminosCondiciones from './pages/TerminosCondiciones';
+import AvisoPrivacidad from './pages/AvisoPrivacidad';
+import Contacto from './pages/Contacto';
 
 const queryClient = new QueryClient();
 
