@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import PlatformLayout from "../layouts/PlatfomLayout";
 
 const Activity = () => {
   const location = useLocation();
@@ -65,84 +66,73 @@ const Activity = () => {
   );
 
   return (
-    <main className="container-fluid p-0">
-      <section className="d-flex flex-column justify-content-center align-items-center">
-        {/* Navbar */}
-        <Navbar students={student} logo={logo} />
-
-        <div className="container-fluid backgroundMain minHeight100vh pt-5">
-          <section className="d-flex justify-content-center align-items-center mt-5">
-            <div className="d-flex flex-column justify-content-center align-items-center bg-white rounded py-4 px-3 mt-4">
-              {/* Header */}
-              <section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
-                <div className="d-flex flex-wrap align-items-center col-auto">
-                  <h3 className="m-0 mb-3"><strong>Pagos</strong></h3>
-                  <h5 className="mt-1 ms-3 ms-md-5 text-secondary m-0 mb-3 me-lg-5">
-                    Selecciona un pago para ver su detalle
-                  </h5>
-                </div>
-              </section>
-
-              {/* Botones de Meses */}
-              <section
-                key={student.id_alumno}
-                className="d-flex flex-column w-100 gap32 pt-4 pb-2 px-3 border-bottom"
-              >
-                <div className="mb-4">
-                  <div className="d-flex flex-wrap gap-2">
-                    {mesesDisponibles.map((mes, idx) => (
-                      <button
-                        key={idx}
-                        className={`btn btn-sm ${mes.month_value === mesSeleccionado
-                            ? "btn-primary"
-                            : "btn-outline-secondary"
-                          }`}
-                        onClick={() => setMesSeleccionado(mes.month_value)}
-                      >
-                        <b>{mes.month_display}</b>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tabla de Pagos */}
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>No.</th>
-                        <th>Pago</th>
-                        <th>Fecha</th>
-                        <th>Monto</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pagosFiltrados.length === 0 ? (
-                        <tr>
-                          <td colSpan="5" className="text-center text-secondary">
-                            No hay pagos para este mes.
-                          </td>
-                        </tr>
-                      ) : (
-                        pagosFiltrados.map((pago, index) => (
-                          <tr key={index} onClick={() => detailComponent(pago.pedidosDetail)}>
-                            <td>{pago.numero ?? "—"}</td>
-                            <td>{pago.pago}</td>
-                            <td>{pago.fecha}</td>
-                            <td>{pago.monto}</td>
-
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </div>
-          </section>
+    <PlatformLayout>
+      {/* Header */}
+      <section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
+        <div className="d-flex flex-wrap align-items-center col-auto">
+          <h3 className="m-0 mb-3"><strong>Pagos</strong></h3>
+          <h5 className="mt-1 ms-3 ms-md-5 text-secondary m-0 mb-3 me-lg-5">
+            Selecciona un pago para ver su detalle
+          </h5>
         </div>
       </section>
-    </main>
+
+      {/* Botones de Meses */}
+      <section
+        key={student.id_alumno}
+        className="d-flex flex-column w-100 gap32 pt-4 pb-2 px-3 border-bottom"
+      >
+        <div className="mb-4">
+          <div className="d-flex flex-wrap gap-2">
+            {mesesDisponibles.map((mes, idx) => (
+              <button
+                key={idx}
+                className={`btn btn-sm ${mes.month_value === mesSeleccionado
+                  ? "btn-primary"
+                  : "btn-outline-secondary"
+                  }`}
+                onClick={() => setMesSeleccionado(mes.month_value)}
+              >
+                <b>{mes.month_display}</b>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tabla de Pagos */}
+        <div className="table-responsive">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Pago</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pagosFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center text-secondary">
+                    No hay pagos para este mes.
+                  </td>
+                </tr>
+              ) : (
+                pagosFiltrados.map((pago, index) => (
+                  <tr key={index} onClick={() => detailComponent(pago.pedidosDetail)}>
+                    <td>{pago.numero ?? "—"}</td>
+                    <td>{pago.pago}</td>
+                    <td>{pago.fecha}</td>
+                    <td>{pago.monto}</td>
+
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </PlatformLayout>
   );
 };
 

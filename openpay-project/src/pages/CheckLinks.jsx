@@ -85,6 +85,7 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
 };
 
 const CheckLinks = () => {
+  const location = useLocation();
   const { pedidos } = location.state || { pedidos: [] };
   const { todosLosPedidos } = location.state || { todosLosPedidos: [] };
   const students = location.state?.student || [];

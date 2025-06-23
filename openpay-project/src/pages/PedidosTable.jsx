@@ -107,11 +107,6 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
 		pedidos.filter((pedido) => seleccionados[pedido.id_pedido])
 	)[0];
 
-	// Obtener la fecha de vigencia del pedido más viejo seleccionado
-	const fechaVigenciaMasViejo = pedidoMasViejoSeleccionado
-		? getVigencia(pedidoMasViejoSeleccionado, pedidosSeleccionados)
-		: null;
-
 	return (
 		<Modal show={show} onHide={onHide} centered size="xl">
 			<Modal.Body className="px-0">
@@ -179,10 +174,6 @@ const PedidosTable = () => {
 
 	const proceedPayment = () => {
 		setShowPaymentForm(true)
-	};
-
-	const closePage = () => {
-		navigate('/'); // Redirecciona a la página de login
 	};
 
 	// Función para obtener la colegiatura más antigua
