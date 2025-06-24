@@ -552,7 +552,7 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
                 <div className="mb-3 p-3 bg-light rounded">
                   <h6 className="text-center mb-3"><strong>Resumen de Transacción</strong></h6>
                   <p><strong>ID Transacción:</strong> {paymentResponse.charge.charge.id}</p>
-                  <p><strong>Monto:</strong> ${(paymentResponse.charge.charge.amount / 100).toFixed(2)} MXN</p>
+                  <p><strong>Monto:</strong> ${(paymentResponse.charge.charge.amount).toFixed(2)} MXN</p>
                   <p><strong>Referencia:</strong> {paymentResponse.charge.charge.order_id}</p>
                   <p><strong>Autorización:</strong> {paymentResponse.charge.charge.authorization}</p>
                   <p><strong>Estado:</strong>
