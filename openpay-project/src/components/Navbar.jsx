@@ -1,28 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import { fetchStudentCards, fetchStudentActivity } from '../utils/GeneralMethods';
+import useStudentStore from '../store/studentStore';
 
-const Navbar = ({ students, logo }) => {
+const Navbar = ({ logo }) => {
   const navigate = useNavigate();
+  const { getCurrentStudent } = useStudentStore();
+  const currentStudent = getCurrentStudent();
 
   const handlePagosClick = () => {
-    navigate("/info/student", { state: { student: students } });
+    navigate("/info/student");
   };
 
   const handleCardClick = async () => {
-    if (!students[0]?.matricula) {
+    const currentStudent = getCurrentStudent();
+    if (!currentStudent?.matricula) {
       alert("Matrícula no disponible");
       return;
     }
 
     try {
       const tarjetas = await fetchStudentCards(
-        students[0].open_pay_id,
-        students[0].matricula
+        currentStudent.open_pay_id,
+        currentStudent.matricula
       );
 
       navigate("/dashboard/ListCard", {
         state: {
-          student: students,
           tarjetas
         }
       });
@@ -33,17 +36,18 @@ const Navbar = ({ students, logo }) => {
   };
 
   const handleActivityClick = async () => {
-    if (!students[0]?.matricula) {
+    const currentStudent = getCurrentStudent();
+    if (!currentStudent?.matricula) {
       alert("Matrícula no disponible");
       return;
     }
 
     try {
       const orders = await fetchStudentActivity(
-        students[0].matricula
+        currentStudent.matricula
       );
 
-      navigate("/dashboard/Activity", { state: { student: students, orders } });
+      navigate("/dashboard/Activity", { state: { orders } });
     } catch (error) {
       console.error("Error al obtener actividad:", error);
       alert("No se posible cargar la actividad.");
@@ -100,10 +104,10 @@ const Navbar = ({ students, logo }) => {
         >
           <div className="d-flex flex-column me-2">
             <h5 className="m-0">
-              {`${students[0]?.nombre || "Nombre no disponible"} ${students[0]?.apellido_paterno || ""} ${students[0]?.apellido_materno || ""}`}
+              {`${currentStudent?.nombre || "Nombre no disponible"} ${currentStudent?.apellido_paterno || ""} ${currentStudent?.apellido_materno || ""}`}
             </h5>
             <p className="m-0 text-secondary">
-              Matricula - {students[0]?.matricula || "N/A"}
+              Matricula - {currentStudent?.matricula || "N/A"}
             </p>
           </div>
         </button>

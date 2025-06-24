@@ -6,17 +6,16 @@ import logo from "../styles/image/logo.png";
 import { Modal, Button } from 'react-bootstrap';
 import Navbar from "../components/Navbar";
 import { getPagoActual } from '../utils/openPayConfig';
+import useStudentStore from '../store/studentStore';
 
 const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const students = location.state?.student || [];
 
   const mutation = useMutation({
     mutationFn: ({ pedidosConLinks, pedidosComp }) => cancelOrder(pedidosConLinks, pedidosComp),
     onSuccess: (data) => {
       if (data && data.length > 0) {
-        navigate('/dashboard/pedidos', { state: { pedidos: data, student: students } });
+        navigate('/dashboard/pedidos', { state: { pedidos: data } });
       } else {
         alert("No se encontraron pedidos para esta matrícula.");
       }
@@ -89,7 +88,7 @@ const CheckLinks = () => {
   const location = useLocation();
   const { pedidos } = location.state || { pedidos: [] };
   const { todosLosPedidos } = location.state || { todosLosPedidos: [] };
-  const students = location.state?.student || [];
+  const { students } = useStudentStore();
   const [modalShow, setModalShow] = useState(false);
 
   // Función getPagoActual ya importada de utils

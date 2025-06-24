@@ -9,8 +9,10 @@ import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
 import PaymentForm from '../components/PaymentForm';
 import Navbar from "../components/Navbar";
+import useStudentStore from '../store/studentStore';
 
-const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate, students }) => {
+const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
+	const { getCurrentStudent } = useStudentStore();
 
 	return (
 		<Modal show={show} onHide={onHide} centered size="lg">
@@ -63,11 +65,11 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate, stude
 						<div className="d-flex flex-column mt-4 mb-3 px-5 gap32">
 							<div className="d-flex flex-column">
 								<p className="m-0 text-secondary">Correo electrónico</p>
-								<h5><strong>{students[0].email}</strong></h5>
+								<h5><strong>{getCurrentStudent()?.email}</strong></h5>
 							</div>
 							<div className="d-flex flex-column">
 								<p className="m-0 text-secondary">Teléfono celular</p>
-								<h5><strong>{students[0].celular}</strong></h5>
+								<h5><strong>{getCurrentStudent()?.celular}</strong></h5>
 							</div>
 						</div>
 
@@ -88,7 +90,7 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate, stude
 	);
 };
 
-const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia, students }) => {
+const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia }) => {
 
 	// Filtrar los pedidos seleccionados
 	const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
@@ -120,7 +122,6 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
 					{/* Contenido del modal */}
 					<div className="mt-4 mb-3 px-5">
 						<PaymentForm
-							students={students}
 							totalPagos={totalPagos}
 							pedidosSeleccionados={pedidosSeleccionados}
 							getVigencia={getVigencia}
@@ -136,13 +137,13 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
 
 const PedidosTable = () => {
 	const [modalShow, setModalShow] = useState(false);
-	const [paymentUrl, setPaymentUrl] = useState('');
+	// const [paymentUrl, setPaymentUrl] = useState(''); // Para futuro uso
 	const [modalDate, setModalDate] = useState('');
 	const [currentDate, setCurrentDate] = useState('');
 	const [dayDate, setDayDate] = useState('');
 	const location = useLocation();
 	const { pedidos } = location.state || { pedidos: [] };
-	const students = location.state?.student || [];
+	const { getCurrentStudent } = useStudentStore();
 	// Inicializa el estado 'seleccionados' como un objeto vacío
 	const [seleccionados, setSeleccionados] = useState({});
 
@@ -199,10 +200,13 @@ const PedidosTable = () => {
 	}, [colegiaturaMasAntigua]); // calcularTotal es estable ya que usa setTotalPagos
 
 	const mutation = useMutation({
-		mutationFn: ({ ids, fechaVigencia, pedidosSeleccionados }) => createOrder(students[0].open_pay_id, description, totalPagos.toFixed(2), ids, fechaVigencia, pedidosSeleccionados),
+		mutationFn: ({ ids, fechaVigencia, pedidosSeleccionados }) => {
+			const currentStudent = getCurrentStudent();
+			return createOrder(currentStudent.open_pay_id, description, totalPagos.toFixed(2), ids, fechaVigencia, pedidosSeleccionados);
+		},
 		onSuccess: (data) => {
 			if (data.payment_url) {
-				setPaymentUrl(data.payment_url)
+				// setPaymentUrl(data.payment_url) // Para futuro uso
 				setModalShow(true);
 			} else {
 				alert('Error al generar el pago.');
@@ -348,7 +352,7 @@ const PedidosTable = () => {
 	return (
 		<main className="container-fluid p-0">
 			<section className="d-flex flex-column justify-content-center align-items-center">
-				<Navbar students={students} logo={logo} />
+				<Navbar logo={logo} />
 				<div className="w-100 d-flex flex-wrap justify-content-center">
 					<section className="container-fluid col-12 col-lg-7 col-xl-9 bg-white pt-5">
 						<div className="accordion mt-5 mb-3 py-4" id="accordionPagos">
@@ -490,7 +494,6 @@ const PedidosTable = () => {
 				modalDate={modalDate}
 				currentDate={currentDate}
 				dayDate={dayDate}
-				students={students}
 			/>
 			<PayModal
 				show={showPaymentForm}
@@ -500,7 +503,6 @@ const PedidosTable = () => {
 				seleccionados={seleccionados}
 				getPedidosOrdenadosPorAntiguedad={getPedidosOrdenadosPorAntiguedad}
 				getVigencia={getVigencia}
-				students={students}
 			/>
 		</main>
 	);

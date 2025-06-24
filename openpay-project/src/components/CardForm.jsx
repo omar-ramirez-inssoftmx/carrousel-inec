@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { createCard } from "../api";
 import { fetchStudentCards } from '../utils/GeneralMethods';
 import { useOpenPayConfig, validateCardData } from '../utils/openPayConfig';
-
+import useStudentStore from '../store/studentStore';
 import PlatformLayout from "../layouts/PlatfomLayout";
 
-const CardForm = ({ students, isEditMode = false, initialCardData = null }) => {
+const CardForm = ({ isEditMode = false, initialCardData = null }) => {
+  const { getCurrentStudent } = useStudentStore();
   const navigate = useNavigate();
   const deviceSessionId = useOpenPayConfig();
 
@@ -43,21 +44,23 @@ const CardForm = ({ students, isEditMode = false, initialCardData = null }) => {
       data.postal
     ),
     onSuccess: async () => {
-      if (!students[0]?.matricula) {
+      const currentStudent = getCurrentStudent();
+      if (!currentStudent?.matricula) {
         alert("Matrícula no disponible");
         return;
       }
 
       try {
         const tarjetas = await fetchStudentCards(
-          students[0].open_pay_id,
-          students[0].matricula
+          currentStudent.open_pay_id,
+          currentStudent.matricula
         );
 
         navigate("/dashboard/ListCard", {
-          state: { student: students, tarjetas }
+          state: { tarjetas }
         });
       } catch (error) {
+        console.error("Error al obtener tarjetas:", error);
         alert("No se pudieron cargar las tarjetas.");
       }
     },
@@ -90,6 +93,12 @@ const CardForm = ({ students, isEditMode = false, initialCardData = null }) => {
       return;
     }
 
+    const currentStudent = getCurrentStudent();
+    if (!currentStudent) {
+      alert("No hay estudiante seleccionado");
+      return;
+    }
+
     mutation.mutate({
       card_number: cardData.card_number,
       holder_name: cardData.holder_name,
@@ -97,8 +106,8 @@ const CardForm = ({ students, isEditMode = false, initialCardData = null }) => {
       expiration_month: cardData.expiration_month,
       cvv2: cardData.cvv2,
       device_session_id: deviceSessionId,
-      customer_id: students[0].open_pay_id,
-      id_alumno: students[0].id_alumno,
+      customer_id: currentStudent.open_pay_id,
+      id_alumno: currentStudent.id_alumno,
       nombre_tarjeta: cardData.nombre_tarjeta,
       telefono: formData.telefono,
       ciudad: formData.ciudad,

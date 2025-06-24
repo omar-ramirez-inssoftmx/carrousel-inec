@@ -3,10 +3,9 @@ import CardForm from "../components/CardForm";
 
 const EditCard = () => {
 	const location = useLocation();
-	const students = location.state?.student || [];
 	const cardData = location.state?.card || {};
 
-	return <CardForm students={students} isEditMode={true} initialCardData={cardData} />;
+	return <CardForm isEditMode={true} initialCardData={cardData} />;
 };
 
 export default EditCard;

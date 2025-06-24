@@ -6,8 +6,10 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { fetchStudentCardsActive } from '../utils/GeneralMethods';
 import { useOpenPayConfig, getPagoActual } from '../utils/openPayConfig';
+import useStudentStore from '../store/studentStore';
 
-const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, pedidoMasViejoSeleccionado, onHide }) => {
+const PaymentForm = ({ totalPagos, pedidosSeleccionados, getVigencia, pedidoMasViejoSeleccionado, onHide }) => {
+  const { getCurrentStudent } = useStudentStore();
   // Estados
   const [cardData, setCardData] = useState({
     holder_name: "",
@@ -39,10 +41,11 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
       try {
 
         // Obtener tarjetas activas
-        if (students[0]?.open_pay_id && students[0]?.matricula) {
+        const currentStudent = getCurrentStudent();
+        if (currentStudent?.open_pay_id && currentStudent?.matricula) {
           const tarjetas = await fetchStudentCardsActive(
-            students[0].open_pay_id,
-            students[0].matricula
+            currentStudent.open_pay_id,
+            currentStudent.matricula
           );
 
           if (tarjetas.length > 0) {
@@ -64,7 +67,7 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
     if (deviceSessionId) {
       loadData();
     }
-  }, [students, deviceSessionId]);
+  }, [deviceSessionId, getCurrentStudent]);
 
   // Mutación para procesar el pago
   const mutation = useMutation({
@@ -171,17 +174,23 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
       }
 
       // Preparar datos para la mutación
-      const openPayId = students[0].open_pay_id;
+      const currentStudent = getCurrentStudent();
+      if (!currentStudent) {
+        alert("No hay estudiante seleccionado");
+        return;
+      }
+
+      const openPayId = currentStudent.open_pay_id;
       const description = "Pago de pedidos seleccionados";
       const totalAmount = totalPagos;
       const pedidoIds = pedidosSeleccionados.map((pedido) => pedido.id_pedido);
       const fechaVigencia = getVigencia(pedidoMasViejoSeleccionado);
       const pedidosSeleccionadosData = pedidosSeleccionados;
-      const orderId = students[0].matricula;
+      const orderId = currentStudent.matricula;
       const telefono = formData.telefono;
       const ciudad = formData.ciudad;
       const postal = formData.postal;
-      const idAlumno = students[0].id_alumno;
+      const idAlumno = currentStudent.id_alumno;
       const nombreTarjeta = cardData.nombre_tarjeta;
 
       console.log("cardData  ", cardData)

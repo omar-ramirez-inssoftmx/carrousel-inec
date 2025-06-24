@@ -3,12 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { activateCard } from "../api";
 import PlatformLayout from "../layouts/PlatfomLayout";
+import useStudentStore from "../store/studentStore";
 
 const ListCard = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-	const students = location.state?.student || [];
+	const { getCurrentStudent } = useStudentStore();
 	const tarjetas = location.state?.tarjetas || [];
 
 	// Inicializa el estado con isPrimary basado en activa=1
@@ -42,7 +43,8 @@ const ListCard = () => {
 	});
 
 	const handleSetPrimary = (id_tarjeta) => {
-		const id_alumno = students[0]?.id_alumno;
+		const currentStudent = getCurrentStudent();
+		const id_alumno = currentStudent?.id_alumno;
 		if (!id_alumno) {
 			alert("No se encontró el ID del alumno");
 			return;
@@ -71,7 +73,7 @@ const ListCard = () => {
 				<button
 					type="button"
 					className="btn borderMainColor mb-3"
-					onClick={() => navigate("/dashboard/CreateCard", { state: { student: students } })}
+					onClick={() => navigate("/dashboard/CreateCard")}
 				>
 					<h5 className="m-0 colorMain px-3 py-2">Agregar nueva tarjeta</h5>
 				</button>
@@ -87,7 +89,7 @@ const ListCard = () => {
 						<div
 							onClick={(e) => {
 								if (!e.target.closest('input[type="radio"]')) {
-									navigate("/dashboard/DetailCard", { state: { card: card, student: students, tarjetas } });
+									navigate("/dashboard/DetailCard", { state: { card: card, tarjetas } });
 								}
 							}}
 							key={card.id_tarjeta}

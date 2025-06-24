@@ -6,8 +6,8 @@ const Activity = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Obtenemos el estado desde el navigate
-  const { student = [], orders = {} } = location.state || {};
+  // Obtenemos el estado desde el navigate  
+  const { orders = {} } = location.state || {};
   const pedidos = orders.pedidos || [];
   const mesesDisponibles = orders.mesesDisponibles || [];
 
@@ -17,7 +17,6 @@ const Activity = () => {
     console.log("detail detailComponent", detail);
     navigate("/dashboard/DetailActivity", {
       state: {
-        student: student,
         detail: detail, // Enviamos solo el array de detalles
         orderData: { // Enviamos datos generales del pago
           numero: detail[0]?.numero,

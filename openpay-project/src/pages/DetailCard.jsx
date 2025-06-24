@@ -3,27 +3,31 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteCard } from "../api";
 import PlatformLayout from "../layouts/PlatfomLayout";
+import useStudentStore from "../store/studentStore";
 
 const DetailCard = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-	const students = location.state?.student || [];
+	const { getCurrentStudent } = useStudentStore();
 	const tarjetas = location.state?.tarjetas || [];
 	const card = location.state?.card || {};
 
 	// Mutación para eliminar la tarjeta
 	const { mutate: deleteCardMutation, isLoading: isDeleting } = useMutation({
-		mutationFn: () => deleteCard(card.token, students[0]?.open_pay_id, students[0]?.id_alumno),
+		mutationFn: () => {
+			const currentStudent = getCurrentStudent();
+			return deleteCard(card.token, currentStudent?.open_pay_id, currentStudent?.id_alumno);
+		},
 		onSuccess: () => {
+			const currentStudent = getCurrentStudent();
 			// Actualizar la caché de tarjetas después de eliminar
-			queryClient.invalidateQueries(['tarjetas', students[0]?.id_alumno]);
+			queryClient.invalidateQueries(['tarjetas', currentStudent?.id_alumno]);
 
 			// Redirigir a la lista de tarjetas con estado actualizado
 			const updatedCards = tarjetas.filter(t => t.id_tarjeta !== card.id_tarjeta);
 			navigate("/dashboard/ListCard", {
 				state: {
-					student: students,
 					tarjetas: updatedCards
 				}
 			});
@@ -45,7 +49,7 @@ const DetailCard = () => {
 			<section className="d-flex justify-content-between align-items-center flex-wrap px-3 pb-2 border-bottom">
 				<div className="d-flex align-items-center">
 					<button
-						onClick={() => navigate("/dashboard/ListCard", { state: { student: students, tarjetas } })}
+						onClick={() => navigate("/dashboard/ListCard", { state: { tarjetas } })}
 						className="me-4 btn btn-link text-decoration-none d-flex align-items-center"
 					>
 						<svg style={{ height: 24 }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
@@ -60,7 +64,7 @@ const DetailCard = () => {
 				<button
 					type="button"
 					className="btn borderMainColor"
-					onClick={() => navigate("/dashboard/CreateCard", { state: { student: students } })}
+					onClick={() => navigate("/dashboard/CreateCard")}
 				>
 					<h5 className="m-0 colorMain px-3 py-2">Editar tarjeta</h5>
 				</button>
