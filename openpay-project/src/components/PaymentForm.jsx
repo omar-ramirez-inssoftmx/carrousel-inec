@@ -469,14 +469,10 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
   };
 
   return (
-    <div className="w-100 d-flex flex-wrap justify-content-center position-relative">
-      <div className="w-100 d-flex justify-content-end p-3 position-absolute">
-        {/* Espacio para posibles elementos en la esquina superior derecha */}
-      </div>
-
-      <section className="container-fluid col-12 col-lg-8 bg-white pt-5 pb-4">
+    <div className="d-flex flex-wrap justify-content-center position-relative">
+      <section className="flex-fill bg-white pt-5 pb-4">
         <div className="px-1 px-md-3 px-lg-5">
-          <div className="col-12 mb-4">
+          <div className="mb-4">
             <h3 className="m-0"><strong>Método de pago</strong></h3>
             <p className="text-secondary m-0">
               {activeCard ? "Estás usando tu método de pago guardado" : "Completa la información de pago"}
@@ -487,35 +483,31 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
         </div>
       </section>
 
-      <section className="container-fluid col-12 col-lg-4 backgroundMain pt-5 pb-3 minHeight90vhLg d-flex flex-column justify-content-between">
+      <section className="flex-fill backgroundMain pt-5 pb-3 minHeight90vhLg d-flex flex-column justify-content-between" style={{ maxWidth: '400px' }}>
         <div>
           <div className="mt-3 border rounded px-3 py-4 bg-white">
-            <div className="container-fluid d-flex flex-wrap">
+            <div className="d-flex flex-column">
               {pedidosSeleccionados.map((pedido) => (
-                <div key={pedido.id_pedido} className="col-12 d-flex flex-wrap mt-3">
-                  <h6 className="col-8 m-0"><strong>Mensualidad {getNombreMes(pedido.mes)}</strong></h6>
-                  <div className="col-4 d-flex align-items-center justify-content-end">
+                <div key={pedido.id_pedido} className="d-flex justify-content-between mt-3">
+                  <h6 className="m-0"><strong>Mensualidad {getNombreMes(pedido.mes)}</strong></h6>
+                  <div className="d-flex align-items-center">
                     <strong className="m-0 me-1">$</strong>
                     <h6 className="m-0"><strong>{getPagoActual(pedido)}</strong></h6>
                   </div>
                 </div>
               ))}
-              <div style={{ borderTop: "2px solid" }} className="w-100 d-flex mt-4">
-                <div className="container-fluid d-flex mt-4">
-                  <div className="col-8 d-flex flex-wrap">
-                    <h6 className="col-12 m-0"><strong>Total a pagar</strong></h6>
-                  </div>
-                  <div className="col-4 d-flex align-items-center justify-content-end">
-                    <strong className="m-0 me-1">$</strong>
-                    <h4 className="m-0"><strong>{totalPagos}</strong></h4>
-                  </div>
+              <div style={{ borderTop: "2px solid" }} className="d-flex justify-content-between mt-4 pt-4">
+                <h6 className="m-0"><strong>Total a pagar</strong></h6>
+                <div className="d-flex align-items-center">
+                  <strong className="m-0 me-1">$</strong>
+                  <h4 className="m-0"><strong>{totalPagos}</strong></h4>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div>
-          <div className="mt-5 w-100 d-flex justify-content-center">
+          <div className="mt-5 d-flex justify-content-center">
             <button
               type="button"
               className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
@@ -529,7 +521,7 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
               </h5>
             </button>
           </div>
-          <div className="container-fluid py-3 text-center">
+          <div className="py-3 text-center">
             <span>
               Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.
             </span>

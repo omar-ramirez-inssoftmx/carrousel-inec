@@ -68,7 +68,7 @@ const AvisoPrivacidad = () => {
             </div>
 
             {/* Mostrar el aviso de privacidad */}
-            <div className="container p-4">
+            <div className="p-4">
               <h2 className="text-center mb-4">Aviso de Privacidad</h2>
               <div
                 className="privacy-content p-3 border rounded"

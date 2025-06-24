@@ -68,7 +68,7 @@ const Contacto = () => {
 						</div>
 
 						{/* Mostrar la información de contacto */}
-						<div className="container p-4">
+						<div className="p-4">
 							<h2 className="text-center mb-4">Información de Contacto</h2>
 							<div
 								className="contact-content p-3 border rounded"

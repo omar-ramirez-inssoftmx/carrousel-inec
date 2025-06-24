@@ -17,9 +17,9 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
 	return (
 		<Modal show={show} onHide={onHide} centered size="lg">
 			<Modal.Body className="px-0">
-				<div className="d-flex flex-column justify-content-center align-items-center">
+				<div className="d-flex flex-column">
 					{/* Botón de cierre */}
-					<div className="w-100 d-flex justify-content-end px-3">
+					<div className="d-flex justify-content-end px-3">
 						<button
 							type="button"
 							className="btn-close"
@@ -29,7 +29,7 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
 					</div>
 
 					{/* Contenido del modal */}
-					<div className="w-100 d-flex flex-column justify-content-center align-items-center">
+					<div className="d-flex flex-column align-items-center">
 						{/* Icono de éxito */}
 						<div style={{ height: '120px', width: '120px' }} className="bg-success p-4 rounded-circle mb-4">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
@@ -38,7 +38,7 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
 						</div>
 
 						{/* Título y descripción */}
-						<div className="w-100 text-center border-bottom px-5 pb-3">
+						<div className="text-center border-bottom px-5 pb-3">
 							<h3 className="m-0"><strong>Enlace de pago creado correctamente</strong></h3>
 							<h5 className="text-secondary mt-1 mx-md-3">
 								Se ha enviado el enlace de pago a través de los medios de contacto (Correo electrónico y Teléfono celular).
@@ -46,7 +46,7 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
 						</div>
 
 						{/* Detalles del enlace */}
-						<div className="w-100 d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
+						<div className="d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
 							<div className="d-flex flex-column">
 								<p className="m-0 text-secondary">Creación de enlace</p>
 								<h5><strong>{currentDate}</strong></h5>
@@ -62,7 +62,7 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
 						</div>
 
 						{/* Información de contacto */}
-						<div className="w-100 d-flex flex-column justify-content-center flex-wrap mt-4 mb-3 px-5 gap32">
+						<div className="d-flex flex-column mt-4 mb-3 px-5 gap32">
 							<div className="d-flex flex-column">
 								<p className="m-0 text-secondary">Correo electrónico</p>
 								<h5><strong>{students[0].email}</strong></h5>
@@ -74,7 +74,7 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
 						</div>
 
 						{/* Botón de enlace de pago */}
-						<div className="w-100 d-flex justify-content-center my-4">
+						<div className="d-flex justify-content-center my-4">
 							<Button
 								variant="primary"
 								className="px-5 py-3 rounded backgroundMainColor border-0"
@@ -110,9 +110,9 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
 	return (
 		<Modal show={show} onHide={onHide} centered size="xl">
 			<Modal.Body className="px-0">
-				<div className="d-flex flex-column justify-content-center align-items-center">
+				<div className="d-flex flex-column">
 					{/* Botón de cierre */}
-					<div className="w-100 d-flex justify-content-end px-3">
+					<div className="d-flex justify-content-end px-3">
 						<button
 							type="button"
 							className="btn-close"
@@ -122,17 +122,14 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
 					</div>
 
 					{/* Contenido del modal */}
-					<div className="w-100 d-flex flex-column justify-content-center align-items-center">
-
-						<div className="w-100 d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
-							<PaymentForm
-								students={students}
-								totalPagos={totalPagos}
-								pedidosSeleccionados={pedidosSeleccionados}
-								getVigencia={getVigencia}
-								pedidoMasViejoSeleccionado={pedidoMasViejoSeleccionado}
-							/>
-						</div>
+					<div className="mt-4 mb-3 px-5">
+						<PaymentForm
+							students={students}
+							totalPagos={totalPagos}
+							pedidosSeleccionados={pedidosSeleccionados}
+							getVigencia={getVigencia}
+							pedidoMasViejoSeleccionado={pedidoMasViejoSeleccionado}
+						/>
 					</div>
 				</div>
 			</Modal.Body>

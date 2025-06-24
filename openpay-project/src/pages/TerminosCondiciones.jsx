@@ -68,7 +68,7 @@ const TerminosCondiciones = () => {
             </div>
 
             {/* Mostrar los términos y condiciones */}
-            <div className="container p-4">
+            <div className="p-4">
               <h2 className="text-center mb-4">Términos y Condiciones</h2>
               <div
                 className="terms-content p-3 border rounded"

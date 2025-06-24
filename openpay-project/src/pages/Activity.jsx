@@ -67,9 +67,9 @@ const Activity = () => {
 
   return (
     <PlatformLayout>
-      <div className="container-fluid py-4 px-4">
-        <div className="row align-items-center">
-          <div className="col">
+      <div className="py-4 px-4">
+        <div className="d-flex align-items-center">
+          <div>
             <h2 className="mb-2 fw-bold text-primary">
               <i className="bi bi-credit-card-2-front"></i>
               Pagos
@@ -82,7 +82,7 @@ const Activity = () => {
       </div>
 
       {/* Contenido Principal */}
-      <div className="container-fluid py-4 px-4">
+      <div className="py-4 px-4">
         {/* Filtros de Meses */}
         <div className="mb-4">
           <h5 className="mb-3 fw-semibold text-dark">Filtrar por mes</h5>

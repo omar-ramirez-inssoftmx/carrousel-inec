@@ -25,16 +25,22 @@ function CustomerInfo({ customer, onGenerateLink }) {
   };
 
   return (
-    <div>
+    <div className="d-flex flex-column gap-3">
       <h3>Alumno encontrado:</h3>
-      <p><strong>ID:</strong> {customer.id}</p>
-      <p><strong>Nombre:</strong> {customer.name || 'N/A'}</p>
-      <p><strong>Apellido:</strong> {customer.last_name || 'N/A'}</p>
-      <p><strong>Email:</strong> {customer.email || 'N/A'}</p>
-      <p><strong>Teléfono:</strong> {customer.phone_number || 'N/A'}</p>
-      <p><strong>Fecha de Creación:</strong> {customer.creation_date}</p>
-      <p><strong>Matrícula:</strong> {customer.external_id || 'N/A'}</p>
-      <button className="btn-custom" onClick={handleGenerateLink} disabled={isGenerating}>
+      <div className="d-flex flex-column gap-2">
+        <p className="m-0"><strong>ID:</strong> {customer.id}</p>
+        <p className="m-0"><strong>Nombre:</strong> {customer.name || 'N/A'}</p>
+        <p className="m-0"><strong>Apellido:</strong> {customer.last_name || 'N/A'}</p>
+        <p className="m-0"><strong>Email:</strong> {customer.email || 'N/A'}</p>
+        <p className="m-0"><strong>Teléfono:</strong> {customer.phone_number || 'N/A'}</p>
+        <p className="m-0"><strong>Fecha de Creación:</strong> {customer.creation_date}</p>
+        <p className="m-0"><strong>Matrícula:</strong> {customer.external_id || 'N/A'}</p>
+      </div>
+      <button
+        className="btn btn-primary backgroundMainColor border-0 mt-3"
+        onClick={handleGenerateLink}
+        disabled={isGenerating}
+      >
         {isGenerating ? 'Generando...' : 'Generar Link'}
       </button>
     </div>

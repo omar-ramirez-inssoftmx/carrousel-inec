@@ -59,18 +59,18 @@ const ListCard = () => {
 
 	return (
 		<PlatformLayout>
-			<section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
-				<div className="d-flex flex-wrap align-items-center col-auto">
+			<section className="d-flex justify-content-between align-items-center flex-wrap px-3 pb-2 border-bottom">
+				<div className="d-flex flex-column">
 					<h3 className="m-0 mb-3"><strong>Tarjetas</strong></h3>
 					{cards.length > 0 && (
-						<h5 className="mt-1 ms-3 ms-md-5 text-secondary m-0 mb-3 me-lg-5">
+						<h5 className="text-secondary m-0 mb-3">
 							Selecciona una tarjeta para ver su detalle
 						</h5>
 					)}
 				</div>
 				<button
 					type="button"
-					className="btn col-auto borderMainColor mb-3 ms-lg-5"
+					className="btn borderMainColor mb-3"
 					onClick={() => navigate("/dashboard/CreateCard", { state: { student: students } })}
 				>
 					<h5 className="m-0 colorMain px-3 py-2">Agregar nueva tarjeta</h5>
@@ -78,12 +78,11 @@ const ListCard = () => {
 			</section>
 
 			{cards.length === 0 ? (
-				<div className="d-flex flex-column align-items-center justify-content-center py-5 w-100">
+				<div className="d-flex flex-column align-items-center justify-content-center py-5">
 					<h4 className="text-secondary mb-4">No se encontraron tarjetas registradas</h4>
-
 				</div>
 			) : (
-				<section className="d-flex flex-column w-100 gap32 pt-4 pb-2 px-3 border-bottom">
+				<section className="d-flex flex-column gap32 pt-4 pb-2 px-3 border-bottom">
 					{cards.map((card) => (
 						<div
 							onClick={(e) => {
@@ -95,7 +94,7 @@ const ListCard = () => {
 							className={`d-flex justify-content-between align-items-center p-3 border rounded ${card.isPrimary ? 'bg-primary-light' : 'bg-light'}`}
 						>
 							<div className="d-flex align-items-center">
-								<label className={`d-flex align-items-center gap-3 border py-3 px-3 rounded cardPago w-100`}>
+								<label className={`d-flex align-items-center gap-3 border py-3 px-3 rounded cardPago`}>
 									<input
 										type="radio"
 										name="primaryCard"

@@ -40,7 +40,6 @@ const Login = () => {
 		<main className="container-fluid p-0">
 			<section className="d-flex flex-wrap justify-content-center align-items-center">
 				<div className="login bg-white container-fluid p-0">
-
 					<section className="d-flex flex-column justify-content-center align-items-center minHeight100vh gap32">
 						<div>
 							<img src={logo} alt="Logo" />
@@ -78,12 +77,11 @@ const Login = () => {
 								Contacto
 							</a>
 						</div>
-
 					</section>
 				</div>
 
 				<div
-					class="caratura bg-success"
+					className="caratura bg-success"
 					style={{ background: `url(${fondo}) no-repeat center / cover`, borderLeft: '2px solid #000' }}
 				>
 					<div></div>

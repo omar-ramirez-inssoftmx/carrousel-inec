@@ -32,9 +32,9 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
       <Modal.Body className="px-0">
-        <div className="d-flex flex-column justify-content-center align-items-center">
+        <div className="d-flex flex-column">
           {/* Botón de cierre */}
-          <div className="w-100 d-flex justify-content-end px-3">
+          <div className="d-flex justify-content-end px-3">
             <button
               type="button"
               className="btn-close"
@@ -44,7 +44,7 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
           </div>
 
           {/* Contenido del modal */}
-          <div className="w-100 d-flex flex-column justify-content-center align-items-center">
+          <div className="d-flex flex-column align-items-center">
             {/* Icono de advertencia */}
             <div style={{ height: '120px', width: '120px' }} className="bg-warning p-4 rounded-circle mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 121.5 120.7">
@@ -53,7 +53,7 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
             </div>
 
             {/* Título y descripción */}
-            <div className="w-100 text-center border-bottom px-5 pb-3">
+            <div className="text-center border-bottom px-5 pb-3">
               <h3 className="m-0"><strong>Atención: Al crear un nuevo link de pago</strong></h3>
               <h5 className="text-secondary mt-1 mx-md-3">
                 Para garantizar la seguridad y eficiencia de sus transacciones, cada vez que genere un nuevo link de pago, los anteriores serán cancelados de forma permanente.
@@ -61,10 +61,10 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
             </div>
 
             {/* Botones de acción */}
-            <div className="w-100 d-flex justify-content-evenly flex-wrap my-4">
+            <div className="d-flex justify-content-evenly flex-wrap my-4">
               <Button
                 variant="outline-secondary"
-                className="col-auto border px-5 py-3 my-2"
+                className="border px-5 py-3 my-2"
                 onClick={onHide}
               >
                 <h5 className="m-0"><strong>Cerrar, y no crear link</strong></h5>
@@ -104,95 +104,90 @@ const CheckLinks = () => {
 
   return (
     <main className="container-fluid p-0">
-      <section className="d-flex flex-column justify-content-center align-items-center">
-        {/* Navbar */}
-        <Navbar students={students} logo={logo} />
+      <Navbar students={students} logo={logo} />
+      <div className="backgroundMain minHeight100vh pt-5">
+        <section className="d-flex justify-content-center align-items-center mt-5">
+          <div className="bg-white rounded py-4 px-3 mt-4">
+            <section className="d-flex justify-content-between align-items-center flex-wrap px-3 pb-2 border-bottom">
+              <div className="d-flex flex-column">
+                <h3 className="m-0 mb-3"><strong>Link de pago</strong></h3>
+                <h5 className="text-secondary m-0 mb-3">Detalles de pago</h5>
+              </div>
+              <button
+                type="button"
+                className="btn borderMainColor mb-3"
+                onClick={() => setModalShow(true)}
+              >
+                <h5 className="m-0 colorMain px-3 py-2">Crear nuevo link</h5>
+              </button>
+            </section>
 
-
-        <div className="container-fluid backgroundMain minHeight100vh pt-5">
-          <section className="d-flex justify-content-center align-items-center mt-5">
-            <div className="d-flex flex-column justify-content-center align-items-center bg-white rounded py-4 px-3 mt-4">
-              <section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
-                <div className="d-flex flex-wrap align-items-center col-auto">
-                  <h3 className="m-0 mb-3"><strong>Link de pago</strong></h3>
-                  <h5 className="mt-1 ms-3 ms-md-5 text-secondary m-0 mb-3 me-lg-5">Detalles de pago</h5>
-                </div>
-                <button
-                  type="button"
-                  className="btn col-auto borderMainColor mb-3 ms-lg-5"
-                  onClick={() => setModalShow(true)}
-                >
-                  <h5 className="m-0 colorMain px-3 py-2">Crear nuevo link</h5>
-                </button>
-              </section>
-
-              {students.length > 0 ? (
-                pedidos.map((grupo) => (
-                  <div key={grupo.transaccion}>
-                    {grupo.pedidos.map((pedido) => (
-                      <div key={pedido.id_pedido} className="mt-3 border rounded px-3 py-4 bg-white">
-                        <div className="container-fluid d-flex">
-                          <div className="col-8 d-flex flex-wrap">
-                            <h6 className="col-12 m-0">
-                              <strong>Mensualidad</strong>
-                            </h6>
-                            <p className="col-12 mb-2">{pedido.concepto_pedido}</p>
-                            <p className="m-0">Cant. 1</p>
-                          </div>
-                          <div className="col-4 d-flex align-items-center justify-content-end">
-                            <strong className="m-0 me-1">$</strong>
-                            <h4 className="m-0">
-                              <strong>{getPagoActual(pedido)}</strong>
-                            </h4>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="mt-3 border rounded px-3 py-4 bg-white">
+            {students.length > 0 ? (
+              pedidos.map((grupo) => (
+                <div key={grupo.transaccion}>
+                  {grupo.pedidos.map((pedido) => (
+                    <div key={pedido.id_pedido} className="mt-3 border rounded px-3 py-4 bg-white">
                       <div className="container-fluid d-flex">
                         <div className="col-8 d-flex flex-wrap">
                           <h6 className="col-12 m-0">
-                            <strong>Total a pagar</strong>
+                            <strong>Mensualidad</strong>
                           </h6>
+                          <p className="col-12 mb-2">{pedido.concepto_pedido}</p>
+                          <p className="m-0">Cant. 1</p>
                         </div>
                         <div className="col-4 d-flex align-items-center justify-content-end">
                           <strong className="m-0 me-1">$</strong>
                           <h4 className="m-0">
-                            <strong>{getTotalPagos(grupo.pedidos).toFixed(2)}</strong>
+                            <strong>{getPagoActual(pedido)}</strong>
                           </h4>
                         </div>
                       </div>
                     </div>
-                    <div>
-                      <div className="mt-5 w-100 d-flex justify-content-center">
-                        {grupo.estatus !== "Vencido" ? (
-                          <button
-                            className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
-                            onClick={() => window.open(grupo.link_de_pago, "_blank")}
-                          >
-                            <h5 className="m-0">
-                              <b className="secontFont text-light">Pagar Link</b>
-                            </h5>
-                          </button>
-                        ) : (
-                          <h5 className="m-0">
-                            <b className="secontFont text-danger">Link de pago: {grupo.estatus}</b>
-                          </h5>
-                        )}
+                  ))}
+                  <div className="mt-3 border rounded px-3 py-4 bg-white">
+                    <div className="container-fluid d-flex">
+                      <div className="col-8 d-flex flex-wrap">
+                        <h6 className="col-12 m-0">
+                          <strong>Total a pagar</strong>
+                        </h6>
                       </div>
-                      <div className="container-fluid py-3 text-center">
-                        <span>Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.</span>
+                      <div className="col-4 d-flex align-items-center justify-content-end">
+                        <strong className="m-0 me-1">$</strong>
+                        <h4 className="m-0">
+                          <strong>{getTotalPagos(grupo.pedidos).toFixed(2)}</strong>
+                        </h4>
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-secondary mt-3">No hay estudiantes disponibles.</p>
-              )}
-            </div>
-          </section>
-        </div>
-      </section>
+                  <div>
+                    <div className="mt-5 w-100 d-flex justify-content-center">
+                      {grupo.estatus !== "Vencido" ? (
+                        <button
+                          className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
+                          onClick={() => window.open(grupo.link_de_pago, "_blank")}
+                        >
+                          <h5 className="m-0">
+                            <b className="secontFont text-light">Pagar Link</b>
+                          </h5>
+                        </button>
+                      ) : (
+                        <h5 className="m-0">
+                          <b className="secontFont text-danger">Link de pago: {grupo.estatus}</b>
+                        </h5>
+                      )}
+                    </div>
+                    <div className="container-fluid py-3 text-center">
+                      <span>Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-secondary mt-3">No hay estudiantes disponibles.</p>
+            )}
+          </div>
+        </section>
+      </div>
 
       <ConfirmLinkModal
         show={modalShow}

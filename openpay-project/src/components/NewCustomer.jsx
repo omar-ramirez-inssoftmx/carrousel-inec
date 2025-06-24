@@ -52,15 +52,57 @@ function NewCustomer({ onGenerateLink }) {
   };
 
   return (
-    <div>
+    <div className="d-flex flex-column gap-3">
       <h2>Generar Link de Pago</h2>
-      {error && <div className="error">{error}</div>}
-      <input type="text" id="name" value={customerData.name} onChange={handleChange} className="form-control" placeholder="Nombre" />
-      <input type="text" id="last_name" value={customerData.last_name} onChange={handleChange} className="form-control" placeholder="Apellido" />
-      <input type="text" id="external_id" value={customerData.external_id} onChange={handleChange} className="form-control" placeholder="Matrícula" />
-      <input type="email" id="email" value={customerData.email} onChange={handleChange} className="form-control" placeholder="Correo electrónico" />
-      <input type="text" id="phone_number" value={customerData.phone_number} onChange={handleChange} className="form-control" placeholder="Teléfono" />
-      <button className="btn-custom" onClick={handleSubmit}>Generar Link</button>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="d-flex flex-column gap-2">
+        <input
+          type="text"
+          id="name"
+          value={customerData.name}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Nombre"
+        />
+        <input
+          type="text"
+          id="last_name"
+          value={customerData.last_name}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Apellido"
+        />
+        <input
+          type="text"
+          id="external_id"
+          value={customerData.external_id}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Matrícula"
+        />
+        <input
+          type="email"
+          id="email"
+          value={customerData.email}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Correo electrónico"
+        />
+        <input
+          type="text"
+          id="phone_number"
+          value={customerData.phone_number}
+          onChange={handleChange}
+          className="form-control"
+          placeholder="Teléfono"
+        />
+      </div>
+      <button
+        className="btn btn-primary backgroundMainColor border-0 mt-3"
+        onClick={handleSubmit}
+      >
+        Generar Link
+      </button>
     </div>
   );
 }

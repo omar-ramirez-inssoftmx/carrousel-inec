@@ -14,10 +14,10 @@ const DetailActivity = () => {
   return (
     <PlatformLayout>
       {/* Header */}
-      <section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
+      <section className="d-flex justify-content-center align-items-center px-3 pb-2 border-bottom">
         <button
           onClick={() => navigate(-1)} // Regresa a la página anterior
-          className="col-auto me-4 btn btn-link text-decoration-none d-flex align-items-center"
+          className="me-4 btn btn-link text-decoration-none d-flex align-items-center"
         >
           <svg style={{ height: 24 }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
             <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z" />
@@ -25,23 +25,23 @@ const DetailActivity = () => {
           <i className="bi bi-arrow-left"></i>
           <h3 className="m-0 ms-2"><b>Detalles de pago</b></h3>
         </button>
-        <h5 className="col-auto text-secondary m-0">
+        <h5 className="text-secondary m-0">
           {orderData.numero || 'N/A'}
         </h5>
       </section>
 
       {/* Sección de información del pago */}
-      <section className="d-flex flex-column w-100 gap32 pt-4 pb-2 px-3 border-bottom">
+      <section className="d-flex flex-column gap32 pt-4 pb-2 px-3 border-bottom">
         {/* Datos generales del pago */}
-        <div className="row mb-4">
-          <div className="col-md-4">
+        <div className="d-flex flex-wrap gap-4 mb-4">
+          <div className="flex-fill">
             <div className="d-flex flex-column">
               <span className="text-secondary">Fecha de pago</span>
               <span>{orderData.fecha || 'No disponible'}</span>
             </div>
           </div>
 
-          <div className="col-md-4">
+          <div className="flex-fill">
             <div className="d-flex flex-column">
               <span className="text-secondary">Método de pago</span>
               <span>
@@ -52,7 +52,7 @@ const DetailActivity = () => {
             </div>
           </div>
 
-          <div className="col-md-4">
+          <div className="flex-fill">
             <div className="d-flex flex-column">
               <span className="text-secondary">Estatus de pago</span>
               <span className="text-success">Procesado correctamente</span>
@@ -69,17 +69,11 @@ const DetailActivity = () => {
               <h6 className="fw-bold">{item.pago}</h6>
               <div className="d-flex justify-content-between">
                 <span>{item.fecha}</span>
-
-              </div>
-              <div className="text-end">
-
               </div>
             </div>
             {index < detail.length - 1 && <hr className="my-2" />}
           </React.Fragment>
         ))}
-
-        <hr className="my-2" />
 
         <hr className="my-2" />
 
@@ -90,7 +84,6 @@ const DetailActivity = () => {
           <h3 className="m-0 ms-2">
             <span>{total}</span>
           </h3>
-
         </div>
 
         <div className="mt-4">

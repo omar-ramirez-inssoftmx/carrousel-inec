@@ -152,130 +152,123 @@ const CreateCard = () => {
 
 	return (
 		<PlatformLayout>
-			<section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
+			<section className="d-flex justify-content-center align-items-center px-3 pb-2 border-bottom">
 				<button
 					onClick={() => navigate("/")}
-					className="col-auto me-4 btn btn-link text-decoration-none d-flex align-items-center"
+					className="me-4 btn btn-link text-decoration-none d-flex align-items-center"
 				>
 					<h3 className="m-0 ms-2"><b>Tarjetas</b></h3>
 				</button>
-				<h5 className="col-auto text-secondary m-0">Seleciona una tarjeta para ver su detalle</h5>
+				<h5 className="text-secondary m-0">Selecciona una tarjeta para ver su detalle</h5>
 			</section>
 
-			<section className="d-flex flex-column w-100 gap32 pt-4 pb-2 px-3 border-bottom">
-				<div className="col-12 d-flex flex-column mt-3 mb-2">
+			<section className="d-flex flex-column gap32 pt-4 pb-2 px-3 border-bottom">
+				<div className="d-flex flex-column mt-3 mb-2">
 					<label htmlFor="nombre_tarjeta" className="mb-1"><strong>Nombre de la tarjeta</strong></label>
 					<input
 						name="nombre_tarjeta"
 						placeholder="Ingresa nombre del metodo de pago"
-						className="inputCustom w-100 p-3"
+						className="inputCustom p-3"
 						value={cardData.nombre_tarjeta}
 						onChange={handleInputChange}
 					/>
 				</div>
-				<div className="col-12 d-flex flex-column mt-3 mb-2">
+				<div className="d-flex flex-column mt-3 mb-2">
 					<label htmlFor="holder_name" className="mb-1"><strong>Nombre del dueño de la tarjeta</strong></label>
 					<input
 						name="holder_name"
 						placeholder="Ingresa nombre completo del dueño"
-						className="inputCustom w-100 p-3"
+						className="inputCustom p-3"
 						value={cardData.holder_name}
 						onChange={handleInputChange}
 					/>
 				</div>
-				<div className="col-12 d-flex flex-column mt-3 mb-2">
+				<div className="d-flex flex-column mt-3 mb-2">
 					<label htmlFor="card_number" className="mb-1"><strong>Números de la tarjeta</strong></label>
 					<input
 						name="card_number"
 						placeholder="Ingresa los 16 dígitos de tu tarjeta"
-						className="inputCustom w-100 p-3"
+						className="inputCustom p-3"
 						value={cardData.card_number}
 						onChange={handleInputChange}
 						maxLength="16"
 					/>
 				</div>
-				<div className="row flex-wrap">
-					<div className="col-12 col-lg-6 d-flex flex-column mt-3 mb-2">
+				<div className="d-flex flex-wrap gap-3">
+					<div className="flex-fill d-flex flex-column mt-3 mb-2">
 						<label htmlFor="expiration_month" className="mb-1"><strong>Fecha de vencimiento</strong></label>
-						<div className="row justify-content-between">
-							<div className="col-6">
-								<input
-									name="expiration_month"
-									placeholder="Mes"
-									className="inputCustom w-100 p-3"
-									value={cardData.expiration_month}
-									onChange={handleInputChange}
-								/>
-							</div>
-							<div className="col-6">
-								<input
-									name="expiration_year"
-									placeholder="Año"
-									className="inputCustom w-100 p-3"
-									value={cardData.expiration_year}
-									onChange={handleInputChange}
-								/>
-							</div>
+						<div className="d-flex gap-2">
+							<input
+								name="expiration_month"
+								placeholder="Mes"
+								className="inputCustom p-3 flex-fill"
+								value={cardData.expiration_month}
+								onChange={handleInputChange}
+							/>
+							<input
+								name="expiration_year"
+								placeholder="Año"
+								className="inputCustom p-3 flex-fill"
+								value={cardData.expiration_year}
+								onChange={handleInputChange}
+							/>
 						</div>
 					</div>
-					<div className="col-12 col-lg-6 d-flex flex-column mt-3 mb-2">
+					<div className="flex-fill d-flex flex-column mt-3 mb-2">
 						<label htmlFor="cvv2" className="mb-1"><strong>Código de Seguridad</strong></label>
 						<input
 							name="cvv2"
-							placeholder="CVC"
-							className="inputCustom w-100 p-3"
+							placeholder="Ingresa código de seguridad"
+							className="inputCustom p-3"
 							value={cardData.cvv2}
 							onChange={handleInputChange}
+							maxLength="4"
 						/>
 					</div>
+				</div>
 
+				<h4 className="mt-4"><strong>Datos personales</strong></h4>
+
+				<div className="d-flex flex-column mt-3 mb-2">
+					<label htmlFor="telefono" className="mb-1"><strong>Teléfono celular</strong></label>
+					<input
+						name="telefono"
+						placeholder="Ingresa tu teléfono celular"
+						className="inputCustom p-3"
+						value={formData.telefono}
+						onChange={handleInputChange}
+					/>
 				</div>
-				<div className="row flex-wrap">
-					<div className="col-12 col-lg-6 d-flex flex-column mt-3 mb-2">
-						<label htmlFor="telefono" className="mb-1"><strong>Teléfono celular</strong></label>
-						<input
-							name="telefono"
-							placeholder="Ingresa a 10 dígitos tu teléfono"
-							className="inputCustom w-100 p-3"
-							value={formData.telefono}
-							onChange={handleInputChange}
-						/>
-					</div>
-					<div className="col-12 col-lg-6 d-flex flex-column mt-3 mb-2">
-						<label htmlFor="ciudad" className="mb-1"><strong>Ciudad</strong></label>
-						<select
-							name="ciudad"
-							className="inputCustom w-100 p-3"
-							value={formData.ciudad}
-							onChange={handleInputChange}
-						>
-							<option value="">Ciudad donde radicas</option>
-							<option value="Ciudad de México">Ciudad de México</option>
-							<option value="Monterrey">Monterrey</option>
-							<option value="Guadalajara">Guadalajara</option>
-						</select>
-					</div>
+				<div className="d-flex flex-column mt-3 mb-2">
+					<label htmlFor="ciudad" className="mb-1"><strong>Ciudad</strong></label>
+					<input
+						name="ciudad"
+						placeholder="Ingresa tu ciudad"
+						className="inputCustom p-3"
+						value={formData.ciudad}
+						onChange={handleInputChange}
+					/>
 				</div>
-				<div className="row flex-wrap">
-					<div className="col-12 col-lg-6 d-flex flex-column mt-3 mb-2">
-						<label htmlFor="postal" className="mb-1"><strong>Código postal</strong></label>
-						<input
-							name="postal"
-							placeholder="Código postal donde radicas"
-							className="inputCustom w-100 p-3"
-							value={formData.postal}
-							onChange={handleInputChange}
-						/>
-					</div>
+				<div className="d-flex flex-column mt-3 mb-2">
+					<label htmlFor="postal" className="mb-1"><strong>Código postal</strong></label>
+					<input
+						name="postal"
+						placeholder="Ingresa tu código postal"
+						className="inputCustom p-3"
+						value={formData.postal}
+						onChange={handleInputChange}
+					/>
 				</div>
-				<div className="row flex-wrap">
+
+				<div className="d-flex justify-content-center mt-4">
 					<button
 						className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
-						onClick={() => handleCreateCard()}
+						onClick={handleCreateCard}
+						disabled={mutation.isLoading}
 					>
 						<h5 className="m-0">
 							<b className="secontFont text-light">
-								agregar tarjeta
+								{mutation.isLoading ? "Guardando..." : "Guardar tarjeta"}
 							</b>
 						</h5>
 					</button>
