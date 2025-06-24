@@ -20,8 +20,6 @@ const Navbar = ({ students, logo }) => {
         students[0].matricula
       );
 
-
-
       navigate("/dashboard/ListCard", {
         state: {
           student: students,
@@ -41,19 +39,15 @@ const Navbar = ({ students, logo }) => {
     }
 
     try {
-
       const orders = await fetchStudentActivity(
         students[0].matricula
       );
-
-      console.log("orders ===>", orders)
 
       navigate("/dashboard/Activity", { state: { student: students, orders } });
     } catch (error) {
       console.error("Error al obtener actividad:", error);
       alert("No se posible cargar la actividad.");
     }
-
   };
 
   return (

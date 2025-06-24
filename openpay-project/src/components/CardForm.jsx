@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { createCard } from "../api";
 import { fetchStudentCards } from '../utils/GeneralMethods';
 import { useOpenPayConfig, validateCardData } from '../utils/openPayConfig';
+
 import PlatformLayout from "../layouts/PlatfomLayout";
 
 const CardForm = ({ students, isEditMode = false, initialCardData = null }) => {
@@ -57,7 +58,6 @@ const CardForm = ({ students, isEditMode = false, initialCardData = null }) => {
           state: { student: students, tarjetas }
         });
       } catch (error) {
-        console.error("Error al obtener tarjetas:", error);
         alert("No se pudieron cargar las tarjetas.");
       }
     },

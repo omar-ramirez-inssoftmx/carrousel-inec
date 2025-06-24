@@ -5,8 +5,6 @@ import PlatformLayout from "../layouts/PlatfomLayout";
 const DetailActivity = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Obtenemos los datos del estado
   const { detail = [], orderData = {} } = location.state || {};
 
   const total = detail[0].monto;
