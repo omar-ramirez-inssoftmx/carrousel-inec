@@ -42,7 +42,7 @@ const Activity = () => {
     const partes = fechaStr.toLowerCase().match(/(\d{1,2}) ([a-z]{3}) (\d{2})/);
 
     if (partes) {
-      const dia = partes[1].padStart(2, '0');
+      // const dia = partes[1].padStart(2, '0'); // No usado actualmente
       const mesAbrev = partes[2];
       const anio = "20" + partes[3]; // Asumimos siglo 21 para años de 2 dígitos
 

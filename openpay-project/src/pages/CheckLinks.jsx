@@ -5,6 +5,7 @@ import { cancelOrder } from "../api";
 import logo from "../styles/image/logo.png";
 import { Modal, Button } from 'react-bootstrap';
 import Navbar from "../components/Navbar";
+import { getPagoActual } from '../utils/openPayConfig';
 
 const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
   const location = useLocation();
@@ -91,10 +92,7 @@ const CheckLinks = () => {
   const students = location.state?.student || [];
   const [modalShow, setModalShow] = useState(false);
 
-  const getPagoActual = (pedido) => {
-    const fechaActual = new Date();
-    return pedido.pago || "0";
-  };
+  // Función getPagoActual ya importada de utils
 
   const getTotalPagos = (pedidos) => {
     return pedidos.reduce((total, pedido) => {

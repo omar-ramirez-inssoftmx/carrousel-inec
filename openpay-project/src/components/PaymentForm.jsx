@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { pay } from '../api';
 import { useNavigate } from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { fetchStudentCardsActive } from '../utils/GeneralMethods';
+import { useOpenPayConfig, getPagoActual } from '../utils/openPayConfig';
 
 const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, pedidoMasViejoSeleccionado, onHide }) => {
   // Estados
@@ -24,7 +25,7 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
     postal: "",
   });
 
-  const [deviceSessionId, setDeviceSessionId] = useState("");
+  const deviceSessionId = useOpenPayConfig();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [paymentResponse, setPaymentResponse] = useState(null);
   const [activeCard, setActiveCard] = useState(null);
@@ -36,11 +37,6 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Configurar OpenPay
-        window.OpenPay.setId(process.env.REACT_APP_OPENPAY_ID);
-        window.OpenPay.setApiKey(process.env.REACT_APP_OPENPAY_API_KEY);
-        window.OpenPay.setSandboxMode(process.env.REACT_APP_OPENPAY_SANDBOX_MODE === 'true');
-        setDeviceSessionId(window.OpenPay.deviceData.setup());
 
         // Obtener tarjetas activas
         if (students[0]?.open_pay_id && students[0]?.matricula) {
@@ -65,8 +61,10 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
       }
     };
 
-    loadData();
-  }, [students]);
+    if (deviceSessionId) {
+      loadData();
+    }
+  }, [students, deviceSessionId]);
 
   // Mutación para procesar el pago
   const mutation = useMutation({
@@ -247,11 +245,7 @@ const PaymentForm = ({ students, totalPagos, pedidosSeleccionados, getVigencia, 
     });
   };
 
-  // Función getPagoActual
-  const getPagoActual = (pedido) => {
-    const fechaActual = new Date();
-    return pedido.pago || "0";
-  };
+  // Función getPagoActual ya importada de utils
 
   const getNombreMes = (numeroMes) => {
     const meses = [

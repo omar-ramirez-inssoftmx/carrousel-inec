@@ -10,9 +10,7 @@ import moment from 'moment/moment';
 import PaymentForm from '../components/PaymentForm';
 import Navbar from "../components/Navbar";
 
-const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
-	const location = useLocation();
-	const students = location.state?.student || [];
+const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate, students }) => {
 
 	return (
 		<Modal show={show} onHide={onHide} centered size="lg">
@@ -90,17 +88,15 @@ const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => 
 	);
 };
 
-const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia }) => {
-	const location = useLocation();
-	const students = location.state?.student || [];
+const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia, students }) => {
 
 	// Filtrar los pedidos seleccionados
 	const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
 
-	// Extraer los IDs de los pedidos seleccionados
-	const idsSeleccionados = pedidos
-		.filter((pedido) => seleccionados[pedido.id_pedido])
-		.map((pedido) => pedido.id_pedido);
+	// Extraer los IDs de los pedidos seleccionados (no usado actualmente)
+	// const idsSeleccionados = pedidos
+	//	.filter((pedido) => seleccionados[pedido.id_pedido])
+	//	.map((pedido) => pedido.id_pedido);
 
 	// Obtener el pedido más viejo seleccionado
 	const pedidoMasViejoSeleccionado = getPedidosOrdenadosPorAntiguedad(
@@ -200,7 +196,7 @@ const PedidosTable = () => {
 			setSeleccionados(inicialSeleccionados);
 			calcularTotal(inicialSeleccionados);
 		}
-	}, [colegiaturaMasAntigua]);
+	}, [colegiaturaMasAntigua]); // calcularTotal es estable ya que usa setTotalPagos
 
 	const mutation = useMutation({
 		mutationFn: ({ ids, fechaVigencia, pedidosSeleccionados }) => createOrder(students[0].open_pay_id, description, totalPagos.toFixed(2), ids, fechaVigencia, pedidosSeleccionados),
@@ -317,7 +313,7 @@ const PedidosTable = () => {
 
 	const getVigencia = (pedido) => {
 		if (!pedido) return "Desconocido";
-		const fechaActual = new Date();
+		// const fechaActual = new Date(); // No usado actualmente
 
 		// Ajustar la fecha sumando un día
 		const fechaPago = new Date(pedido.fecha_vigencia_pago);
@@ -325,15 +321,14 @@ const PedidosTable = () => {
 		return fechaPago.toISOString().split("T")[0];
 	};
 
-	const getTipoPago = (pedido) => {
-		const fechaActual = new Date();
-
-		if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
-			return "normal";
-		}
-
-		return "normal";
-	};
+	// Función getTipoPago - comentada ya que no se usa actualmente
+	// const getTipoPago = (pedido) => {
+	//	const fechaActual = new Date();
+	//	if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
+	//		return "normal";
+	//	}
+	//	return "normal";
+	// };
 
 	const getNombreMes = (numeroMes) => {
 		const meses = [
@@ -367,7 +362,7 @@ const PedidosTable = () => {
 								<div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
 									<div className="accordion-body d-flex justify-content-center justify-content-xl-start flex-wrap gap32">
 										{pedidos.map((pedido) => {
-											const tipoPago = getTipoPago(pedido);
+											// const tipoPago = getTipoPago(pedido); // No usado actualmente
 											const isMasAntigua = colegiaturaMasAntigua && colegiaturaMasAntigua.id_pedido === pedido.id_pedido;
 											const pedidosOrdenados = getPedidosOrdenadosPorAntiguedad(pedidos);
 											const indicePedidoActual = pedidosOrdenados.findIndex(
@@ -495,6 +490,7 @@ const PedidosTable = () => {
 				modalDate={modalDate}
 				currentDate={currentDate}
 				dayDate={dayDate}
+				students={students}
 			/>
 			<PayModal
 				show={showPaymentForm}
@@ -504,6 +500,7 @@ const PedidosTable = () => {
 				seleccionados={seleccionados}
 				getPedidosOrdenadosPorAntiguedad={getPedidosOrdenadosPorAntiguedad}
 				getVigencia={getVigencia}
+				students={students}
 			/>
 		</main>
 	);
