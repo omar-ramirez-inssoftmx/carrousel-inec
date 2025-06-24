@@ -5,7 +5,7 @@ import { createCard } from "../api";
 import { fetchStudentCards } from '../utils/GeneralMethods';
 import { useOpenPayConfig, validateCardData } from '../utils/openPayConfig';
 import useStudentStore from '../store/studentStore';
-import PlatformLayout from "../layouts/PlatfomLayout";
+import PlatformLayout from "../app/dashboard/layout";
 
 const CardForm = ({ isEditMode = false, initialCardData = null }) => {
   const { getCurrentStudent } = useStudentStore();

@@ -1,8 +1,5 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/main.css';
-import logo from '../styles/image/logo.png';
-import fondo from '../styles/image/fondo.svg';
+import logo from '../../styles/image/logo.png';
+import fondo from '../../styles/image/fondo.svg';
 
 const PublicLayout = ({ children, showCaratura = true }) => {
   return (

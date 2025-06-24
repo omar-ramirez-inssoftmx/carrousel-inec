@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteCard } from "../../../../api";
-import PlatformLayout from "../../../../layouts/PlatfomLayout";
+import PlatformLayout from "../../layout";
 import useStudentStore from "../../../../store/studentStore";
 
 const DetailCard = () => {

@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { loginWithMatricula } from "../../api";
-import PlatformLayout from "../../layouts/PlatfomLayout";
+import PlatformLayout from "./layout";
 import useStudentStore from "../../store/studentStore";
 
 const InfoStudent = () => {

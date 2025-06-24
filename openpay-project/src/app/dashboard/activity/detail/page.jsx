@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Fragment } from "react";
-import PlatformLayout from "../../../../layouts/PlatfomLayout";
+import PlatformLayout from "../../layout";
 
 const DetailActivity = () => {
   const location = useLocation();

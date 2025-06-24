@@ -1,10 +1,7 @@
-import logo from "../styles/image/logo.png";
-import Navbar from "../components/Navbar";
-// import useStudentStore from "../store/studentStore"; // Para futuro uso
+import logo from "../../styles/image/logo.png";
+import Navbar from "../../components/Navbar";
 
 export default function PlatformLayout({ children }) {
-  // const { students } = useStudentStore(); // Solo para referencia
-
   return (
     <main className="container-fluid p-0">
       <Navbar logo={logo} />

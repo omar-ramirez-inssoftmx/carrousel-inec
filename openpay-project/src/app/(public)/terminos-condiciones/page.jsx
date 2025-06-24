@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { terminos } from '../../../api';
-import PublicLayout from '../../../layouts/PublicLayout';
+import PublicLayout from '../layout';
 import ContentLoader from '../../../components/ContentLoader';
 
 const TerminosCondiciones = () => {

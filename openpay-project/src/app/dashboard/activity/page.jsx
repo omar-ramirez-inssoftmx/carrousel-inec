@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PlatformLayout from "../../../layouts/PlatfomLayout";
+import PlatformLayout from "../layout";
 
 const Activity = () => {
   const location = useLocation();

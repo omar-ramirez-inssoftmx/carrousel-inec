@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { loginWithMatriculaStudent } from '../../../api';
-import PublicLayout from '../../../layouts/PublicLayout';
+import PublicLayout from '../layout';
 import useStudentStore from '../../../store/studentStore';
 
 const Login = () => {
