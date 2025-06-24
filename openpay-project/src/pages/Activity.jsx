@@ -67,71 +67,138 @@ const Activity = () => {
 
   return (
     <PlatformLayout>
-      {/* Header */}
-      <section className="row justify-content-center align-items-center px-3 pb-2 border-bottom">
-        <div className="d-flex flex-wrap align-items-center col-auto">
-          <h3 className="m-0 mb-3"><strong>Pagos</strong></h3>
-          <h5 className="mt-1 ms-3 ms-md-5 text-secondary m-0 mb-3 me-lg-5">
-            Selecciona un pago para ver su detalle
-          </h5>
+      <div className="container-fluid py-4 px-4">
+        <div className="row align-items-center">
+          <div className="col">
+            <h2 className="mb-2 fw-bold text-primary">
+              <i className="bi bi-credit-card-2-front"></i>
+              Pagos
+            </h2>
+            <p className="mb-0 text-muted fs-6">
+              Selecciona un pago para ver su detalle completo
+            </p>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Botones de Meses */}
-      <section
-        key={student.id_alumno}
-        className="d-flex flex-column w-100 gap32 pt-4 pb-2 px-3 border-bottom"
-      >
+      {/* Contenido Principal */}
+      <div className="container-fluid py-4 px-4">
+        {/* Filtros de Meses */}
         <div className="mb-4">
+          <h5 className="mb-3 fw-semibold text-dark">Filtrar por mes</h5>
           <div className="d-flex flex-wrap gap-2">
             {mesesDisponibles.map((mes, idx) => (
               <button
                 key={idx}
-                className={`btn btn-sm ${mes.month_value === mesSeleccionado
-                  ? "btn-primary"
-                  : "btn-outline-secondary"
+                className={`btn btn-sm px-3 py-2 fw-semibold transition-all ${mes.month_value === mesSeleccionado
+                  ? "btn-primary shadow-sm"
+                  : "btn-outline-primary"
                   }`}
+                style={{
+                  transition: 'all 0.2s ease-in-out',
+                  borderRadius: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  if (mes.month_value !== mesSeleccionado) {
+                    e.target.style.transform = 'translateY(-1px)';
+                    e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (mes.month_value !== mesSeleccionado) {
+                    e.target.style.transform = 'translateY(0px)';
+                    e.target.style.boxShadow = 'none';
+                  }
+                }}
                 onClick={() => setMesSeleccionado(mes.month_value)}
               >
-                <b>{mes.month_display}</b>
+                {mes.month_display}
               </button>
             ))}
           </div>
         </div>
 
         {/* Tabla de Pagos */}
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Pago</th>
-                <th>Fecha</th>
-                <th>Monto</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pagosFiltrados.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="text-center text-secondary">
-                    No hay pagos para este mes.
-                  </td>
-                </tr>
-              ) : (
-                pagosFiltrados.map((pago, index) => (
-                  <tr key={index} onClick={() => detailComponent(pago.pedidosDetail)}>
-                    <td>{pago.numero ?? "—"}</td>
-                    <td>{pago.pago}</td>
-                    <td>{pago.fecha}</td>
-                    <td>{pago.monto}</td>
-
+        <div className="card shadow-sm border-0">
+          <div className="card-header bg-white border-bottom py-3">
+            <h5 className="mb-0 fw-semibold text-dark">
+              Lista de Pagos
+              <span className="badge bg-primary ms-2">{pagosFiltrados.length}</span>
+            </h5>
+          </div>
+          <div className="card-body p-0">
+            <div className="table-responsive">
+              <table className="table table-hover mb-0">
+                <thead className="bg-light">
+                  <tr>
+                    <th className="fw-semibold text-dark py-3 px-4 border-0">No.</th>
+                    <th className="fw-semibold text-dark py-3 px-4 border-0">Concepto de Pago</th>
+                    <th className="fw-semibold text-dark py-3 px-4 border-0">Fecha</th>
+                    <th className="fw-semibold text-dark py-3 px-4 border-0">Monto</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {pagosFiltrados.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="text-center py-5 text-muted">
+                        <i className="bi bi-inbox fs-1 d-block mb-3 text-secondary"></i>
+                        <h6 className="mb-2">No hay pagos disponibles</h6>
+                        <p className="mb-0 small">No se encontraron pagos para el mes seleccionado.</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    pagosFiltrados.map((pago, index) => (
+                      <tr
+                        key={index}
+                        onClick={() => detailComponent(pago.pedidosDetail)}
+                        className="cursor-pointer"
+                        style={{
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease-in-out'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#f8f9fa';
+                          e.currentTarget.style.transform = 'translateX(4px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '';
+                          e.currentTarget.style.transform = 'translateX(0px)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      >
+                        <td className="py-3 px-4 align-middle">
+                          <span className="badge bg-secondary">{pago.numero ?? "—"}</span>
+                        </td>
+                        <td className="py-3 px-4 align-middle">
+                          {pago.pago ? (
+                            <div>
+                              {pago.pago.split(',').map((item, idx) => (
+                                <div key={idx} className="mb-1 d-flex align-items-center">
+                                  <i className="bi bi-dot text-primary me-1"></i>
+                                  <span className="text-dark">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-muted">—</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 align-middle">
+                          <span className="text-dark">{pago.fecha}</span>
+                        </td>
+                        <td className="py-3 px-4 align-middle">
+                          <span className="fw-semibold text-success fs-6">{pago.monto}</span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </PlatformLayout>
   );
 };
