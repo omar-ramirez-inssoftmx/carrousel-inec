@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { activateCard } from "../api";
-import PlatformLayout from "../layouts/PlatfomLayout";
-import useStudentStore from "../store/studentStore";
+import { activateCard } from "../../../api";
+import PlatformLayout from "../../../layouts/PlatfomLayout";
+import useStudentStore from "../../../store/studentStore";
 
 const ListCard = () => {
 	const location = useLocation();
@@ -73,7 +73,7 @@ const ListCard = () => {
 				<button
 					type="button"
 					className="btn borderMainColor mb-3"
-					onClick={() => navigate("/dashboard/CreateCard")}
+					onClick={() => navigate("/dashboard/create-card")}
 				>
 					<h5 className="m-0 colorMain px-3 py-2">Agregar nueva tarjeta</h5>
 				</button>
@@ -89,7 +89,7 @@ const ListCard = () => {
 						<div
 							onClick={(e) => {
 								if (!e.target.closest('input[type="radio"]')) {
-									navigate("/dashboard/DetailCard", { state: { card: card, tarjetas } });
+									navigate("/dashboard/cards/detail", { state: { card: card, tarjetas } });
 								}
 							}}
 							key={card.id_tarjeta}

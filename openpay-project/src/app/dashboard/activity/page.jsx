@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PlatformLayout from "../layouts/PlatfomLayout";
+import PlatformLayout from "../../../layouts/PlatfomLayout";
 
 const Activity = () => {
   const location = useLocation();
@@ -15,7 +15,7 @@ const Activity = () => {
 
   const detailComponent = (detail) => {
     console.log("detail detailComponent", detail);
-    navigate("/dashboard/DetailActivity", {
+    navigate("/dashboard/activity/detail", {
       state: {
         detail: detail, // Enviamos solo el array de detalles
         orderData: { // Enviamos datos generales del pago

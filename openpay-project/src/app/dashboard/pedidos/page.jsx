@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { createOrder } from '../api';
-import logo from '../styles/image/logo.png';
+import { createOrder } from '../../../api';
+import logo from '../../../styles/image/logo.png';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
-import PaymentForm from '../components/PaymentForm';
-import Navbar from "../components/Navbar";
-import useStudentStore from '../store/studentStore';
+import PaymentForm from '../../../components/PaymentForm';
+import Navbar from "../../../components/Navbar";
+import useStudentStore from '../../../store/studentStore';
 
 const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
 	const { getCurrentStudent } = useStudentStore();

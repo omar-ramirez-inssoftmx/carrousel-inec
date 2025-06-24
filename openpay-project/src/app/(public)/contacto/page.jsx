@@ -1,8 +1,7 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { contacto } from '../api';
-import PublicLayout from '../layouts/PublicLayout';
-import ContentLoader from '../components/ContentLoader';
+import { contacto } from '../../../api';
+import PublicLayout from '../../../layouts/PublicLayout';
+import ContentLoader from '../../../components/ContentLoader';
 
 const Contacto = () => {
 	const navigate = useNavigate();

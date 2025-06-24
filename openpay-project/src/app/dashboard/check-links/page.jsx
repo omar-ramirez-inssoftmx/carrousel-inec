@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { cancelOrder } from "../api";
-import logo from "../styles/image/logo.png";
+import { cancelOrder } from "../../../api";
+import logo from "../../../styles/image/logo.png";
 import { Modal, Button } from 'react-bootstrap';
-import Navbar from "../components/Navbar";
-import { getPagoActual } from '../utils/openPayConfig';
-import useStudentStore from '../store/studentStore';
+import Navbar from "../../../components/Navbar";
+import { getPagoActual } from '../../../utils/openPayConfig';
+import useStudentStore from '../../../store/studentStore';
 
 const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
   const navigate = useNavigate();

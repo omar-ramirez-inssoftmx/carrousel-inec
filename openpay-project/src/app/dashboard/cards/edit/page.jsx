@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import CardForm from "../components/CardForm";
+import CardForm from "../../../../components/CardForm";
 
 const EditCard = () => {
 	const location = useLocation();

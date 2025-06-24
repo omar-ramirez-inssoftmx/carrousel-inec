@@ -56,7 +56,7 @@ const CardForm = ({ isEditMode = false, initialCardData = null }) => {
           currentStudent.matricula
         );
 
-        navigate("/dashboard/ListCard", {
+        navigate("/dashboard/cards", {
           state: { tarjetas }
         });
       } catch (error) {

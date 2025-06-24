@@ -8,7 +8,7 @@ const Navbar = ({ logo }) => {
   const currentStudent = getCurrentStudent();
 
   const handlePagosClick = () => {
-    navigate("/info/student");
+    navigate("/dashboard");
   };
 
   const handleCardClick = async () => {
@@ -24,7 +24,7 @@ const Navbar = ({ logo }) => {
         currentStudent.matricula
       );
 
-      navigate("/dashboard/ListCard", {
+      navigate("/dashboard/cards", {
         state: {
           tarjetas
         }
@@ -47,7 +47,7 @@ const Navbar = ({ logo }) => {
         currentStudent.matricula
       );
 
-      navigate("/dashboard/Activity", { state: { orders } });
+      navigate("/dashboard/activity", { state: { orders } });
     } catch (error) {
       console.error("Error al obtener actividad:", error);
       alert("No se posible cargar la actividad.");

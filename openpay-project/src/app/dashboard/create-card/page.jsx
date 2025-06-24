@@ -1,4 +1,4 @@
-import CardForm from "../components/CardForm";
+import CardForm from "../../../components/CardForm";
 
 const CreateCard = () => {
 	return <CardForm isEditMode={false} />;

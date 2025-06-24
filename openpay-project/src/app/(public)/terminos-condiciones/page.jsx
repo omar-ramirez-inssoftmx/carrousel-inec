@@ -1,17 +1,16 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { aviso } from '../api';
-import PublicLayout from '../layouts/PublicLayout';
-import ContentLoader from '../components/ContentLoader';
+import { terminos } from '../../../api';
+import PublicLayout from '../../../layouts/PublicLayout';
+import ContentLoader from '../../../components/ContentLoader';
 
-const AvisoPrivacidad = () => {
+const TerminosCondiciones = () => {
   const navigate = useNavigate();
 
   return (
     <PublicLayout>
       <div className="p-4 w-100" style={{ maxWidth: '600px' }}>
         <div className="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
-          <h2 className="m-0">Aviso de Privacidad</h2>
+          <h2 className="m-0">Términos y Condiciones</h2>
           <button
             className="btn btn-outline-secondary"
             onClick={() => navigate('/')}
@@ -21,11 +20,11 @@ const AvisoPrivacidad = () => {
         </div>
 
         <ContentLoader
-          fetchFunction={aviso}
-          renderContent={(avisoData) => (
+          fetchFunction={terminos}
+          renderContent={(terminosData) => (
             <div className="text-justify">
-              {avisoData ? (
-                <div dangerouslySetInnerHTML={{ __html: avisoData.descripcion || avisoData.valor || 'Contenido no disponible' }} />
+              {terminosData ? (
+                <div dangerouslySetInnerHTML={{ __html: terminosData.descripcion || terminosData.valor || 'Contenido no disponible' }} />
               ) : (
                 <p>No hay información disponible en este momento.</p>
               )}
@@ -37,4 +36,4 @@ const AvisoPrivacidad = () => {
   );
 };
 
-export default AvisoPrivacidad;
+export default TerminosCondiciones;

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { loginWithMatriculaStudent } from '../api';
-import PublicLayout from '../layouts/PublicLayout';
-import useStudentStore from '../store/studentStore';
+import { loginWithMatriculaStudent } from '../../../api';
+import PublicLayout from '../../../layouts/PublicLayout';
+import useStudentStore from '../../../store/studentStore';
 
 const Login = () => {
 	const [matricula, setMatricula] = useState('');
@@ -15,10 +15,8 @@ const Login = () => {
 		onSuccess: (data) => {
 			console.log("Datos recibidos:", data);
 			if (data && data.length > 0) {
-				// Guardar estudiantes en el store global
 				setStudents(data);
-				// Navegar sin state - el store maneja los datos
-				navigate('/info/student');
+				navigate('/dashboard');
 			} else {
 				alert("No se encontraron pedidos para esta matrícula.");
 			}

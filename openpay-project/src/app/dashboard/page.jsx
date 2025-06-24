@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { loginWithMatricula } from "../api";
-import PlatformLayout from "../layouts/PlatfomLayout";
-import useStudentStore from "../store/studentStore";
+import { loginWithMatricula } from "../../api";
+import PlatformLayout from "../../layouts/PlatfomLayout";
+import useStudentStore from "../../store/studentStore";
 
 const InfoStudent = () => {
 	const navigate = useNavigate();
@@ -30,7 +30,7 @@ const InfoStudent = () => {
 					const groupedDataArray = Object.values(groupedData);
 					console.log("groupedDataArray ", groupedDataArray);
 					// Navegar con los datos en la URL state temporalmente (los pedidos sí son temporales)
-					navigate('/dashboard/CheckLinks', { state: { pedidos: groupedDataArray, todosLosPedidos: data } });
+					navigate('/dashboard/check-links', { state: { pedidos: groupedDataArray, todosLosPedidos: data } });
 				} else {
 					// Navegar con los datos en la URL state temporalmente (los pedidos sí son temporales)
 					navigate('/dashboard/pedidos', { state: { pedidos: data } });

@@ -1,9 +1,8 @@
-import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteCard } from "../api";
-import PlatformLayout from "../layouts/PlatfomLayout";
-import useStudentStore from "../store/studentStore";
+import { deleteCard } from "../../../../api";
+import PlatformLayout from "../../../../layouts/PlatfomLayout";
+import useStudentStore from "../../../../store/studentStore";
 
 const DetailCard = () => {
 	const location = useLocation();
@@ -26,7 +25,7 @@ const DetailCard = () => {
 
 			// Redirigir a la lista de tarjetas con estado actualizado
 			const updatedCards = tarjetas.filter(t => t.id_tarjeta !== card.id_tarjeta);
-			navigate("/dashboard/ListCard", {
+			navigate("/dashboard/cards", {
 				state: {
 					tarjetas: updatedCards
 				}
@@ -49,7 +48,7 @@ const DetailCard = () => {
 			<section className="d-flex justify-content-between align-items-center flex-wrap px-3 pb-2 border-bottom">
 				<div className="d-flex align-items-center">
 					<button
-						onClick={() => navigate("/dashboard/ListCard", { state: { tarjetas } })}
+						onClick={() => navigate("/dashboard/cards", { state: { tarjetas } })}
 						className="me-4 btn btn-link text-decoration-none d-flex align-items-center"
 					>
 						<svg style={{ height: 24 }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
@@ -64,7 +63,7 @@ const DetailCard = () => {
 				<button
 					type="button"
 					className="btn borderMainColor"
-					onClick={() => navigate("/dashboard/CreateCard")}
+					onClick={() => navigate("/dashboard/create-card")}
 				>
 					<h5 className="m-0 colorMain px-3 py-2">Editar tarjeta</h5>
 				</button>

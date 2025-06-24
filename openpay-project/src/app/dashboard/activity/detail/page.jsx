@@ -1,6 +1,6 @@
-import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PlatformLayout from "../layouts/PlatfomLayout";
+import { Fragment } from "react";
+import PlatformLayout from "../../../../layouts/PlatfomLayout";
 
 const DetailActivity = () => {
   const location = useLocation();
@@ -62,7 +62,7 @@ const DetailActivity = () => {
 
         {/* Lista de conceptos */}
         {detail.map((item, index) => (
-          <React.Fragment key={index}>
+          <Fragment key={index}>
             <div className="mb-3">
               <h6 className="fw-bold">{item.pago}</h6>
               <div className="d-flex justify-content-between">
@@ -70,7 +70,7 @@ const DetailActivity = () => {
               </div>
             </div>
             {index < detail.length - 1 && <hr className="my-2" />}
-          </React.Fragment>
+          </Fragment>
         ))}
 
         <hr className="my-2" />
