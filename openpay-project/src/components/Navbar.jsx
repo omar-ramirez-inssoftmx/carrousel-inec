@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { fetchStudentCards, fetchStudentActivity } from '../utils/GeneralMethods';
 import useStudentStore from '../store/studentStore';
+import { setTemporaryData } from '../utils/GeneralMethods';
 
 const Navbar = ({ logo }) => {
   const navigate = useNavigate();
@@ -24,11 +25,9 @@ const Navbar = ({ logo }) => {
         currentStudent.matricula
       );
 
-      navigate("/dashboard/cards", {
-        state: {
-          tarjetas
-        }
-      });
+      // Guardar en localStorage y navegar
+      setTemporaryData('tarjetas', tarjetas);
+      navigate("/dashboard/cards");
     } catch (error) {
       console.error("Error al obtener tarjetas:", error);
       alert("No se pudieron cargar las tarjetas.");
@@ -47,7 +46,9 @@ const Navbar = ({ logo }) => {
         currentStudent.matricula
       );
 
-      navigate("/dashboard/activity", { state: { orders } });
+      // Guardar en localStorage y navegar
+      setTemporaryData('orders', orders);
+      navigate("/dashboard/activity");
     } catch (error) {
       console.error("Error al obtener actividad:", error);
       alert("No se posible cargar la actividad.");

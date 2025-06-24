@@ -30,15 +30,15 @@ function App() {
           <Route path="/dashboard/check-links" element={<CheckLinks />} />
           <Route path="/dashboard/create-card" element={<CreateCard />} />
           <Route path="/dashboard/activity" element={<Activity />} />
-          <Route path="/dashboard/activity/detail" element={<DetailActivity />} />
+          <Route path="/dashboard/activity/detail/:paymentId" element={<DetailActivity />} />
 
           <Route path="/terminos-condiciones" element={<TerminosCondiciones />} />
           <Route path="/aviso-privacidad" element={<AvisoPrivacidad />} />
           <Route path="/contacto" element={<Contacto />} />
 
           <Route path="/dashboard/cards" element={<ListCard />} />
-          <Route path="/dashboard/cards/detail" element={<DetailCard />} />
-          <Route path="/dashboard/cards/edit" element={<EditCard />} />
+          <Route path="/dashboard/cards/detail/:cardId" element={<DetailCard />} />
+          <Route path="/dashboard/cards/edit/:cardId" element={<EditCard />} />
         </Routes>
       </Router>
     </QueryClientProvider>

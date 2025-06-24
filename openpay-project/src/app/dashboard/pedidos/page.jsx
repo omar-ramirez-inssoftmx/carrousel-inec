@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { createOrder } from '../../../api';
 import logo from '../../../styles/image/logo.png';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
 import moment from 'moment/moment';
 import PaymentForm from '../../../components/PaymentForm';
 import Navbar from "../../../components/Navbar";
 import useStudentStore from '../../../store/studentStore';
+import PlatformLayout from "../layout";
+import { getTemporaryData } from "../../../utils/GeneralMethods";
 
 const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
 	const { getCurrentStudent } = useStudentStore();
@@ -141,8 +142,10 @@ const PedidosTable = () => {
 	const [modalDate, setModalDate] = useState('');
 	const [currentDate, setCurrentDate] = useState('');
 	const [dayDate, setDayDate] = useState('');
-	const location = useLocation();
-	const { pedidos } = location.state || { pedidos: [] };
+
+	const [pedidosData, setPedidosData] = useState({ pedidos: [] });
+	const [loading, setLoading] = useState(true);
+
 	const { getCurrentStudent } = useStudentStore();
 	// Inicializa el estado 'seleccionados' como un objeto vacío
 	const [seleccionados, setSeleccionados] = useState({});
@@ -152,6 +155,17 @@ const PedidosTable = () => {
 	const [showPaymentForm, setShowPaymentForm] = useState(false);
 
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		// Obtener datos desde localStorage
+		const storedData = getTemporaryData('pedidos_data');
+		if (storedData) {
+			setPedidosData(storedData);
+		}
+		setLoading(false);
+	}, []);
+
+	const { pedidos } = pedidosData;
 
 	const getPedidosOrdenadosPorAntiguedad = (pedidos) => {
 		return pedidos.slice().sort((a, b) => {
@@ -341,6 +355,37 @@ const PedidosTable = () => {
 		];
 		return meses[numeroMes - 1] || "";
 	};
+
+	// Estados de loading y error
+	if (loading) {
+		return (
+			<PlatformLayout>
+				<div className="d-flex justify-content-center align-items-center py-5">
+					<div className="spinner-border text-primary" role="status">
+						<span className="visually-hidden">Cargando pedidos...</span>
+					</div>
+				</div>
+			</PlatformLayout>
+		);
+	}
+
+	if (!pedidos.length) {
+		return (
+			<PlatformLayout>
+				<div className="d-flex flex-column align-items-center justify-content-center py-5">
+					<i className="bi bi-exclamation-triangle fs-1 text-warning mb-3"></i>
+					<h4 className="text-secondary mb-3">No se encontraron pedidos</h4>
+					<p className="text-muted mb-4">No hay información de pedidos disponible.</p>
+					<button
+						className="btn btn-primary"
+						onClick={() => navigate('/dashboard')}
+					>
+						Volver al Dashboard
+					</button>
+				</div>
+			</PlatformLayout>
+		);
+	}
 
 	// Obtener los pedidos seleccionados para mostrar en el resumen
 	const pedidosSeleccionados = pedidos.filter(

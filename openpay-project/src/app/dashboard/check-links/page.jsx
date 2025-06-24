@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { cancelOrder } from "../../../api";
 import logo from "../../../styles/image/logo.png";
@@ -7,6 +7,7 @@ import { Modal, Button } from 'react-bootstrap';
 import Navbar from "../../../components/Navbar";
 import { getPagoActual } from '../../../utils/openPayConfig';
 import useStudentStore from '../../../store/studentStore';
+import { getTemporaryData, setTemporaryData } from "../../../utils/GeneralMethods";
 
 const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
   const navigate = useNavigate();
@@ -15,7 +16,9 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
     mutationFn: ({ pedidosConLinks, pedidosComp }) => cancelOrder(pedidosConLinks, pedidosComp),
     onSuccess: (data) => {
       if (data && data.length > 0) {
-        navigate('/dashboard/pedidos', { state: { pedidos: data } });
+        // Guardar en localStorage y navegar
+        setTemporaryData('pedidos_data', { pedidos: data });
+        navigate('/dashboard/pedidos');
       } else {
         alert("No se encontraron pedidos para esta matrícula.");
       }
@@ -85,11 +88,21 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
 };
 
 const CheckLinks = () => {
-  const location = useLocation();
-  const { pedidos } = location.state || { pedidos: [] };
-  const { todosLosPedidos } = location.state || { todosLosPedidos: [] };
   const { students } = useStudentStore();
   const [modalShow, setModalShow] = useState(false);
+  const [checkLinksData, setCheckLinksData] = useState({ pedidos: [], todosLosPedidos: [] });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Obtener datos desde localStorage
+    const storedData = getTemporaryData('check_links_data');
+    if (storedData) {
+      setCheckLinksData(storedData);
+    }
+    setLoading(false);
+  }, []);
+
+  const { pedidos, todosLosPedidos } = checkLinksData;
 
   // Función getPagoActual ya importada de utils
 
@@ -98,6 +111,36 @@ const CheckLinks = () => {
       return total + parseFloat(getPagoActual(pedido));
     }, 0);
   };
+
+  if (loading) {
+    return (
+      <main className="container-fluid p-0">
+        <Navbar students={students} logo={logo} />
+        <div className="backgroundMain minHeight100vh pt-5 d-flex justify-content-center align-items-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!pedidos.length) {
+    return (
+      <main className="container-fluid p-0">
+        <Navbar students={students} logo={logo} />
+        <div className="backgroundMain minHeight100vh pt-5 d-flex justify-content-center align-items-center">
+          <div className="bg-white rounded py-4 px-3 mt-4">
+            <div className="text-center">
+              <i className="bi bi-exclamation-triangle fs-1 text-warning mb-3"></i>
+              <h4 className="text-secondary mb-3">No se encontraron datos</h4>
+              <p className="text-muted">No hay información de pedidos disponible.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="container-fluid p-0">

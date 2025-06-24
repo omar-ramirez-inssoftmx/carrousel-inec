@@ -4,13 +4,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { activateCard } from "../../../api";
 import PlatformLayout from "../layout";
 import useStudentStore from "../../../store/studentStore";
+import { setTemporaryData, getTemporaryData } from "../../../utils/GeneralMethods";
 
 const ListCard = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { getCurrentStudent } = useStudentStore();
-	const tarjetas = location.state?.tarjetas || [];
+
+	// Obtener tarjetas del state o localStorage
+	const stateTarjetas = location.state?.tarjetas;
+	const storedTarjetas = getTemporaryData('tarjetas');
+	const tarjetas = stateTarjetas || storedTarjetas || [];
 
 	// Inicializa el estado con isPrimary basado en activa=1
 	const [cards, setCards] = useState(
@@ -20,15 +25,20 @@ const ListCard = () => {
 		}))
 	);
 
-	// Actualiza las tarjetas cuando cambia location.state
+	// Actualiza las tarjetas cuando cambia location.state o localStorage
 	useEffect(() => {
+		if (stateTarjetas) {
+			// Guardar en localStorage si viene del state
+			setTemporaryData('tarjetas', stateTarjetas);
+		}
+
 		setCards(
 			tarjetas.map(card => ({
 				...card,
 				isPrimary: card.activa === 1
 			}))
 		);
-	}, [tarjetas]);
+	}, [tarjetas, stateTarjetas]);
 
 	const { mutate: activateCardMutation, isLoading: isActivating } = useMutation({
 		mutationFn: ({ id_tarjeta, id_alumno }) => activateCard(id_tarjeta, id_alumno),
@@ -57,6 +67,13 @@ const ListCard = () => {
 		})));
 
 		activateCardMutation({ id_tarjeta, id_alumno });
+	};
+
+	const handleCardClick = (card) => {
+		// Guardar datos de la tarjeta específica en localStorage
+		setTemporaryData(`card_${card.id_tarjeta}`, card);
+		// Navegar usando el ID de la tarjeta
+		navigate(`/dashboard/cards/detail/${card.id_tarjeta}`);
 	};
 
 	return (
@@ -89,7 +106,7 @@ const ListCard = () => {
 						<div
 							onClick={(e) => {
 								if (!e.target.closest('input[type="radio"]')) {
-									navigate("/dashboard/cards/detail", { state: { card: card, tarjetas } });
+									handleCardClick(card);
 								}
 							}}
 							key={card.id_tarjeta}

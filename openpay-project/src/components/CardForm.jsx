@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createCard } from "../api";
-import { fetchStudentCards } from '../utils/GeneralMethods';
+import { fetchStudentCards, setTemporaryData } from '../utils/GeneralMethods';
 import { useOpenPayConfig, validateCardData } from '../utils/openPayConfig';
 import useStudentStore from '../store/studentStore';
 import PlatformLayout from "../app/dashboard/layout";
@@ -56,9 +56,9 @@ const CardForm = ({ isEditMode = false, initialCardData = null }) => {
           currentStudent.matricula
         );
 
-        navigate("/dashboard/cards", {
-          state: { tarjetas }
-        });
+        // Guardar en localStorage y navegar
+        setTemporaryData('tarjetas', tarjetas);
+        navigate("/dashboard/cards");
       } catch (error) {
         console.error("Error al obtener tarjetas:", error);
         alert("No se pudieron cargar las tarjetas.");

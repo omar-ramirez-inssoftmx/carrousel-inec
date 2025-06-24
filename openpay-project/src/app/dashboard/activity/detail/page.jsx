@@ -1,20 +1,73 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { Fragment } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Fragment, useEffect, useState } from "react";
 import PlatformLayout from "../../layout";
+import { getTemporaryData, findPaymentById } from "../../../../utils/GeneralMethods";
 
 const DetailActivity = () => {
-  const location = useLocation();
+  const { paymentId } = useParams();
   const navigate = useNavigate();
-  const { detail = [], orderData = {} } = location.state || {};
+  const [paymentData, setPaymentData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const total = detail[0].monto;
+  useEffect(() => {
+    // Primero intentar obtener desde localStorage directo
+    const currentPayment = getTemporaryData('current_payment');
+
+    if (currentPayment) {
+      setPaymentData(currentPayment);
+      setLoading(false);
+    } else {
+      // Si no está en localStorage directo, buscar en los orders por el ID
+      const orders = getTemporaryData('orders');
+      if (orders && paymentId) {
+        const foundPayment = findPaymentById(paymentId, orders);
+        if (foundPayment) {
+          setPaymentData(foundPayment);
+        }
+      }
+      setLoading(false);
+    }
+  }, [paymentId]);
+
+  if (loading) {
+    return (
+      <PlatformLayout>
+        <div className="d-flex justify-content-center align-items-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </PlatformLayout>
+    );
+  }
+
+  if (!paymentData) {
+    return (
+      <PlatformLayout>
+        <div className="d-flex flex-column align-items-center justify-content-center py-5">
+          <i className="bi bi-exclamation-triangle fs-1 text-warning mb-3"></i>
+          <h4 className="text-secondary mb-3">Pago no encontrado</h4>
+          <p className="text-muted mb-4">No se pudo cargar la información del pago.</p>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/dashboard/activity')}
+          >
+            Volver a Actividad
+          </button>
+        </div>
+      </PlatformLayout>
+    );
+  }
+
+  const { detail = [], orderData = {} } = paymentData;
+  const total = detail[0]?.monto;
 
   return (
     <PlatformLayout>
       {/* Header */}
       <section className="d-flex justify-content-center align-items-center px-3 pb-2 border-bottom">
         <button
-          onClick={() => navigate(-1)} // Regresa a la página anterior
+          onClick={() => navigate('/dashboard/activity')}
           className="me-4 btn btn-link text-decoration-none d-flex align-items-center"
         >
           <svg style={{ height: 24 }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">

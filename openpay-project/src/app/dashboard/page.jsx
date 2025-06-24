@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { loginWithMatricula } from "../../api";
 import PlatformLayout from "./layout";
 import useStudentStore from "../../store/studentStore";
+import { setTemporaryData } from "../../utils/GeneralMethods";
 
 const InfoStudent = () => {
 	const navigate = useNavigate();
@@ -29,11 +30,17 @@ const InfoStudent = () => {
 
 					const groupedDataArray = Object.values(groupedData);
 					console.log("groupedDataArray ", groupedDataArray);
-					// Navegar con los datos en la URL state temporalmente (los pedidos sí son temporales)
-					navigate('/dashboard/check-links', { state: { pedidos: groupedDataArray, todosLosPedidos: data } });
+
+					// Guardar en localStorage y navegar
+					setTemporaryData('check_links_data', {
+						pedidos: groupedDataArray,
+						todosLosPedidos: data
+					});
+					navigate('/dashboard/check-links');
 				} else {
-					// Navegar con los datos en la URL state temporalmente (los pedidos sí son temporales)
-					navigate('/dashboard/pedidos', { state: { pedidos: data } });
+					// Guardar en localStorage y navegar
+					setTemporaryData('pedidos_data', { pedidos: data });
+					navigate('/dashboard/pedidos');
 				}
 			} else {
 				alert("No se encontraron pagos para esta matrícula.");
