@@ -81,7 +81,11 @@ const Login = () => {
 
 					</section>
 				</div>
-				<div class="caratura bg-success" style={{ background: `url(${fondo}) no-repeat center / cover` }}>
+
+				<div
+					class="caratura bg-success"
+					style={{ background: `url(${fondo}) no-repeat center / cover`, borderLeft: '2px solid #000' }}
+				>
 					<div></div>
 				</div>
 			</section>

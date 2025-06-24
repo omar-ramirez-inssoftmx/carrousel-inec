@@ -87,7 +87,8 @@ const AvisoPrivacidad = () => {
             </div>
           </section>
         </div>
-        <div className="caratura bg-success" style={{ background: `url(${fondo}) no-repeat center / cover` }}>
+        <div className="caratura bg-success"
+          style={{ background: `url(${fondo}) no-repeat center / cover`, borderLeft: '2px solid #000' }}>
           <div></div>
         </div>
       </section>
