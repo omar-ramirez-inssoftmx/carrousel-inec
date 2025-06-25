@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import useStudentStore from '../store/studentStore';
 
-const Navbar = ({ logo }) => {
+const Navbar = () => {
   const navigate = useNavigate();
   const { getCurrentStudent } = useStudentStore();
   const currentStudent = getCurrentStudent();
@@ -39,7 +39,7 @@ const Navbar = ({ logo }) => {
     >
       {/* Logo */}
       <div className="d-flex align-items-center">
-        <img style={{ maxWidth: "120px", width: "25vw" }} src={logo} alt="Logo" />
+        <img style={{ maxWidth: "120px", width: "25vw" }} src="/logo.png" alt="Logo" />
       </div>
 
       {/* Menú de opciones */}

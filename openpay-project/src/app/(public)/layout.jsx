@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import logo from '../../styles/image/logo.png';
 
 const PublicLayout = ({ children }) => {
   return (
@@ -9,7 +8,7 @@ const PublicLayout = ({ children }) => {
         <div className="container-fluid px-4">
           {/* Logo */}
           <div className="navbar-brand">
-            <img src={logo} alt="Logo" style={{ height: '40px' }} />
+            <img src="/logo.png" alt="Logo" style={{ height: '40px' }} />
           </div>
 
           {/* Legal Links */}
