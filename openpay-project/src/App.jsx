@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import Login from './app/(public)/login/page';
+import Login from './app/(auth)/login/page';
+
 import Contacto from './app/(public)/contacto/page';
 import TerminosCondiciones from './app/(public)/terminos-condiciones/page';
 import AvisoPrivacidad from './app/(public)/aviso-privacidad/page';

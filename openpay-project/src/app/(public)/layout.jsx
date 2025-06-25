@@ -1,31 +1,45 @@
+import { Link } from 'react-router-dom';
 import logo from '../../styles/image/logo.png';
-import fondo from '../../styles/image/fondo.svg';
 
-const PublicLayout = ({ children, showCaratura = true }) => {
+const PublicLayout = ({ children }) => {
   return (
-    <main className="container-fluid p-0">
-      <section className="d-flex flex-wrap justify-content-center align-items-center">
-        <div className="login bg-white container-fluid p-0">
-          <section className="d-flex flex-column justify-content-center align-items-center minHeight100vh gap32">
-            <div>
-              <img src={logo} alt="Logo" />
-            </div>
-            {children}
-          </section>
-        </div>
-
-        {showCaratura && (
-          <div
-            className="caratura bg-success"
-            style={{
-              background: `url(${fondo}) no-repeat center / cover`,
-              borderLeft: '2px solid #000'
-            }}
-          >
-            <div></div>
+    <main className="min-vh-100">
+      {/* Navbar */}
+      <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div className="container-fluid px-4">
+          {/* Logo */}
+          <div className="navbar-brand">
+            <img src={logo} alt="Logo" style={{ height: '40px' }} />
           </div>
-        )}
-      </section>
+
+          {/* Legal Links */}
+          <div className="navbar-nav ms-auto">
+            <Link
+              to="/aviso-privacidad"
+              className="nav-link text-decoration-none me-3"
+            >
+              Aviso de Privacidad
+            </Link>
+            <Link
+              to="/contacto"
+              className="nav-link text-decoration-none me-3"
+            >
+              Contacto
+            </Link>
+            <Link
+              to="/terminos-condiciones"
+              className="nav-link text-decoration-none"
+            >
+              Términos y Condiciones
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Content - Centered */}
+      <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: 'calc(100vh - 76px)' }}>
+        {children}
+      </div>
     </main>
   );
 };

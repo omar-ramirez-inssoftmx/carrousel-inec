@@ -137,30 +137,3 @@ export const cancelOrder = async (pedidosConLinks, pedidosComp) => {
     throw new Error(error.response?.data?.message || 'Error al cancelar el link de pago');
   }
 };
-
-export const aviso = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/avisoTerminos/aviso`);
-    return response.data;
-  } catch (error) {
-    throw error; // O puedes devolver un valor por defecto si prefieres
-  }
-};
-
-export const terminos = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/avisoTerminos/terminos`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const contacto = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/avisoTerminos/contacto`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
