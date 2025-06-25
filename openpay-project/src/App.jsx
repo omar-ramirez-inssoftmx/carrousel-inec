@@ -7,8 +7,6 @@ import Contacto from './app/(public)/contacto/page';
 import TerminosCondiciones from './app/(public)/terminos-condiciones/page';
 import AvisoPrivacidad from './app/(public)/aviso-privacidad/page';
 
-import EditCard from './app/dashboard/cards/edit/page';
-import DetailCard from './app/dashboard/cards/detail/page';
 import ListCard from './app/dashboard/cards/page';
 import CheckLinks from './app/dashboard/check-links/page';
 import PedidosTable from './app/dashboard/pedidos/page';
@@ -38,8 +36,6 @@ function App() {
           <Route path="/contacto" element={<Contacto />} />
 
           <Route path="/dashboard/cards" element={<ListCard />} />
-          <Route path="/dashboard/cards/detail/:cardId" element={<DetailCard />} />
-          <Route path="/dashboard/cards/edit/:cardId" element={<EditCard />} />
         </Routes>
       </Router>
     </QueryClientProvider>
