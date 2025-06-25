@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginWithMatricula } from "../../api";
 import PlatformLayout from "./layout";
 import useStudentStore from "../../store/studentStore";
+import { maskEmail, maskPhone } from "../../lib/utils";
 
 const InfoStudent = () => {
 	const navigate = useNavigate();
@@ -41,21 +42,6 @@ const InfoStudent = () => {
 		}
 	};
 
-	const enmascararEmail = (email) => {
-		if (!email) return "";
-		const [nombreUsuario, dominio] = email.split("@");
-		const primerosCaracteres = nombreUsuario.slice(0, 2);
-		const enmascarado = primerosCaracteres + "*".repeat(nombreUsuario.length - 2);
-		return `${enmascarado}@${dominio}`;
-	};
-
-	const enmascararCelular = (celular) => {
-		if (!celular) return "";
-		const longitud = celular.length;
-		const ultimosCuatro = celular.slice(-4);
-		const enmascarado = "*".repeat(longitud - 4) + ultimosCuatro;
-		return enmascarado;
-	};
 
 	return (
 		<PlatformLayout>
@@ -76,11 +62,11 @@ const InfoStudent = () => {
 						</div>
 						<div className="d-flex flex-column">
 							<p className="m-0 text-secondary">Correo electrónico</p>
-							<h5><b>{enmascararEmail(student.email)}</b></h5>
+							<h5><b>{maskEmail(student.email)}</b></h5>
 						</div>
 						<div className="d-flex flex-column">
 							<p className="m-0 text-secondary">Teléfono celular</p>
-							<h5><b>{enmascararCelular(student.celular)}</b></h5>
+							<h5><b>{maskPhone(student.celular)}</b></h5>
 						</div>
 						<div className="w-100 d-flex justify-content-center mt-2 mb-3">
 							<button
