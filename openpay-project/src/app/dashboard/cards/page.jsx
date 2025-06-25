@@ -1,73 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { activateCard, deleteCard } from "../../../api";
+import { useNavigate } from "react-router-dom";
+import { listMatriculaStudentCard, activateCard, deleteCard } from "../../../api";
 import PlatformLayout from "../layout";
 import useStudentStore from "../../../store/studentStore";
-import { setTemporaryData, getTemporaryData } from "../../../utils/GeneralMethods";
 
 const ListCard = () => {
-	const location = useLocation();
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
 	const { getCurrentStudent } = useStudentStore();
 
-	// Obtener tarjetas del state o localStorage
-	const stateTarjetas = location.state?.tarjetas;
-	const storedTarjetas = getTemporaryData('tarjetas');
-	const tarjetas = stateTarjetas || storedTarjetas || [];
+	const [cards, setCards] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [isActivating, setIsActivating] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
-	// Inicializa el estado con isPrimary basado en activa=1
-	const [cards, setCards] = useState(
-		tarjetas.map(card => ({
-			...card,
-			isPrimary: card.activa === 1
-		}))
-	);
-
-	// Actualiza las tarjetas cuando cambia location.state o localStorage
+	// Cargar tarjetas al montar el componente
 	useEffect(() => {
-		if (stateTarjetas) {
-			// Guardar en localStorage si viene del state
-			setTemporaryData('tarjetas', stateTarjetas);
-		}
-
-		setCards(
-			tarjetas.map(card => ({
-				...card,
-				isPrimary: card.activa === 1
-			}))
-		);
-	}, [tarjetas, stateTarjetas]);
-
-	const { mutate: activateCardMutation, isLoading: isActivating } = useMutation({
-		mutationFn: ({ id_tarjeta, id_alumno }) => activateCard(id_tarjeta, id_alumno),
-		onSuccess: () => {
-			queryClient.invalidateQueries(['tarjetas']); // Revalida los datos
-			alert("Tarjeta principal actualizada correctamente");
-		},
-		onError: (error) => {
-			console.error("Error al activar la tarjeta:", error);
-			alert("Error al actualizar la tarjeta principal");
-		},
-	});
-
-	// Mutación para eliminar tarjeta
-	const { mutate: deleteCardMutation, isLoading: isDeleting } = useMutation({
-		mutationFn: ({ token, open_pay_id, id_alumno }) => deleteCard(token, open_pay_id, id_alumno),
-		onSuccess: () => {
+		const fetchCards = async () => {
 			const currentStudent = getCurrentStudent();
-			// Actualizar la caché de tarjetas después de eliminar
-			queryClient.invalidateQueries(['tarjetas', currentStudent?.id_alumno]);
-			alert("Tarjeta eliminada correctamente");
-		},
-		onError: (error) => {
-			console.error("Error al eliminar tarjeta:", error);
-			alert("Error al eliminar la tarjeta");
-		}
-	});
+			if (!currentStudent?.open_pay_id || !currentStudent?.matricula) {
+				setLoading(false);
+				return;
+			}
 
-	const handleSetPrimary = (id_tarjeta) => {
+			try {
+				const tarjetas = await listMatriculaStudentCard(
+					currentStudent.open_pay_id,
+					currentStudent.matricula
+				);
+
+				const cardsWithPrimary = tarjetas.map(card => ({
+					...card,
+					isPrimary: card.activa === 1
+				}));
+
+				setCards(cardsWithPrimary);
+			} catch (error) {
+				console.error("Error al cargar tarjetas:", error);
+				alert("No se pudieron cargar las tarjetas.");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchCards();
+	}, [getCurrentStudent]);
+
+	const handleSetPrimary = async (id_tarjeta) => {
 		const currentStudent = getCurrentStudent();
 		const id_alumno = currentStudent?.id_alumno;
 		if (!id_alumno) {
@@ -75,25 +53,69 @@ const ListCard = () => {
 			return;
 		}
 
-		// Optimistic update
-		setCards(cards.map(card => ({
-			...card,
-			isPrimary: card.id_tarjeta === id_tarjeta
-		})));
+		setIsActivating(true);
 
-		activateCardMutation({ id_tarjeta, id_alumno });
-	};
+		try {
+			// Optimistic update
+			setCards(cards.map(card => ({
+				...card,
+				isPrimary: card.id_tarjeta === id_tarjeta
+			})));
 
-	const handleDeleteCard = (card) => {
-		if (window.confirm("¿Estás seguro de que deseas eliminar esta tarjeta?")) {
-			const currentStudent = getCurrentStudent();
-			deleteCardMutation({
-				token: card.token,
-				open_pay_id: currentStudent?.open_pay_id,
-				id_alumno: currentStudent?.id_alumno
-			});
+			await activateCard(id_tarjeta, id_alumno);
+			alert("Tarjeta principal actualizada correctamente");
+		} catch (error) {
+			console.error("Error al activar la tarjeta:", error);
+			alert("Error al actualizar la tarjeta principal");
+
+			// Revertir optimistic update
+			setCards(cards.map(card => ({
+				...card,
+				isPrimary: card.activa === 1
+			})));
+		} finally {
+			setIsActivating(false);
 		}
 	};
+
+	const handleDeleteCard = async (card) => {
+		if (!window.confirm("¿Estás seguro de que deseas eliminar esta tarjeta?")) {
+			return;
+		}
+
+		const currentStudent = getCurrentStudent();
+		if (!currentStudent?.open_pay_id || !currentStudent?.id_alumno) {
+			alert("No se encontraron los datos del estudiante");
+			return;
+		}
+
+		setIsDeleting(true);
+
+		try {
+			await deleteCard(card.token, currentStudent.open_pay_id, currentStudent.id_alumno);
+
+			// Actualizar el estado local removiendo la tarjeta eliminada
+			setCards(cards.filter(c => c.id_tarjeta !== card.id_tarjeta));
+			alert("Tarjeta eliminada correctamente");
+		} catch (error) {
+			console.error("Error al eliminar tarjeta:", error);
+			alert("Error al eliminar la tarjeta");
+		} finally {
+			setIsDeleting(false);
+		}
+	};
+
+	if (loading) {
+		return (
+			<PlatformLayout>
+				<div className="d-flex justify-content-center align-items-center py-5">
+					<div className="spinner-border text-primary" role="status">
+						<span className="visually-hidden">Cargando tarjetas...</span>
+					</div>
+				</div>
+			</PlatformLayout>
+		);
+	}
 
 	return (
 		<PlatformLayout>

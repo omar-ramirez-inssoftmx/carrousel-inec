@@ -1,35 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import { cancelOrder } from "../../../api";
-import logo from "../../../styles/image/logo.png";
-import { Modal, Button } from 'react-bootstrap';
-import Navbar from "../../../components/Navbar";
+import { cancelOrder, loginWithMatricula } from "../../../api";
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import PlatformLayout from '../layout';
 import { getPagoActual } from '../../../utils/openPayConfig';
 import useStudentStore from '../../../store/studentStore';
-import { getTemporaryData, setTemporaryData } from "../../../utils/GeneralMethods";
 
 const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
   const navigate = useNavigate();
+  const [isCanceling, setIsCanceling] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: ({ pedidosConLinks, pedidosComp }) => cancelOrder(pedidosConLinks, pedidosComp),
-    onSuccess: (data) => {
+  const handleGenerateLink = async (pedidosConLinks, pedidosComp) => {
+    setIsCanceling(true);
+
+    try {
+      const data = await cancelOrder(pedidosConLinks, pedidosComp);
+
       if (data && data.length > 0) {
-        // Guardar en localStorage y navegar
-        setTemporaryData('pedidos_data', { pedidos: data });
+        // Solo navegar, la página de pedidos obtendrá sus propios datos
+        alert("Link de pago cancelado exitosamente. Redirigiendo a pedidos...");
         navigate('/dashboard/pedidos');
       } else {
         alert("No se encontraron pedidos para esta matrícula.");
       }
-    },
-    onError: () => {
+    } catch (error) {
+      console.error("Error al cancelar orden:", error);
       alert('Ocurrió un problema, intenta de nuevo.');
-    },
-  });
-
-  const handleGenerateLink = (pedidosConLinks, pedidosComp) => {
-    mutation.mutate({ pedidosConLinks, pedidosComp });
+    } finally {
+      setIsCanceling(false);
+    }
   };
 
   return (
@@ -69,6 +69,7 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
                 variant="outline-secondary"
                 className="border px-5 py-3 my-2"
                 onClick={onHide}
+                disabled={isCanceling}
               >
                 <h5 className="m-0"><strong>Cerrar, y no crear link</strong></h5>
               </Button>
@@ -76,8 +77,13 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
                 variant="primary"
                 className="px-5 py-3 rounded my-2"
                 onClick={() => handleGenerateLink(pedidos, pedidosCompletos)}
+                disabled={isCanceling}
               >
-                <h5 className="m-0"><strong className="text-light">Crear nuevo link</strong></h5>
+                <h5 className="m-0">
+                  <strong className="text-light">
+                    {isCanceling ? "Cancelando..." : "Crear nuevo link"}
+                  </strong>
+                </h5>
               </Button>
             </div>
           </div>
@@ -88,23 +94,71 @@ const ConfirmLinkModal = ({ show, onHide, pedidos, pedidosCompletos }) => {
 };
 
 const CheckLinks = () => {
-  const { students } = useStudentStore();
+  const navigate = useNavigate();
+  const { getCurrentStudent } = useStudentStore();
+
   const [modalShow, setModalShow] = useState(false);
-  const [checkLinksData, setCheckLinksData] = useState({ pedidos: [], todosLosPedidos: [] });
+  const [pedidos, setPedidos] = useState([]);
+  const [todosLosPedidos, setTodosLosPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Obtener datos desde localStorage
-    const storedData = getTemporaryData('check_links_data');
-    if (storedData) {
-      setCheckLinksData(storedData);
-    }
-    setLoading(false);
-  }, []);
+    const fetchCheckLinksData = async () => {
+      try {
+        const currentStudent = getCurrentStudent();
+        if (!currentStudent?.matricula) {
+          alert("No hay estudiante seleccionado");
+          navigate('/dashboard');
+          return;
+        }
 
-  const { pedidos, todosLosPedidos } = checkLinksData;
+        const data = await loginWithMatricula(currentStudent.matricula);
 
-  // Función getPagoActual ya importada de utils
+        if (data && data.length > 0) {
+          // Filtrar solo pedidos con open_pay_id (pedidos con links de pago)
+          const pedidosConLinks = data.filter(pedido => pedido.open_pay_id && pedido.identificador_pago);
+
+          if (pedidosConLinks.length > 0) {
+            // Agrupar datos como se hacía antes
+            const groupedData = pedidosConLinks.reduce((acc, current) => {
+              const { transaccion_Id, link_de_pago, open_pay_id, matricula, estatus } = current;
+              if (transaccion_Id) {
+                if (!acc[transaccion_Id]) {
+                  acc[transaccion_Id] = {
+                    transaccion: transaccion_Id,
+                    pedidos: [],
+                    link_de_pago: link_de_pago,
+                    open_pay_id: open_pay_id,
+                    matricula: matricula,
+                    estatus: estatus
+                  };
+                }
+                acc[transaccion_Id].pedidos.push(current);
+              }
+              return acc;
+            }, {});
+
+            const groupedDataArray = Object.values(groupedData);
+            setPedidos(groupedDataArray);
+            setTodosLosPedidos(data);
+          } else {
+            // No hay links de pago, redirigir a pedidos normales
+            navigate('/dashboard/pedidos');
+          }
+        } else {
+          setPedidos([]);
+          setTodosLosPedidos([]);
+        }
+      } catch (error) {
+        console.error("Error al cargar datos de check-links:", error);
+        alert("Error al cargar datos: " + (error.response?.data?.message || "Intente de nuevo"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCheckLinksData();
+  }, [getCurrentStudent, navigate]);
 
   const getTotalPagos = (pedidos) => {
     return pedidos.reduce((total, pedido) => {
@@ -114,120 +168,115 @@ const CheckLinks = () => {
 
   if (loading) {
     return (
-      <main className="container-fluid p-0">
-        <Navbar students={students} logo={logo} />
-        <div className="backgroundMain minHeight100vh pt-5 d-flex justify-content-center align-items-center">
+      <PlatformLayout>
+        <div className="d-flex justify-content-center align-items-center py-5">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Cargando...</span>
           </div>
         </div>
-      </main>
+      </PlatformLayout>
     );
   }
 
   if (!pedidos.length) {
     return (
-      <main className="container-fluid p-0">
-        <Navbar students={students} logo={logo} />
-        <div className="backgroundMain minHeight100vh pt-5 d-flex justify-content-center align-items-center">
-          <div className="bg-white rounded py-4 px-3 mt-4">
-            <div className="text-center">
-              <i className="bi bi-exclamation-triangle fs-1 text-warning mb-3"></i>
-              <h4 className="text-secondary mb-3">No se encontraron datos</h4>
-              <p className="text-muted">No hay información de pedidos disponible.</p>
-            </div>
-          </div>
+      <PlatformLayout>
+        <div className="d-flex flex-column align-items-center justify-content-center py-5">
+          <i className="bi bi-exclamation-triangle fs-1 text-warning mb-3"></i>
+          <h4 className="text-secondary mb-3">No se encontraron links de pago</h4>
+          <p className="text-muted mb-4">No hay información de links de pago disponible.</p>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/dashboard')}
+          >
+            Volver al Dashboard
+          </button>
         </div>
-      </main>
+      </PlatformLayout>
     );
   }
 
   return (
-    <main className="container-fluid p-0">
-      <Navbar students={students} logo={logo} />
-      <div className="backgroundMain minHeight100vh pt-5">
-        <section className="d-flex justify-content-center align-items-center mt-5">
-          <div className="bg-white rounded py-4 px-3 mt-4">
-            <section className="d-flex justify-content-between align-items-center flex-wrap px-3 pb-2 border-bottom">
-              <div className="d-flex flex-column">
-                <h3 className="m-0 mb-3"><strong>Link de pago</strong></h3>
-                <h5 className="text-secondary m-0 mb-3">Detalles de pago</h5>
-              </div>
-              <button
-                type="button"
-                className="btn borderMainColor mb-3"
-                onClick={() => setModalShow(true)}
-              >
-                <h5 className="m-0 colorMain px-3 py-2">Crear nuevo link</h5>
-              </button>
-            </section>
+    <PlatformLayout>
+      <section className="d-flex justify-content-center align-items-center">
+        <div className="bg-white rounded py-4 px-3 mt-4" style={{ maxWidth: '800px', width: '100%' }}>
+          <section className="d-flex justify-content-between align-items-center flex-wrap px-3 pb-2 border-bottom">
+            <div className="d-flex flex-column">
+              <h3 className="m-0 mb-3"><strong>Link de pago</strong></h3>
+              <h5 className="text-secondary m-0 mb-3">Detalles de pago</h5>
+            </div>
+            <button
+              type="button"
+              className="btn borderMainColor mb-3"
+              onClick={() => setModalShow(true)}
+            >
+              <h5 className="m-0 colorMain px-3 py-2">Crear nuevo link</h5>
+            </button>
+          </section>
 
-            {students.length > 0 ? (
-              pedidos.map((grupo) => (
-                <div key={grupo.transaccion}>
-                  {grupo.pedidos.map((pedido) => (
-                    <div key={pedido.id_pedido} className="mt-3 border rounded px-3 py-4 bg-white">
-                      <div className="container-fluid d-flex">
-                        <div className="col-8 d-flex flex-wrap">
-                          <h6 className="col-12 m-0">
-                            <strong>Mensualidad</strong>
-                          </h6>
-                          <p className="col-12 mb-2">{pedido.concepto_pedido}</p>
-                          <p className="m-0">Cant. 1</p>
-                        </div>
-                        <div className="col-4 d-flex align-items-center justify-content-end">
-                          <strong className="m-0 me-1">$</strong>
-                          <h4 className="m-0">
-                            <strong>{getPagoActual(pedido)}</strong>
-                          </h4>
-                        </div>
-                      </div>
+          {pedidos.map((grupo) => (
+            <div key={grupo.transaccion}>
+              {grupo.pedidos.map((pedido) => (
+                <div key={pedido.id_pedido} className="mt-3 border rounded px-3 py-4 bg-white">
+                  <div className="container-fluid d-flex">
+                    <div className="col-8 d-flex flex-wrap">
+                      <h6 className="col-12 m-0">
+                        <strong>Mensualidad</strong>
+                      </h6>
+                      <p className="col-12 mb-2">{pedido.concepto_pedido}</p>
+                      <p className="m-0">Cant. 1</p>
                     </div>
-                  ))}
-                  <div className="mt-3 border rounded px-3 py-4 bg-white">
-                    <div className="container-fluid d-flex">
-                      <div className="col-8 d-flex flex-wrap">
-                        <h6 className="col-12 m-0">
-                          <strong>Total a pagar</strong>
-                        </h6>
-                      </div>
-                      <div className="col-4 d-flex align-items-center justify-content-end">
-                        <strong className="m-0 me-1">$</strong>
-                        <h4 className="m-0">
-                          <strong>{getTotalPagos(grupo.pedidos).toFixed(2)}</strong>
-                        </h4>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="mt-5 w-100 d-flex justify-content-center">
-                      {grupo.estatus !== "Vencido" ? (
-                        <button
-                          className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
-                          onClick={() => window.open(grupo.link_de_pago, "_blank")}
-                        >
-                          <h5 className="m-0">
-                            <b className="secontFont text-light">Pagar Link</b>
-                          </h5>
-                        </button>
-                      ) : (
-                        <h5 className="m-0">
-                          <b className="secontFont text-danger">Link de pago: {grupo.estatus}</b>
-                        </h5>
-                      )}
-                    </div>
-                    <div className="container-fluid py-3 text-center">
-                      <span>Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.</span>
+                    <div className="col-4 d-flex align-items-center justify-content-end">
+                      <strong className="m-0 me-1">$</strong>
+                      <h4 className="m-0">
+                        <strong>{getPagoActual(pedido)}</strong>
+                      </h4>
                     </div>
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className="text-secondary mt-3">No hay estudiantes disponibles.</p>
-            )}
-          </div>
-        </section>
-      </div>
+              ))}
+
+              <div className="mt-3 border rounded px-3 py-4 bg-white">
+                <div className="container-fluid d-flex">
+                  <div className="col-8 d-flex flex-wrap">
+                    <h6 className="col-12 m-0">
+                      <strong>Total a pagar</strong>
+                    </h6>
+                  </div>
+                  <div className="col-4 d-flex align-items-center justify-content-end">
+                    <strong className="m-0 me-1">$</strong>
+                    <h4 className="m-0">
+                      <strong>{getTotalPagos(grupo.pedidos).toFixed(2)}</strong>
+                    </h4>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="mt-5 w-100 d-flex justify-content-center">
+                  {grupo.estatus !== "Vencido" ? (
+                    <button
+                      className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
+                      onClick={() => window.open(grupo.link_de_pago, "_blank")}
+                    >
+                      <h5 className="m-0">
+                        <b className="secontFont text-light">Pagar Link</b>
+                      </h5>
+                    </button>
+                  ) : (
+                    <h5 className="m-0">
+                      <b className="secontFont text-danger">Link de pago: {grupo.estatus}</b>
+                    </h5>
+                  )}
+                </div>
+                <div className="container-fluid py-3 text-center">
+                  <span>Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <ConfirmLinkModal
         show={modalShow}
@@ -235,7 +284,7 @@ const CheckLinks = () => {
         pedidos={pedidos}
         pedidosCompletos={todosLosPedidos}
       />
-    </main>
+    </PlatformLayout>
   );
 };
 

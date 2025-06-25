@@ -1,105 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
-import { createOrder } from '../../../api';
-import logo from '../../../styles/image/logo.png';
-import { Modal, Button } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import moment from 'moment/moment';
+import { createOrder, loginWithMatricula } from "../../../api";
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 import PaymentForm from '../../../components/PaymentForm';
-import Navbar from "../../../components/Navbar";
+import PlatformLayout from '../layout';
 import useStudentStore from '../../../store/studentStore';
-import PlatformLayout from "../layout";
-import { getTemporaryData } from "../../../utils/GeneralMethods";
+import moment from 'moment';
 
+// Componente Modal para mostrar el link de pago
 const PaymentLinkModal = ({ show, onHide, modalDate, currentDate, dayDate }) => {
-	const { getCurrentStudent } = useStudentStore();
-
 	return (
-		<Modal show={show} onHide={onHide} centered size="lg">
-			<Modal.Body className="px-0">
-				<div className="d-flex flex-column">
-					{/* Botón de cierre */}
-					<div className="d-flex justify-content-end px-3">
-						<button
-							type="button"
-							className="btn-close"
-							onClick={onHide}
-							aria-label="Close"
-						></button>
+		<Modal show={show} onHide={onHide} centered>
+			<Modal.Header closeButton>
+				<Modal.Title>Link de pago generado</Modal.Title>
+			</Modal.Header>
+			<Modal.Body>
+				<div className="text-center py-3">
+					<div className="alert alert-success">
+						<i className="bi bi-check-circle-fill fs-1 text-success mb-3"></i>
+						<h4>¡Link generado exitosamente!</h4>
+						<p className="mb-0">El link de pago ha sido creado correctamente.</p>
 					</div>
-
-					{/* Contenido del modal */}
-					<div className="d-flex flex-column align-items-center">
-						{/* Icono de éxito */}
-						<div style={{ height: '120px', width: '120px' }} className="bg-success p-4 rounded-circle mb-4">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-								<path fill="#FFF" d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
-							</svg>
-						</div>
-
-						{/* Título y descripción */}
-						<div className="text-center border-bottom px-5 pb-3">
-							<h3 className="m-0"><strong>Enlace de pago creado correctamente</strong></h3>
-							<h5 className="text-secondary mt-1 mx-md-3">
-								Se ha enviado el enlace de pago a través de los medios de contacto (Correo electrónico y Teléfono celular).
-							</h5>
-						</div>
-
-						{/* Detalles del enlace */}
-						<div className="d-flex align-items-center justify-content-between flex-wrap mt-4 mb-3 px-5 gap32">
-							<div className="d-flex flex-column">
-								<p className="m-0 text-secondary">Creación de enlace</p>
-								<h5><strong>{currentDate}</strong></h5>
-							</div>
-							<div className="d-flex flex-column">
-								<p className="m-0 text-secondary">Enlace válido hasta</p>
-								<h5><strong>{modalDate}</strong></h5>
-							</div>
-							<div className="d-flex flex-column">
-								<p className="m-0 text-secondary">Estatus de enlace</p>
-								<h6 className="alertCorrect rounded-2 px-3 py-1"><b>Activo durante {dayDate} días</b></h6>
-							</div>
-						</div>
-
-						{/* Información de contacto */}
-						<div className="d-flex flex-column mt-4 mb-3 px-5 gap32">
-							<div className="d-flex flex-column">
-								<p className="m-0 text-secondary">Correo electrónico</p>
-								<h5><strong>{getCurrentStudent()?.email}</strong></h5>
-							</div>
-							<div className="d-flex flex-column">
-								<p className="m-0 text-secondary">Teléfono celular</p>
-								<h5><strong>{getCurrentStudent()?.celular}</strong></h5>
-							</div>
-						</div>
-
-						{/* Botón de enlace de pago */}
-						<div className="d-flex justify-content-center my-4">
-							<Button
-								variant="primary"
-								className="px-5 py-3 rounded backgroundMainColor border-0"
-								onClick={onHide}
-							>
-								<h5 className="m-0"><strong className="secontFont text-light">Aceptar</strong></h5>
-							</Button>
-						</div>
+					<div className="mt-3">
+						<p><strong>Fecha actual:</strong> {currentDate}</p>
+						<p><strong>Fecha de vigencia:</strong> {modalDate}</p>
+						<p><strong>Días para el vencimiento:</strong> {dayDate}</p>
 					</div>
 				</div>
 			</Modal.Body>
+			<Modal.Footer>
+				<Button variant="primary" onClick={onHide}>
+					Entendido
+				</Button>
+			</Modal.Footer>
 		</Modal>
 	);
 };
 
+// Componente Modal para el formulario de pago
 const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidosOrdenadosPorAntiguedad, getVigencia }) => {
-
 	// Filtrar los pedidos seleccionados
 	const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
-
-	// Extraer los IDs de los pedidos seleccionados (no usado actualmente)
-	// const idsSeleccionados = pedidos
-	//	.filter((pedido) => seleccionados[pedido.id_pedido])
-	//	.map((pedido) => pedido.id_pedido);
 
 	// Obtener el pedido más viejo seleccionado
 	const pedidoMasViejoSeleccionado = getPedidosOrdenadosPorAntiguedad(
@@ -127,6 +69,7 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
 							pedidosSeleccionados={pedidosSeleccionados}
 							getVigencia={getVigencia}
 							pedidoMasViejoSeleccionado={pedidoMasViejoSeleccionado}
+							onHide={onHide}
 						/>
 					</div>
 				</div>
@@ -135,37 +78,56 @@ const PayModal = ({ show, onHide, totalPagos, pedidos, seleccionados, getPedidos
 	);
 };
 
-
 const PedidosTable = () => {
+	const navigate = useNavigate();
+	const { getCurrentStudent } = useStudentStore();
+
+	// Estados principales
+	const [pedidos, setPedidos] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [seleccionados, setSeleccionados] = useState({});
+	const [totalPagos, setTotalPagos] = useState(0);
+	const [showPaymentForm, setShowPaymentForm] = useState(false);
+	const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+
+	// Estados para modales
 	const [modalShow, setModalShow] = useState(false);
-	// const [paymentUrl, setPaymentUrl] = useState(''); // Para futuro uso
 	const [modalDate, setModalDate] = useState('');
 	const [currentDate, setCurrentDate] = useState('');
 	const [dayDate, setDayDate] = useState('');
 
-	const [pedidosData, setPedidosData] = useState({ pedidos: [] });
-	const [loading, setLoading] = useState(true);
+	const description = "Prueba desde sistema react";
 
-	const { getCurrentStudent } = useStudentStore();
-	// Inicializa el estado 'seleccionados' como un objeto vacío
-	const [seleccionados, setSeleccionados] = useState({});
-
-	const [totalPagos, setTotalPagos] = useState(0);
-	const description = "Prueba desde sistema react"
-	const [showPaymentForm, setShowPaymentForm] = useState(false);
-
-	const navigate = useNavigate();
-
+	// Cargar datos al montar el componente
 	useEffect(() => {
-		// Obtener datos desde localStorage
-		const storedData = getTemporaryData('pedidos_data');
-		if (storedData) {
-			setPedidosData(storedData);
-		}
-		setLoading(false);
-	}, []);
+		const fetchPedidos = async () => {
+			try {
+				const currentStudent = getCurrentStudent();
+				if (!currentStudent?.matricula) {
+					alert("No hay estudiante seleccionado");
+					navigate('/dashboard');
+					return;
+				}
 
-	const { pedidos } = pedidosData;
+				const data = await loginWithMatricula(currentStudent.matricula);
+
+				if (data && data.length > 0) {
+					// Filtrar solo pedidos sin open_pay_id (pedidos normales)
+					const pedidosNormales = data.filter(pedido => !pedido.open_pay_id || !pedido.identificador_pago);
+					setPedidos(pedidosNormales);
+				} else {
+					setPedidos([]);
+				}
+			} catch (error) {
+				console.error("Error al cargar pedidos:", error);
+				alert("Error al cargar pedidos: " + (error.response?.data?.message || "Intente de nuevo"));
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchPedidos();
+	}, [getCurrentStudent, navigate]);
 
 	const getPedidosOrdenadosPorAntiguedad = (pedidos) => {
 		return pedidos.slice().sort((a, b) => {
@@ -177,11 +139,11 @@ const PedidosTable = () => {
 
 	const handleModalClose = () => {
 		setModalShow(false);
-		navigate('/'); // Redirecciona a la página de login
+		navigate('/');
 	};
 
 	const proceedPayment = () => {
-		setShowPaymentForm(true)
+		setShowPaymentForm(true);
 	};
 
 	// Función para obtener la colegiatura más antigua
@@ -209,29 +171,18 @@ const PedidosTable = () => {
 				[colegiaturaMasAntigua.id_pedido]: true,
 			};
 			setSeleccionados(inicialSeleccionados);
-			calcularTotal(inicialSeleccionados);
+			// Calcular total inline para evitar dependencia
+			let total = 0;
+			pedidos.forEach((pedido) => {
+				if (inicialSeleccionados[pedido.id_pedido]) {
+					total += parseFloat(pedido.pago || "0");
+				}
+			});
+			setTotalPagos(total);
 		}
-	}, [colegiaturaMasAntigua]); // calcularTotal es estable ya que usa setTotalPagos
+	}, [colegiaturaMasAntigua, pedidos]);
 
-	const mutation = useMutation({
-		mutationFn: ({ ids, fechaVigencia, pedidosSeleccionados }) => {
-			const currentStudent = getCurrentStudent();
-			return createOrder(currentStudent.open_pay_id, description, totalPagos.toFixed(2), ids, fechaVigencia, pedidosSeleccionados);
-		},
-		onSuccess: (data) => {
-			if (data.payment_url) {
-				// setPaymentUrl(data.payment_url) // Para futuro uso
-				setModalShow(true);
-			} else {
-				alert('Error al generar el pago.');
-			}
-		},
-		onError: (error) => {
-			alert("Error: " + (error.response?.data?.message || "Intente de nuevo"));
-		}
-	});
-
-	const handleGenerateLink = () => {
+	const handleGenerateLink = async () => {
 		const pedidosSeleccionados = pedidos.filter((pedido) => seleccionados[pedido.id_pedido]);
 
 		console.log("pedidosSeleccionados ", pedidosSeleccionados);
@@ -251,19 +202,42 @@ const PedidosTable = () => {
 			? getVigencia(pedidoMasViejoSeleccionado, pedidosSeleccionados)
 			: null;
 
-		const vigeniaFechaDate = new Date(fechaVigenciaMasViejo); // Crear un objeto Date a partir de la fecha ajustada
+		const vigeniaFechaDate = new Date(fechaVigenciaMasViejo);
 		const fechaAcual = new Date();
 
 		const vigent = dateFormatCurrent(vigeniaFechaDate);
 		const current = dateFormatCurrent(fechaAcual);
 		const diferenciaDias = dias(vigeniaFechaDate);
-		console.log("diferenciaDias ", diferenciaDias)
+		console.log("diferenciaDias ", diferenciaDias);
 
-		setCurrentDate(current)
-		setModalDate(vigent)
-		setDayDate(diferenciaDias)
-		// Llamar a la mutación pasando los IDs de los pedidos seleccionados y la fecha de vigencia del más viejo
-		mutation.mutate({ ids: idsSeleccionados, fechaVigencia: fechaVigenciaMasViejo, pedidosSeleccionados: pedidosSeleccionados });
+		setCurrentDate(current);
+		setModalDate(vigent);
+		setDayDate(diferenciaDias);
+
+		setIsCreatingOrder(true);
+
+		try {
+			const currentStudent = getCurrentStudent();
+			const data = await createOrder(
+				currentStudent.open_pay_id,
+				description,
+				totalPagos.toFixed(2),
+				idsSeleccionados,
+				fechaVigenciaMasViejo,
+				pedidosSeleccionados
+			);
+
+			if (data.payment_url) {
+				setModalShow(true);
+			} else {
+				alert('Error al generar el pago.');
+			}
+		} catch (error) {
+			console.error("Error al crear orden:", error);
+			alert("Error: " + (error.response?.data?.message || "Intente de nuevo"));
+		} finally {
+			setIsCreatingOrder(false);
+		}
 	};
 
 	const dateFormatCurrent = (date => {
@@ -273,15 +247,15 @@ const PedidosTable = () => {
 			year: "numeric"
 		};
 
-		return date.toLocaleDateString("es-Mx", opciones); // Formatear la fecha
-	})
+		return date.toLocaleDateString("es-Mx", opciones);
+	});
 
 	const dias = (vigencia) => {
-		const fechaVigencia = moment(vigencia)
+		const fechaVigencia = moment(vigencia);
 		const fechaActual = moment();
 
 		return Math.abs(fechaActual.diff(fechaVigencia, 'days'));
-	}
+	};
 
 	const handleCheckboxChange = (idPedido, pago) => {
 		setSeleccionados((prevSeleccionados) => {
@@ -331,22 +305,12 @@ const PedidosTable = () => {
 
 	const getVigencia = (pedido) => {
 		if (!pedido) return "Desconocido";
-		// const fechaActual = new Date(); // No usado actualmente
 
 		// Ajustar la fecha sumando un día
 		const fechaPago = new Date(pedido.fecha_vigencia_pago);
 		fechaPago.setDate(fechaPago.getDate() + 1);
 		return fechaPago.toISOString().split("T")[0];
 	};
-
-	// Función getTipoPago - comentada ya que no se usa actualmente
-	// const getTipoPago = (pedido) => {
-	//	const fechaActual = new Date();
-	//	if (pedido.fecha_vigencia_pago && fechaActual <= new Date(pedido.fecha_vigencia_pago)) {
-	//		return "normal";
-	//	}
-	//	return "normal";
-	// };
 
 	const getNombreMes = (numeroMes) => {
 		const meses = [
@@ -394,10 +358,10 @@ const PedidosTable = () => {
 			(colegiaturaMasAntigua && colegiaturaMasAntigua.id_pedido === pedido.id_pedido)
 	);
 	const hayPedidosSeleccionados = Object.values(seleccionados).some((seleccionado) => seleccionado);
+
 	return (
 		<main className="container-fluid p-0">
 			<section className="d-flex flex-column justify-content-center align-items-center">
-				<Navbar logo={logo} />
 				<div className="w-100 d-flex flex-wrap justify-content-center">
 					<section className="container-fluid col-12 col-lg-7 col-xl-9 bg-white pt-5">
 						<div className="accordion mt-5 mb-3 py-4" id="accordionPagos">
@@ -408,17 +372,12 @@ const PedidosTable = () => {
 										<h5 className="text-secondary mt-1 m-0 mx-4">Selecciona las casillas que deseas pagar</h5>
 									</button>
 								</h2>
-								<div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-									<div className="accordion-body d-flex justify-content-center justify-content-xl-start flex-wrap gap32">
-										{pedidos.map((pedido) => {
-											// const tipoPago = getTipoPago(pedido); // No usado actualmente
+								<div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionPagos">
+									<div className="accordion-body">
+										{getPedidosOrdenadosPorAntiguedad(pedidos).map((pedido) => {
 											const isMasAntigua = colegiaturaMasAntigua && colegiaturaMasAntigua.id_pedido === pedido.id_pedido;
-											const pedidosOrdenados = getPedidosOrdenadosPorAntiguedad(pedidos);
-											const indicePedidoActual = pedidosOrdenados.findIndex(
-												(p) => p.id_pedido === pedido.id_pedido
-											);
-											const isChecked = seleccionados[pedido.id_pedido] || isMasAntigua;
-											const isDisabled = isMasAntigua || (indicePedidoActual !== 0 && !seleccionados[pedidosOrdenados[indicePedidoActual - 1].id_pedido]);
+											const isChecked = isMasAntigua || seleccionados[pedido.id_pedido] || false;
+											const isDisabled = isMasAntigua;
 
 											return (
 												<label
@@ -501,38 +460,36 @@ const PedidosTable = () => {
 								</div>
 							</div>
 						</div>
-						<div>
-							<div className="mt-5 w-100 d-flex justify-content-center">
+
+						<div className="mt-4">
+							<div className="d-flex flex-column align-items-center">
 								<button
-									className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
-									onClick={proceedPayment}
-								>
-									<h5 className="m-0">
-										<b className="secontFont text-light">Proceder al pago</b>
-									</h5>
-								</button>
-							</div>
-							<div className="mt-5 w-100 d-flex justify-content-center">
-								<button
-									className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
+									className="my-2 py-3 px-lg-5 rounded btn btn-warning backgroundYellowColor border-0 w-100"
 									onClick={handleGenerateLink}
-									disabled={!hayPedidosSeleccionados || mutation.isLoading}
+									disabled={!hayPedidosSeleccionados || isCreatingOrder}
 								>
 									<h5 className="m-0">
 										<b className="secontFont text-light">
-											{mutation.isLoading ? 'Generando...' : 'Generar Link'}
+											{isCreatingOrder ? "Generando..." : "Generar link"}
 										</b>
 									</h5>
 								</button>
-							</div>
-
-							<div className="container-fluid py-3 text-center">
-								<span>Los pagos en nuestra plataforma se procesan a través de nuestro proveedor <strong>Openpay</strong>, por lo que nos acogemos a sus términos y condiciones.</span>
+								<button
+									onClick={proceedPayment}
+									className="my-2 py-3 px-lg-5 rounded btn btn-primary backgroundMainColor border-0 w-100"
+									disabled={!hayPedidosSeleccionados}
+								>
+									<h5 className="m-0">
+										<b className="secontFont text-light">Pagar ahora</b>
+									</h5>
+								</button>
 							</div>
 						</div>
 					</section>
 				</div>
 			</section>
+
+			{/* Modales */}
 			<PaymentLinkModal
 				show={modalShow}
 				onHide={handleModalClose}
@@ -540,10 +497,11 @@ const PedidosTable = () => {
 				currentDate={currentDate}
 				dayDate={dayDate}
 			/>
+
 			<PayModal
 				show={showPaymentForm}
 				onHide={() => setShowPaymentForm(false)}
-				totalPagos={totalPagos.toFixed(2)}
+				totalPagos={totalPagos}
 				pedidos={pedidos}
 				seleccionados={seleccionados}
 				getPedidosOrdenadosPorAntiguedad={getPedidosOrdenadosPorAntiguedad}

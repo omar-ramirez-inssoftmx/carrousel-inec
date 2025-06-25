@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { fetchStudentCards, fetchStudentActivity } from '../utils/GeneralMethods';
 import useStudentStore from '../store/studentStore';
-import { setTemporaryData } from '../utils/GeneralMethods';
 
 const Navbar = ({ logo }) => {
   const navigate = useNavigate();
@@ -12,47 +10,26 @@ const Navbar = ({ logo }) => {
     navigate("/dashboard");
   };
 
-  const handleCardClick = async () => {
+  const handleCardClick = () => {
     const currentStudent = getCurrentStudent();
     if (!currentStudent?.matricula) {
       alert("Matrícula no disponible");
       return;
     }
 
-    try {
-      const tarjetas = await fetchStudentCards(
-        currentStudent.open_pay_id,
-        currentStudent.matricula
-      );
-
-      // Guardar en localStorage y navegar
-      setTemporaryData('tarjetas', tarjetas);
-      navigate("/dashboard/cards");
-    } catch (error) {
-      console.error("Error al obtener tarjetas:", error);
-      alert("No se pudieron cargar las tarjetas.");
-    }
+    // Navegar directamente, el componente de tarjetas hará el fetching
+    navigate("/dashboard/cards");
   };
 
-  const handleActivityClick = async () => {
+  const handleActivityClick = () => {
     const currentStudent = getCurrentStudent();
     if (!currentStudent?.matricula) {
       alert("Matrícula no disponible");
       return;
     }
 
-    try {
-      const orders = await fetchStudentActivity(
-        currentStudent.matricula
-      );
-
-      // Guardar en localStorage y navegar
-      setTemporaryData('orders', orders);
-      navigate("/dashboard/activity");
-    } catch (error) {
-      console.error("Error al obtener actividad:", error);
-      alert("No se posible cargar la actividad.");
-    }
+    // Navegar directamente, el componente de actividad hará el fetching
+    navigate("/dashboard/activity");
   };
 
   return (

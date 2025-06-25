@@ -1,61 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
 import { loginWithMatricula } from "../../api";
 import PlatformLayout from "./layout";
 import useStudentStore from "../../store/studentStore";
-import { setTemporaryData } from "../../utils/GeneralMethods";
 
 const InfoStudent = () => {
 	const navigate = useNavigate();
 	const { students } = useStudentStore();
+	const [isLoading, setIsLoading] = useState(false);
 
-	const mutation = useMutation({
-		mutationFn: loginWithMatricula,
-		onSuccess: (data) => {
+	const handleLogin = async (matricula) => {
+		if (matricula.trim() === '') {
+			alert("Es necesario colocar una matrícula.");
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			const data = await loginWithMatricula(matricula);
+
 			if (data && data.length > 0) {
 				const hasOpenPayData = data.some((pedido) => pedido.open_pay_id && pedido.identificador_pago);
 
 				if (hasOpenPayData) {
-					const groupedData = data.reduce((acc, current) => {
-						const { transaccion_Id, link_de_pago, open_pay_id, matricula, estatus } = current;
-						if (transaccion_Id) {
-							if (!acc[transaccion_Id]) {
-								acc[transaccion_Id] = { transaccion: transaccion_Id, pedidos: [], link_de_pago: link_de_pago, open_pay_id: open_pay_id, matricula: matricula, estatus: estatus };
-							}
-							acc[transaccion_Id].pedidos.push(current);
-						}
-						return acc;
-					}, {});
-
-					const groupedDataArray = Object.values(groupedData);
-					console.log("groupedDataArray ", groupedDataArray);
-
-					// Guardar en localStorage y navegar
-					setTemporaryData('check_links_data', {
-						pedidos: groupedDataArray,
-						todosLosPedidos: data
-					});
+					// Solo navegar, la página de check-links obtendrá sus propios datos
 					navigate('/dashboard/check-links');
 				} else {
-					// Guardar en localStorage y navegar
-					setTemporaryData('pedidos_data', { pedidos: data });
+					// Solo navegar, la página de pedidos obtendrá sus propios datos
 					navigate('/dashboard/pedidos');
 				}
 			} else {
 				alert("No se encontraron pagos para esta matrícula.");
 			}
-		},
-		onError: (error) => {
-			alert(" Error: " + (error.response?.data?.message || "Intente de nuevo"));
-		}
-	});
-
-	const handleLogin = (matricula) => {
-		if (matricula.trim() !== '') {
-			mutation.mutate(matricula);
-		} else {
-			alert("Es necesario colocar una matrícula.");
+		} catch (error) {
+			console.error("Error al obtener datos:", error);
+			alert("Error: " + (error.response?.data?.message || "Intente de nuevo"));
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -104,11 +86,11 @@ const InfoStudent = () => {
 							<button
 								className="px-5 py-3 rounded btn btn-primary backgroundMainColor border-0"
 								onClick={() => handleLogin(student.matricula)}
-								disabled={mutation.isLoading}
+								disabled={isLoading}
 							>
 								<h5 className="m-0">
 									<b className="secontFont text-light">
-										{mutation.isLoading ? "Ingresando..." : "Usar matrícula"}
+										{isLoading ? "Ingresando..." : "Usar matrícula"}
 									</b>
 								</h5>
 							</button>

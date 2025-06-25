@@ -3,24 +3,21 @@ import fondo from '../../styles/image/fondo.svg';
 
 const PublicLayout = ({ children }) => {
   return (
-    <main className="container-fluid p-0">
-      <section className="d-flex flex-wrap justify-content-center align-items-center">
-        <div className="login bg-white container-fluid p-0">
-          <section className="d-flex flex-column justify-content-center align-items-center minHeight100vh gap32">
-            <div>
-              <img src={logo} alt="Logo" />
-            </div>
-            {children}
-          </section>
+    <main className="container-fluid p-0 vh-100">
+      <section className="d-flex h-100">
+        <div className="login bg-white col-12 col-lg-6 d-flex flex-column justify-content-center align-items-center p-4">
+          <div className="mb-4">
+            <img src={logo} alt="Logo" style={{ maxWidth: '200px' }} />
+          </div>
+          {children}
         </div>
         <div
-          className="caratura bg-success"
+          className="caratura d-none d-lg-block col-lg-6"
           style={{
             background: `url(${fondo}) no-repeat center / cover`,
-            borderLeft: '2px solid #000'
+            minHeight: '100vh'
           }}
         >
-          <div></div>
         </div>
       </section>
     </main>

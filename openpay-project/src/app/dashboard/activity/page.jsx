@@ -1,29 +1,43 @@
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { listMatriculaStudentOrders } from "../../../api";
 import PlatformLayout from "../layout";
-import { setTemporaryData, generatePaymentId, getTemporaryData } from "../../../utils/GeneralMethods";
+import useStudentStore from "../../../store/studentStore";
+import { generatePaymentId, setTemporaryData } from "../../../utils/GeneralMethods";
 
 const Activity = () => {
-  const location = useLocation();
   const navigate = useNavigate();
+  const { getCurrentStudent } = useStudentStore();
 
-  // Intentar obtener datos del state primero, luego de localStorage
-  const stateOrders = location.state?.orders;
-  const storedOrders = getTemporaryData('orders');
-  const orders = stateOrders || storedOrders || {};
+  const [orders, setOrders] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [mesSeleccionado, setMesSeleccionado] = useState("Todos");
+
+  // Cargar orders al montar el componente
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const currentStudent = getCurrentStudent();
+      if (!currentStudent?.matricula) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const ordersData = await listMatriculaStudentOrders(currentStudent.matricula);
+        setOrders(ordersData);
+      } catch (error) {
+        console.error("Error al cargar actividad:", error);
+        alert("No se pudo cargar la actividad.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [getCurrentStudent]);
 
   const pedidos = orders.pedidos || [];
   const mesesDisponibles = orders.mesesDisponibles || [];
-
-  // Inicializar mesSeleccionado con "Todos" por defecto
-  const [mesSeleccionado, setMesSeleccionado] = useState("Todos");
-
-  // Guardar orders en localStorage si viene del state
-  useEffect(() => {
-    if (stateOrders) {
-      setTemporaryData('orders', stateOrders);
-    }
-  }, [stateOrders]);
 
   const detailComponent = (detail) => {
     console.log("detail detailComponent", detail);
@@ -32,7 +46,7 @@ const Activity = () => {
     const paymentId = generatePaymentId(detail);
 
     if (paymentId) {
-      // Guardar los datos completos en localStorage
+      // Guardar los datos completos en localStorage para la página de detalle
       setTemporaryData('current_payment', {
         detail: detail,
         orderData: {
@@ -48,62 +62,30 @@ const Activity = () => {
   };
 
   // Función para obtener el mes en formato "YYYY-MM" desde el texto del pago
-  const extraerMesFiltro = (fechaStr) => {
-    console.log("fechaStr ", fechaStr);
-
-    // Mapeo de meses abreviados a números
-    const meses = {
-      ene: "01", feb: "02", mar: "03", abr: "04", may: "05", jun: "06",
-      jul: "07", ago: "08", sep: "09", oct: "10", nov: "11", dic: "12"
-    };
-
-    // Extraer día, mes abreviado y año (ej: "02 abr 25")
-    const partes = fechaStr.toLowerCase().match(/(\d{1,2}) ([a-z]{3}) (\d{2})/);
-
-    if (partes) {
-      // const dia = partes[1].padStart(2, '0'); // No usado actualmente
-      const mesAbrev = partes[2];
-      const anio = "20" + partes[3]; // Asumimos siglo 21 para años de 2 dígitos
-
-      if (meses[mesAbrev]) {
-        return `${anio}-${meses[mesAbrev]}`;
-      }
-    }
-
-    return "Desconocido";
+  const getPaymentMonth = (pedido) => {
+    if (!pedido || !pedido.fecha) return "";
+    const fecha = new Date(pedido.fecha);
+    const year = fecha.getFullYear();
+    const month = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    return `${year}-${month}`;
   };
 
-  // Uso correcto con el campo fecha
-  const pagosEnriquecidos = pedidos.map((pago) => ({
-    ...pago,
-    mesFiltro: extraerMesFiltro(pago.fecha) // Usamos pago.fecha en lugar de pago.pago
-  }));
-
-  // Filtrado dinámico - corregir la lógica para manejar tanto strings como objetos
-  const pagosFiltrados = pagosEnriquecidos.filter((pago) => {
+  // Filtrar pedidos por mes seleccionado
+  const pagosFiltrados = pedidos.filter((pago) => {
     if (mesSeleccionado === "Todos") return true;
 
-    // Si mesSeleccionado es un string que viene de month_value, comparar con mesFiltro
-    if (typeof mesSeleccionado === 'string') {
-      return pago.mesFiltro === mesSeleccionado;
+    if (pago.pedidosDetail && pago.pedidosDetail.length > 0) {
+      const monthFromPago = getPaymentMonth(pago.pedidosDetail[0]);
+      return monthFromPago === mesSeleccionado;
     }
-
     return false;
   });
 
-  // Preparar opciones de meses para el filtro
-  const opcionesMeses = ["Todos"];
+  // Obtener opciones de meses disponibles
+  const opcionesMeses = ["Todos", ...mesesDisponibles.map(mes =>
+    typeof mes === 'object' ? mes.month_value : mes
+  )];
 
-  // Agregar meses disponibles - manejar tanto objetos como strings
-  mesesDisponibles.forEach(mes => {
-    if (typeof mes === 'object' && mes.month_value) {
-      opcionesMeses.push(mes.month_value);
-    } else if (typeof mes === 'string') {
-      opcionesMeses.push(mes);
-    }
-  });
-
-  // Función para obtener el texto a mostrar del mes
   const getMonthDisplayText = (mesValue) => {
     if (mesValue === "Todos") return "Todos";
 
@@ -114,6 +96,18 @@ const Activity = () => {
 
     return mesObj ? mesObj.month_display : mesValue;
   };
+
+  if (loading) {
+    return (
+      <PlatformLayout>
+        <div className="d-flex justify-content-center align-items-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando actividad...</span>
+          </div>
+        </div>
+      </PlatformLayout>
+    );
+  }
 
   return (
     <PlatformLayout>
