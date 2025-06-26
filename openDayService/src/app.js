@@ -16,17 +16,11 @@ const { procesoProgramadoUpdateStatus } = require('./utils/CronOpenPay');
 const { procesoProgramadoRecargo } = require('./utils/CronRecargo');
 
 const iniciarCronJobUpdateStatus = async () => {
-  cron.schedule("*/5 * * * *", () => {
-    procesoProgramadoUpdateStatus();
-  });
-  console.log(`CRON job iniciado con la expresión: ${expresionCronUpdateStatus}`);
+  cron.schedule("*/5 * * * *", () => procesoProgramadoUpdateStatus());
 };
 
-const iniciarCronJobRecardo = async () => { 
-  cron.schedule("*/5 * * * *", () => {
-    procesoProgramadoRecargo();
-  });
-  console.log(`CRON job iniciado Recargo con la expresión: ${expresionCronRecargo}`);
+const iniciarCronJobRecardo = async () => {
+  cron.schedule("*/5 * * * *", () => procesoProgramadoRecargo());
 };
 
 iniciarCronJobUpdateStatus();
