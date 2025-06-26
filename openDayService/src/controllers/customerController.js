@@ -4,20 +4,13 @@ const { openpay } = require('../utils/openPay');
 const sendWhatsappMessage = (phoneNumber, message) => {
   const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
-  /*const messagePayload = {     
-    messaging_product: "whatsapp",      
-    to: phoneNumber, // El número de teléfono del cliente
-    type: "template",
-    template: { name: "hello_world", language: { code: "en_US" } }
-  };*/
-
   const messagePayload = {
     messaging_product: "whatsapp",
     to: phoneNumber, // El número de teléfono del alumno
     type: "template",
     template: {
       name: "confirma_orden", // El nombre de la plantilla
-      language: { code: "es_MX" }, // El idioma de la plantilla
+      language: { code: "es_MX" },
       components: [
         {
           type: "body",
@@ -84,7 +77,6 @@ const createCustomer = async (req, res) => {
         return res.status(400).json({ error: error.description });
       }
 
-      console.log('Orden de pago creada:', order);
       res.json({
         success: true,
         message: 'Cliente y orden de pago creados exitosamente',
@@ -101,19 +93,14 @@ const createCustomer = async (req, res) => {
         sendWhatsappMessage(customerPhone, message)
           .then(response => {
             console.log("Mensaje enviado a WhatsApp:", response.data);
-            console.log("Response ", response)
           })
           .catch(error => {
             console.error("Error al enviar el mensaje de WhatsApp:", error);
           });
-      } else {
-        console.log("No se encontró un número de teléfono para el cliente.");
       }
     });
 
   } catch (error) {
-    console.error('Error al crear el cliente y la orden de pago:', error);
-
     res.status(500).json({
       success: false,
       message: 'Hubo un error al crear el cliente y la orden de pago',
@@ -121,8 +108,8 @@ const createCustomer = async (req, res) => {
     });
   }
 };
-const editCustomer = async (req, res) => {
 
+const editCustomer = async (req, res) => {
   const { email, customerId } = req.body;
 
   const searchParams = {
@@ -132,7 +119,6 @@ const editCustomer = async (req, res) => {
 
   openpay.customers.update(customerId, searchParams, function (error, customers) {
     if (error) {
-      console.error("Error al ediar clientes:", error);
       return res.status(400).json({ error: error.description });
     }
     res.json(customers);
@@ -142,13 +128,10 @@ const editCustomer = async (req, res) => {
 const listCustomer = async (req, res) => {
   const { external_id } = req.body;
 
-  const searchParams = {
-    external_id,
-  };
+  const searchParams = { external_id };
 
   openpay.customers.list(searchParams, (error, customers) => {
     if (error) {
-      console.error("Error al obtener clientes:", error);
       return res.status(400).json({ error: error.description });
     }
     res.json(customers);

@@ -1,16 +1,9 @@
 const { getPedidosByMatricula } = require('../models/selectStudentSataModel');
-const { updatePedidosTransaccion } = require('../models/customerModel')
 
 const selectStudentData = async (req, res, next) => {
-  const { pedidosConLinks, pedidosComp } = req.body;
+  const { pedidosConLinks } = req.body;
 
   try {
-    /*console.log("pedidosConLinks ", pedidosConLinks)
-    console.log("pedidosComp ", pedidosComp)
-    console.log("pedidosComp ", pedidosConLinks[0].matricula)*/
-    // const payout = cancelOrder(pedidosConLinks[0].open_pay_id, pedidosConLinks[0].transaccion);
-
-    const updateCancel = updatePedidosTransaccion(pedidosConLinks[0].transaccion)
     const pedidos = await getPedidosByMatricula(pedidosConLinks[0].matricula);
 
     if (!pedidos || pedidos.length === 0) {
@@ -27,7 +20,6 @@ const selectStudentData = async (req, res, next) => {
     res.json(pedidosProcesados);
 
   } catch (error) {
-    console.error("Error en la creación del link de pago:", error);
     return res.status(400).json({ error: error.message });
   }
 };

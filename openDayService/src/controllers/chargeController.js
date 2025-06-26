@@ -10,7 +10,6 @@ exports.createCharge = (req, res, next) => {
     currency
   } = req.body;
 
-  // Crear el cargo
   const chargeRequest = {
     source_id: token_id,
     method: 'card',

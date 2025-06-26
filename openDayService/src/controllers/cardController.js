@@ -22,20 +22,17 @@ const createCard = async (req, res) => {
   openpay.customers.cards.create(customer_id, cardRequest, async function (error, card) {
     try {
       if (error) {
-        console.error("Error al crear tarjeta del alumno:", error);
         return res.status(400).json({ error: error.description });
       }
 
       const vencimiento = expiration_month + "/" + expiration_year;
-      // Agregar await para esperar la resolución de la promesa
+
       const saveCard = await createCardForStudent(id_alumno, card.card_number, card.id, nombre_tarjeta, card.brand, holder_name, vencimiento, telefono, ciudad, postal);
       console.log("saveCard ", saveCard);
 
-      // Devolver ambos objetos si necesitas la información de la tarjeta guardada
       res.json({ openpayCard: card, savedCard: saveCard });
 
     } catch (error) {
-      console.error("Error al guardar la tarjeta en la base de datos:", error);
       return res.status(500).json({ error: "Error al guardar la tarjeta" });
     }
   });
@@ -43,31 +40,25 @@ const createCard = async (req, res) => {
 
 
 const listCard = async (req, res) => {
-  const { customer_id, matricula } = req.body;
+  const { matricula } = req.body;
 
   try {
-    // Esperamos a que la promesa se resuelva
     const saveCard = await getStudentCardsByMatricula(matricula);
 
-    // Enviar la respuesta correctamente con los datos
     res.json(saveCard);
   } catch (error) {
-    console.error("Error al obtener las tarjetas:", error);
     res.status(500).json({ error: "Error al obtener las tarjetas del alumno" });
   }
 };
 
 const activeCard = async (req, res) => {
-  const { customer_id, matricula } = req.body;
+  const { matricula } = req.body;
 
   try {
-    // Esperamos a que la promesa se resuelva
     const saveCard = await getStudentCardsByMatriculaActive(matricula);
 
-    // Enviar la respuesta correctamente con los datos
     res.json(saveCard);
   } catch (error) {
-    console.error("Error al obtener las tarjetas:", error);
     res.status(500).json({ error: "Error al obtener las tarjetas del alumno" });
   }
 };
@@ -79,11 +70,9 @@ const activateCard = async (req, res) => {
     const result = await activateStudentCard(id_tarjeta, id_alumno);
     res.json(result);
   } catch (error) {
-    console.error("Error al activar la tarjeta:", error);
     res.status(500).json({ error: "Error al activar la tarjeta" });
   }
 };
-
 
 const deleteCard = async (req, res) => {
   const { id_tarjeta, customer_id, id_alumno } = req.body;
@@ -97,7 +86,7 @@ const deleteCard = async (req, res) => {
 
   try {
     // Eliminar en Openpay (API asíncrona)
-    const openpayDelete = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       openpay.customers.cards.delete(customer_id, id_tarjeta, (error) => {
         if (error) return reject(error);
         resolve(true);

@@ -45,39 +45,16 @@ const uploadFile = async (req, res) => {
       return Object.keys(columnMapping).some(key => cell.includes(key));
     }));
 
-    console.log("headerRowIndex ", headerRowIndex)
-
     if (headerRowIndex === -1) {
       return res.status(400).json({ error: 'No se encontraron encabezados válidos en el archivo' });
     }
 
-    // Limpiar los encabezados de comentarios, espacios extra, saltos de línea, etc.
-    const headers = data[headerRowIndex].map(header => {
-      if (typeof header !== 'string') return ""; // Ignorar celdas vacías o no string
-      return header.replace(/[\n\r]/g, " ").trim(); // Quitar saltos de línea y espacios
-    });
-
-    // Filtrar las filas vacías
-    const filteredData = data.slice(headerRowIndex + 1).filter(row => row.some(cell => cell !== null && cell !== ''));
+    const filteredData = data
+      .slice(headerRowIndex + 1)
+      .filter(row => row.some(cell => cell !== null && cell !== ''));
 
     for (const row of filteredData) {
-      console.log("row[index]  ", row[0]);
-      console.log("row[index]  ", row[1]);
-      console.log("row[index]  ", row[3]);
-      console.log("row[index]  ", row[4]);
-      console.log("row[index]  ", row[5]);
-      console.log("row[index]  ", row[6]);
-      console.log("row[index]  ", row[7]);
-      console.log("row[index]  ", row[8]);
-      console.log("row[index]  ", row[9]);
-      console.log("row[index]  ", row[10]);
-      console.log("row[index]  ", row[11]);
-      console.log("row[index]  ", row[13]);
-
       try {
-        //const resultProducto = await createProduct("producto", 0, row[10], "2025-12-31");
-        //console.log("resultProducto---> ", resultProducto);
-
         const customerData = {
           external_id: row[0],
           name: row[1],
@@ -87,11 +64,7 @@ const uploadFile = async (req, res) => {
         };
 
         const customer = await findOrCreateCustomer(customerData);
-        console.log("customer", customer);
-
         const resultAlumno = await createAlumno(row[0], row[1], row[2], row[3], row[5].trim(), row[4], customer.id);
-
-        console.log("resultAlumno---> ", resultAlumno);
 
         const ciclo = parseInt(row[11]) || 0;
         const mesInicial = parseInt(row[12]) || 1;
@@ -130,34 +103,9 @@ const uploadFile = async (req, res) => {
             0.00
           );
         }
-
-
-        /*await createPedido(
-            resultAlumno, 
-            null, // identificador_pago
-            null, // identificador_pedido
-            resultProducto, 
-            3, // id_cat_estatus (asumiendo que 3 es "Por pagar" o similar)
-            row[8],
-            row[9],
-            row[10],
-            parseInt(row[11]) || 0,
-            parseInt(row[12]) || 1,
-            parseInt(row[13]) || new Date().getFullYear(),
-            parseFloat(row[6]) || 0,
-            excelSerialToDate(row[7]),
-            null, // link_de_pago (se generará después)
-            row[10],
-            null, // transaccion_Id
-            new Date().toISOString().split('T')[0], // fecha_carga (hoy)
-            null, // fecha_pago
-            0.00 // monto_real_pago
-        );*/
-
       } catch (error) {
         console.error(`Error al insertar el alumno con matrícula ${row[0]}:`, error.message);
       }
-
     }
 
     res.json({ message: "Proceso de carga completado" });
@@ -168,23 +116,20 @@ const uploadFile = async (req, res) => {
     res.status(500).json({ error: 'Error al procesar el archivo', details: error.message });
   }
 };
+
 function excelSerialToDate(excelSerialDate, mes, anio) {
-  console.log("excelSerialDate ", excelSerialDate)
   if (typeof excelSerialDate === 'undefined' || !excelSerialDate || isNaN(parseFloat(excelSerialDate))) {
-    return null; // Devolver una fecha por defecto si el valor es vacío, no válido o undefined
+    return null;
   }
 
   const date = new Date(Math.round((excelSerialDate - 25569) * 86400 * 1000));
   const timezoneOffset = date.getTimezoneOffset() * 60 * 1000;
   const adjustedDate = new Date(date.getTime() + timezoneOffset);
 
-  const year = adjustedDate.getFullYear();
-  const month = adjustedDate.getMonth() + 1;
   const day = adjustedDate.getDate();
 
   return `${anio}-${mes}-${day}`;
 }
-
 
 const findOrCreateCustomer = async (customerData) => {
   const { external_id, name, last_name, email, phone_number } = customerData;
@@ -198,11 +143,9 @@ const findOrCreateCustomer = async (customerData) => {
     });
 
     if (customers.length > 0) {
-      console.log("Cliente encontrado:", customers[0]);
-      return customers[0]; // Retornar el primer cliente encontrado
+      return customers[0];
     }
 
-    // Si no se encontró, crear nuevo cliente
     const newCustomer = await new Promise((resolve, reject) => {
       openpay.customers.create({ name, last_name, email, phone_number, external_id }, (error, customer) => {
         if (error) return reject(error);
@@ -210,50 +153,10 @@ const findOrCreateCustomer = async (customerData) => {
       });
     });
 
-    console.log("Cliente creado:", newCustomer);
     return newCustomer;
   } catch (error) {
-    console.error("Error en Openpay:", error);
     throw error;
   }
 };
 
-const findOrCreateOrder = async (OrderData) => {
-  const { customer_id, description, amount, matricula } = OrderData;
-
-  try {
-
-    const dueDate = new Date();
-    dueDate.setHours(dueDate.getHours() + 1); // Seteamos la hora de vencimiento
-    const isoDueDate = dueDate.toISOString();
-
-    var chargeRequest = {
-      method: "card",
-      amount,
-      description,
-      order_id: matricula + "-" + new Date().getTime(), // ID único por pedido
-      send_email: true,
-      confirm: false,
-      redirect_url: "http://localhost:3000/payment-success",
-      due_date: isoDueDate,
-    };
-
-    const newOrder = await new Promise((resolve, reject) => {
-      openpay.customers.charges.create(customer_id, chargeRequest, (error, order) => {
-        if (error) {
-          console.error("Error al crear el pedido:", error);
-          return res.status(400).json({ error: error.description });
-        }
-
-        return order.payment_method?.url || "No se generó un link de pago";
-
-      });
-    });
-    return newOrder;
-  } catch (error) {
-    console.error("Error en Openpay:", error);
-  }
-}
-
 module.exports = { uploadFile };
-

@@ -54,7 +54,6 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
   const { customer_id, description } = req.body;
 
   try {
-    // Primero, obtenemos los datos del cliente
     const customerData = await new Promise((resolve, reject) => {
       openpay.customers.get(customer_id, (error, customerData) => {
         if (error) {
@@ -65,11 +64,6 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
       });
     });
 
-    // Aquí obtenemos el número de órdenes de pago para el cliente
-    //const charges = await getCustomerChargesCount(customer_id);
-    //console.log("Todos los cargos del cliente:", charges);
-
-    // Obtener el día del mes
     const fecha = new Date();
     const dia = fecha.getDate();
     let amount = 1500;
@@ -108,29 +102,17 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
       const paymentUrl = order.payment_method?.url || "No se generó un link de pago";
       const customerPhone = 52 + customerData.phone_number;  // Asegúrate de que el cliente tenga un número de teléfono
 
-      // Si el cliente tiene un número de teléfono, enviamos el mensaje por WhatsApp
       if (customerPhone) {
         const message = `${paymentUrl}`;
-
-        // Enviar el mensaje por WhatsApp
         sendWhatsappMessage(customerPhone, message)
-          .then(response => {
-            console.log("Mensaje enviado a WhatsApp:", response.data);
-          })
-          .catch(error => {
-            console.error("Error al enviar el mensaje de WhatsApp:", error);
-          });
-
-      } else {
-        console.log("No se encontró un número de teléfono para el cliente.");
       }
+
     });
   } catch (error) {
     console.error("Error en la creación del link de pago:", error);
     return res.status(400).json({ error: error.message });
   }
 };
-
 
 const createPaymentLinkStudent = async (req, res, next) => {
   const {
@@ -203,18 +185,9 @@ const createPaymentLinkStudent = async (req, res, next) => {
       return res.status(500).json({ error: "Error al actualizar los pedidos." });
     }
 
-    // Enviar mensaje por WhatsApp y email después de actualizar los registros
     if (customerPhone) {
       const message = `${paymentUrl}`;
       sendWhatsappMessage(fechaVigencia, message, nameFull, customerPhone, student.matricula)
-        .then(response => {
-          console.log("Mensaje enviado a WhatsApp:", response.data);
-        })
-        .catch(error => {
-          console.error("Error al enviar el mensaje de WhatsApp:", error);
-        });
-    } else {
-      console.log("No se encontró un número de teléfono para el cliente.");
     }
 
     const creaFecha = getCurrentDate();

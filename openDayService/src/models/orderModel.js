@@ -2,9 +2,9 @@ const pool = require('../config/conexionAsync');
 
 async function getOrdersStudent(matricula) {
 
-    console.log("matricula ===>", matricula)
+  console.log("matricula ===>", matricula)
 
-    const query = `
+  const query = `
     SELECT p.id_pedido,
         p.identificador_pago,
         p.identificador_pedido,        
@@ -29,19 +29,19 @@ async function getOrdersStudent(matricula) {
     JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
     WHERE a.matricula = ? AND p.id_cat_estatus = 1;
     `;
-   
-    try {
-        const [result] = await pool.query(query, [matricula]);
-        return result;
-    } catch (error) {
-        console.error("Error al obtener pedidos por matrícula:", error);
-        throw new Error("Error al obtener pedidos por matrícula");
-    }
+
+  try {
+    const [result] = await pool.query(query, [matricula]);
+    return result;
+  } catch (error) {
+    console.error("Error al obtener pedidos por matrícula:", error);
+    throw new Error("Error al obtener pedidos por matrícula");
+  }
 }
 
 
 const getAvailableMonths = async (matricula) => {
-    const query = `
+  const query = `
       SELECT 
         DISTINCT DATE_FORMAT(fecha_pago, '%b-%y') AS month_display,
         DATE_FORMAT(fecha_pago, '%Y-%m') AS month_value
@@ -50,12 +50,12 @@ const getAvailableMonths = async (matricula) => {
       WHERE a.matricula = ? AND p.id_cat_estatus = 1 
       ORDER BY month_value DESC
     `;
-    
-    const [months] = await pool.query(query, [matricula]);
-    return [{month_display: 'Todos', month_value: 'Todos'}, ...months];
-  };
+
+  const [months] = await pool.query(query, [matricula]);
+  return [{ month_display: 'Todos', month_value: 'Todos' }, ...months];
+};
 
 module.exports = {
-    getOrdersStudent,
-    getAvailableMonths
+  getOrdersStudent,
+  getAvailableMonths
 };

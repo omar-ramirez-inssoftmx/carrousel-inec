@@ -3,21 +3,6 @@ const { openpay } = require('../utils/openPay');
 exports.createPaymentLink = (req, res, next) => {
   const { customer, description, enrollment } = req.body;
 
-  /*var chargeRequest = {
-      'method' : 'card',
-      'amount' : 1500,
-      'description' : 'Cargo inicial a mi cuenta',
-      'order_id' : 'oid-00053',
-      'customer' : {
-           'name' : 'angel',
-           'last_name' : 'dominguez cruz',
-           'phone_number' : '4423456723',
-           'email' : 'angel.dominguez@inssoftmx.com'
-      },
-     'send_email' : true,
-     'confirm' : false,
-     'redirect_url' : 'http://www.openpay.mx/index.html'
-   }*/
   var chargeRequest = {
     method: "card",
     amount: 1500,
@@ -26,8 +11,9 @@ exports.createPaymentLink = (req, res, next) => {
     customer,
     send_email: true,
     confirm: false,
-    redirect_url: "http://localhost:3000/payment-success" // Página de éxito en el frontend
+    redirect_url: "http://localhost:3000/payment-success"
   };
+
   // Crear la orden de pago (Cargo)
   openpay.charges.create(chargeRequest, (error, order) => {
     if (error) {

@@ -1,11 +1,7 @@
 const pool = require('../config/conexionAsync');
 
 async function getOrdersStudent(matricula) {
-
-  
-    console.log("matricula ===>", matricula)
-
-    const query = `
+  const query = `
     SELECT p.id_pedido,
         p.identificador_pago,
         p.identificador_pedido,        
@@ -31,19 +27,19 @@ async function getOrdersStudent(matricula) {
     JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
     WHERE a.matricula = ? AND p.id_cat_estatus = 1;
     `;
-   
-    try {
-        const [result] = await pool.query(query, [matricula]);
-        return result;
-    } catch (error) {
-        console.error("Error al obtener pedidos por matrícula:", error);
-        throw new Error("Error al obtener pedidos por matrícula");
-    }
+
+  try {
+    const [result] = await pool.query(query, [matricula]);
+    return result;
+  } catch (error) {
+    console.error("Error al obtener pedidos por matrícula:", error);
+    throw new Error("Error al obtener pedidos por matrícula");
+  }
 }
 
 
 const getAvailableMonths = async (matricula) => {
-    const query = `
+  const query = `
       SELECT 
         DISTINCT DATE_FORMAT(fecha_pago, '%b-%y') AS month_display,
         DATE_FORMAT(fecha_pago, '%Y-%m') AS month_value
@@ -52,14 +48,14 @@ const getAvailableMonths = async (matricula) => {
       WHERE a.matricula = ? AND p.id_cat_estatus = 1 
       ORDER BY month_value DESC
     `;
-    
-    const [months] = await pool.query(query, [matricula]);
-    return [{month_display: 'Todos', month_value: 'Todos'}, ...months];
-  };
 
-  async function getStudentOrdersSummary(filters = {}) {
-    // Construir la consulta base
-    let query = `
+  const [months] = await pool.query(query, [matricula]);
+  return [{ month_display: 'Todos', month_value: 'Todos' }, ...months];
+};
+
+async function getStudentOrdersSummary(filters = {}) {
+  // Construir la consulta base
+  let query = `
         SELECT 
             a.id_alumno,
             a.matricula,
@@ -77,28 +73,28 @@ const getAvailableMonths = async (matricula) => {
             AND p.id_cat_estatus IN (1, 3)  -- Solo pagados(1) y pendientes(3)
     `;
 
-    // Array para almacenar los valores de los parámetros
-    const params = [];
+  // Array para almacenar los valores de los parámetros
+  const params = [];
 
-    // Agregar condiciones WHERE según los filtros proporcionados
-    const conditions = [];
-    
-    if (filters.matricula) {
-        conditions.push('a.matricula = ?');
-        params.push(filters.matricula);
-    }
+  // Agregar condiciones WHERE según los filtros proporcionados
+  const conditions = [];
 
-    if (filters.month && filters.month !== 'Todos') {
-        conditions.push('DATE_FORMAT(p.fecha_pago, "%Y-%m") = ?');
-        params.push(filters.month);
-    }
+  if (filters.matricula) {
+    conditions.push('a.matricula = ?');
+    params.push(filters.matricula);
+  }
 
-    if (conditions.length > 0) {
-        query += ' WHERE ' + conditions.join(' AND ');
-    }
+  if (filters.month && filters.month !== 'Todos') {
+    conditions.push('DATE_FORMAT(p.fecha_pago, "%Y-%m") = ?');
+    params.push(filters.month);
+  }
 
-    // Continuación de la consulta
-    query += `
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  // Continuación de la consulta
+  query += `
         GROUP BY 
             a.id_alumno, a.matricula, a.nombre, a.apellido_paterno, a.apellido_materno
         HAVING 
@@ -107,18 +103,18 @@ const getAvailableMonths = async (matricula) => {
             a.apellido_paterno, a.apellido_materno, a.nombre;
     `;
 
-    try {
-        const [result] = await pool.query(query, params);
-        return result;
-    } catch (error) {
-        console.error("Error al obtener resumen de pedidos:", error);
-        throw new Error("Error al obtener resumen de pedidos");
-    }
+  try {
+    const [result] = await pool.query(query, params);
+    return result;
+  } catch (error) {
+    console.error("Error al obtener resumen de pedidos:", error);
+    throw new Error("Error al obtener resumen de pedidos");
+  }
 }
 
 
 module.exports = {
-    getOrdersStudent,
-    getAvailableMonths,
-    getStudentOrdersSummary
+  getOrdersStudent,
+  getAvailableMonths,
+  getStudentOrdersSummary
 };

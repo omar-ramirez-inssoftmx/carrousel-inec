@@ -72,7 +72,6 @@ const selectStudentData = async (req, res) => {
   }
 };
 
-
 const selectMyMatricula = async (req, res) => {
   try {
     const { matricula } = req.body;
