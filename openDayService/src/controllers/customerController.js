@@ -59,8 +59,6 @@ const createCustomer = async (req, res) => {
       amount = amount + (amount * 0.10);  // Aumentar el 10%
     }
 
-    console.log('Cliente creado:', customer);
-
     const chargeRequest = {
       method: "card", // Método de pago, por ejemplo "card"
       amount: amount, // Monto en centavos (15.00 MXN)
@@ -89,14 +87,7 @@ const createCustomer = async (req, res) => {
       // Si el cliente tiene un número de teléfono, enviamos el mensaje por WhatsApp
       if (customerPhone) {
         const message = `${paymentUrl}`;
-
         sendWhatsappMessage(customerPhone, message)
-          .then(response => {
-            console.log("Mensaje enviado a WhatsApp:", response.data);
-          })
-          .catch(error => {
-            console.error("Error al enviar el mensaje de WhatsApp:", error);
-          });
       }
     });
 

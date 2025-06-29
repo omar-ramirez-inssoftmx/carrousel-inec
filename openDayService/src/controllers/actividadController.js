@@ -59,7 +59,6 @@ const agruparPedidos = (pedidos) => {
 const formatOrders = async (orders) => {
   // Usamos Promise.all para esperar a que todas las promesas del map se resuelvan
   return Promise.all(orders.map(async (order) => {
-    console.log("order formatOrders", order);
     const monto = order.monto_real_pago;
 
     let fechaFormateada = "Sin fecha";
@@ -78,7 +77,6 @@ const formatOrders = async (orders) => {
     }
 
     const openpayStatus = await getCustomerChargesStatus(order.open_pay_id, order.identificador_pago);
-    console.log("openpayStatus ", openpayStatus);
 
     return {
       numero: order.identificador_pago || 'N/A',

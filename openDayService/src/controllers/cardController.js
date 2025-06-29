@@ -27,8 +27,18 @@ const createCard = async (req, res) => {
 
       const vencimiento = expiration_month + "/" + expiration_year;
 
-      const saveCard = await createCardForStudent(id_alumno, card.card_number, card.id, nombre_tarjeta, card.brand, holder_name, vencimiento, telefono, ciudad, postal);
-      console.log("saveCard ", saveCard);
+      const saveCard = await createCardForStudent(
+        id_alumno,
+        card.card_number,
+        card.id,
+        nombre_tarjeta,
+        card.brand,
+        holder_name,
+        vencimiento,
+        telefono,
+        ciudad,
+        postal
+      );
 
       res.json({ openpayCard: card, savedCard: saveCard });
 
@@ -107,8 +117,6 @@ const deleteCard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error en deleteCard:", error);
-
     const errorResponse = {
       success: false,
       error: error.description || error.message,

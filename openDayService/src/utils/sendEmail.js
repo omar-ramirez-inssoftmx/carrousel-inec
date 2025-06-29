@@ -5,7 +5,6 @@ const { formatCurrency } = require('./utils');
 async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, email) {
   try {
     const template = await getTempleteEmail("email");
-    console.log("vigeniaFecha--->", vigeniaFecha)
     const subject = "Link de pago INEC";
     const body = template.template;
 

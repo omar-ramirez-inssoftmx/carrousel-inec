@@ -1,5 +1,6 @@
 const { openpay } = require('../utils/openPay');
 const axios = require('axios');
+
 const { getMyOpenPay } = require('../models/selectStudentSataModel');
 const { updatePedidos } = require('../models/customerModel');
 const { sendMailOtp } = require('../utils/sendEmail');
@@ -11,14 +12,11 @@ const sendWhatsappMessage = (fecha, link, nombre, phoneNumber, matricula) => {
 
   const vigeniaFechaDate = new Date(fecha);
 
-  const opciones = {
+  const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", {
     day: "numeric",
     month: "long",
     year: "numeric"
-  };
-
-  const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", opciones); // Formatear la fecha
-
+  });
 
   const messagePayload = {
     messaging_product: "whatsapp",
@@ -247,25 +245,17 @@ const createCharge = async (customerId, token, amount, description, orderId, dev
       });
     });
 
-    console.log("Cargo creado:", charge);
-
-    // Datos para actualizar los pedidos
     const actualizar = {
       identificador_pago: charge.order_id,
       link_de_pago: charge.authorization,
       transaccion_Id: charge.id
     };
 
-    console.log("IDs de pedidos:", ids);
-    console.log("Datos a actualizar:", actualizar);
-
     // Actualizamos los pedidos en la base de datos
     await updatePedidos(ids, actualizar);
-    console.log("Pedidos actualizados correctamente.");
 
     return { charge };
   } catch (error) {
-    console.error("Error en createCharge:", error);
     throw error; // Relanzamos el error para manejarlo arriba
   }
 };

@@ -38,10 +38,7 @@ const uploadFile = async (req, res) => {
 
     // Filtramos la primera fila con encabezados reales (ignorando comentarios)
     let headerRowIndex = data.findIndex(row => row.some(cell => {
-
-      console.log("typeof cell ", typeof cell)
       if (typeof cell !== 'string') return false;
-      console.log("Object.keys(columnMapping).some(key => cell.includes(key)); ", Object.keys(columnMapping).some(key => cell.includes(key)))
       return Object.keys(columnMapping).some(key => cell.includes(key));
     }));
 

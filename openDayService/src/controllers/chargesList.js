@@ -12,9 +12,7 @@ const getCustomerChargesStatus = (customer_id, order_id) => {
       if (error) {
         reject(error);
       } else {
-        // Buscar el cargo asociado al pedido
         const charge = charges.find((charge) => charge.order_id === order_id);
-        console.log("Cargo encontrado: ", charge)
 
         if (!charge) {
           return resolve(null); // No se encontró el cargo
