@@ -39,7 +39,7 @@ const agruparPedidos = (pedidos) => {
     }
 
     grupos[pedido.numero].conceptos.push(pedido.pago);
-    grupos[pedido.numero].montoTotal = pedido.monto.replace('$', '').replace(/,/g, '');
+    grupos[pedido.numero].montoTotal = parseFloat(pedido.monto.replace('$', '').replace(/,/g, ''));
     grupos[pedido.numero].detalles.push(pedido); // Guardamos el pedido completo
   });
 
@@ -78,12 +78,16 @@ const formatOrders = async (orders) => {
 
     const openpayStatus = await getCustomerChargesStatus(order.open_pay_id, order.identificador_pago);
 
+    // Formatear el mes y año para mostrar
+    const mesAnio = order.mes && order.anio ? `${order.mes.toString().padStart(2, '0')}/${order.anio}` : 'Sin mes';
+
     return {
       numero: order.identificador_pago || 'N/A',
-      pago: order.concepto_pedido || 'Sin concepto',
+      pago: mesAnio, // Cambiar de concepto_pedido a mes/año
       fecha: fechaFormateada,
       monto: `$${monto.toLocaleString('es-MX')}`,
       factura: order.transaccion_Id ? 'Descargar' : 'Sin factura',
+      concepto_original: order.concepto_pedido || 'Sin concepto', // Mantener el concepto original por si se necesita
       card: {
         card_brand: openpayStatus.card.brand || 'N/A',
         card_number: openpayStatus.card.card_number || 'N/A',
