@@ -1,4 +1,3 @@
-
 const pool = require('../config/conexionAsync');
 
 async function getPedidosByMatricula(matricula) {
@@ -7,8 +6,9 @@ async function getPedidosByMatricula(matricula) {
 
   if (existingAlumno.length < 1) {
     return null;
-  } else {
-    const query = `
+  }
+
+  const query = `
         SELECT p.id_pedido,
             p.identificador_pago,
             p.identificador_pedido,         
@@ -36,13 +36,12 @@ async function getPedidosByMatricula(matricula) {
         WHERE a.matricula = ? AND p.id_cat_estatus != 1;
         `;
 
-    try {
-      const [result] = await pool.query(query, [matricula]);
-      return result;
-    } catch (error) {
-      console.error("Error al obtener pedidos por matrícula:", error);
-      throw new Error("Error al obtener pedidos por matrícula");
-    }
+  try {
+    const [result] = await pool.query(query, [matricula]);
+    return result;
+  } catch (error) {
+    console.error("Error al obtener pedidos por matrícula:", error);
+    throw new Error("Error al obtener pedidos por matrícula");
   }
 }
 

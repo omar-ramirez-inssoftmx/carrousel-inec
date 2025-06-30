@@ -1,9 +1,6 @@
 const pool = require('../config/conexionAsync');
 
 async function getOrdersStudent(matricula) {
-
-  console.log("matricula ===>", matricula)
-
   const query = `
     SELECT p.id_pedido,
         p.identificador_pago,

@@ -14,7 +14,6 @@ exports.createPaymentLink = (req, res, next) => {
     redirect_url: "http://localhost:3000/payment-success"
   };
 
-  // Crear la orden de pago (Cargo)
   openpay.charges.create(chargeRequest, (error, order) => {
     if (error) {
       console.error("Error al crear el pedido:", error);
