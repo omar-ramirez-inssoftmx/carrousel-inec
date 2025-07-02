@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model alumno {
+  id_alumno          Int        @id @default(autoincrement())
+  matricula          String     @unique @db.VarChar(10)
+  nombre             String     @db.VarChar(45)
+  apellido_paterno   String     @db.VarChar(45)
+  apellido_materno   String?    @db.VarChar(45)
+  email              String     @db.VarChar(50)
+  celular            String     @db.VarChar(10)
+  open_pay_id        String?    @db.VarChar(50)
+  fecha_alta         DateTime   @db.DateTime(0)
+  fecha_modificacion DateTime   @db.DateTime(0)
+  pedidos            pedidos[]
+  tarjetas           tarjetas[]
+}
+
+model cat_estatus {
+  id_cat_estatus Int       @id @default(autoincrement())
+  clave          String    @db.VarChar(45)
+  descripcion    String    @db.VarChar(45)
+  valor          Int
+  pedidos        pedidos[]
+}
+
+model configuracion_cron {
+  id             Int     @id @default(autoincrement())
+  nombre         String? @db.VarChar(50)
+  expresion_cron String? @db.VarChar(50)
+}
+
+model configuracion_general {
+  id     Int     @id @default(autoincrement())
+  nombre String? @db.VarChar(50)
+  valor  String? @db.LongText
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pedidos {
+  id_pedido                     Int         @id @default(autoincrement())
+  id_alumno                     Int
+  identificador_pago            String?     @db.VarChar(45)
+  identificador_pedido          String?     @db.VarChar(45)
+  sku                           Int?        @default(0)
+  id_cat_estatus                Int
+  tipo_pago                     String      @db.VarChar(50)
+  producto_servicio_motivo_pago String      @db.VarChar(250)
+  concepto_pago                 String      @db.VarChar(255)
+  ciclo                         Int
+  mes                           Int
+  anio                          Int
+  pago                          Decimal?    @db.Decimal(10, 2)
+  fecha_vigencia_pago           DateTime?   @db.Date
+  link_de_pago                  String?     @db.VarChar(255)
+  concepto                      String?     @db.VarChar(255)
+  transaccion_Id                String?     @db.VarChar(100)
+  fecha_carga                   DateTime?   @db.Date
+  fecha_pago                    DateTime?   @db.DateTime(0)
+  monto_real_pago               Decimal?    @default(0.00) @db.Decimal(10, 2)
+  alumno                        alumno      @relation(fields: [id_alumno], references: [id_alumno], onDelete: NoAction, onUpdate: NoAction, map: "id_alumno")
+  cat_estatus                   cat_estatus @relation(fields: [id_cat_estatus], references: [id_cat_estatus], onDelete: NoAction, onUpdate: NoAction, map: "id_cat_estatus")
+
+  @@index([id_alumno], map: "id_alumno_idx")
+  @@index([id_cat_estatus], map: "id_cat_estatus_idx")
+}
+
+model tarjetas {
+  id             Int     @id @default(autoincrement())
+  numero_tarjeta String  @db.VarChar(16)
+  token          String  @db.VarChar(255)
+  id_alumno      Int
+  nombre_tarjeta String  @db.VarChar(255)
+  tipo           String  @db.VarChar(255)
+  activa         Boolean @default(false)
+  titular        String  @db.VarChar(255)
+  vencimiento    String  @db.VarChar(255)
+  eliminada      Boolean @default(false)
+  telefono       String  @db.VarChar(255)
+  ciudad         String  @db.VarChar(255)
+  postal         String  @db.VarChar(255)
+  alumno         alumno  @relation(fields: [id_alumno], references: [id_alumno], onDelete: Cascade, onUpdate: NoAction, map: "tarjetas_ibfk_1")
+
+  @@index([id_alumno], map: "id_alumno")
+}
