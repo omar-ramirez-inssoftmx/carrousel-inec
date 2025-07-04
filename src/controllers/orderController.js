@@ -296,7 +296,7 @@ const getStudentOrdersActivity = async (req, res, next) => {
 
 /**
  * Cancelar pedidos eliminando datos de pago
- * Ruta: POST /api/cancel/cancel
+ * Ruta: POST /api/orders/cancel
  */
 const getCancelOrdersData = async (req, res, next) => {
   const { pedidosConLinks, pedidosComp } = req.body;

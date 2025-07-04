@@ -20,7 +20,7 @@ const { processOrderDates } = require('../services/formatService');
 
 /**
  * Obtener datos de estudiante y sus pedidos pendientes
- * Ruta: POST /api/student/selectStudent
+ * Ruta: POST /api/students/select
  */
 const getStudentData = async (req, res) => {
   try {
@@ -83,7 +83,7 @@ const getStudentData = async (req, res) => {
 
 /**
  * Obtener información básica del estudiante por matrícula
- * Ruta: POST /api/student/selectStudentMatricula
+ * Ruta: POST /api/students/profile
  */
 const getStudentByMatriculaData = async (req, res) => {
   try {
@@ -107,7 +107,7 @@ const getStudentByMatriculaData = async (req, res) => {
 
 /**
  * Crear cliente y generar link de pago
- * Ruta: POST /api/customers/create
+ * Ruta: POST /api/students/create
  */
 const createCustomerWithPayment = async (req, res) => {
   try {
@@ -178,7 +178,7 @@ const createCustomerWithPayment = async (req, res) => {
 
 /**
  * Listar customer por external_id
- * Ruta: POST /api/customers/list
+ * Ruta: POST /api/students/list
  */
 const listCustomer = async (req, res) => {
   const { external_id } = req.body;
@@ -195,7 +195,7 @@ const listCustomer = async (req, res) => {
 
 /**
  * Editar customer
- * Ruta: POST /api/customers/edit
+ * Ruta: POST /api/students/edit
  */
 const editCustomer = async (req, res) => {
   const { email, customerId } = req.body;
@@ -220,4 +220,4 @@ module.exports = {
   createCustomerWithPayment,
   listCustomer,
   editCustomer
-}; 
+};
