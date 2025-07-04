@@ -3,7 +3,8 @@ const {
   getPendingOrdersByMatricula,
   getCompletedOrdersByMatricula,
   getAvailableMonths,
-  updateOrders
+  updateOrders,
+  cancelOrdersPaymentData
 } = require('../models/orderModel');
 const { createCardForStudent } = require('../models/cardModel');
 const { 
@@ -294,23 +295,40 @@ const getStudentOrdersActivity = async (req, res, next) => {
 };
 
 /**
- * Obtener pedidos para cancelación
+ * Cancelar pedidos eliminando datos de pago
  * Ruta: POST /api/cancel/cancel
  */
 const getCancelOrdersData = async (req, res, next) => {
-  const { pedidosConLinks } = req.body;
+  const { pedidosConLinks, pedidosComp } = req.body;
 
   try {
-    const pedidos = await getPendingOrdersByMatricula(pedidosConLinks[0].matricula);
+    // Extraer IDs de los pedidos con links de pago
+    const pedidoIds = pedidosConLinks.flatMap(grupo => 
+      grupo.pedidos ? grupo.pedidos.map(p => p.id_pedido) : [grupo.id_pedido]
+    ).filter(id => id);
 
-    if (!pedidos || pedidos.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron pedidos' });
+    if (pedidoIds.length === 0) {
+      return res.status(400).json({ message: 'No se encontraron pedidos válidos para cancelar' });
     }
 
-    const pedidosProcesados = pedidos.map(processOrderDates);
+    // Cancelar los datos de pago de los pedidos
+    await cancelOrdersPaymentData(pedidoIds);
+
+    // Obtener los pedidos actualizados
+    const matricula = pedidosConLinks[0]?.matricula || 
+                     (pedidosConLinks[0]?.pedidos && pedidosConLinks[0].pedidos[0]?.matricula);
+    
+    if (!matricula) {
+      return res.status(400).json({ message: 'No se pudo determinar la matrícula' });
+    }
+
+    const pedidosActualizados = await getPendingOrdersByMatricula(matricula);
+    const pedidosProcesados = pedidosActualizados.map(processOrderDates);
+    
     res.json(pedidosProcesados);
 
   } catch (error) {
+    console.error('Error al cancelar pedidos:', error);
     return res.status(400).json({ error: error.message });
   }
 };
@@ -420,4 +438,4 @@ module.exports = {
   getStudentOrdersActivity,
   getCancelOrdersData,
   createDirectChargeHandler
-}; 
+};

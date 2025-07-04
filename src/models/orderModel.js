@@ -321,6 +321,26 @@ async function updateOrderSurcharge(id, pago, fecha) {
   }
 }
 
+/**
+ * Cancelar pedidos eliminando datos de pago
+ */
+async function cancelOrdersPaymentData(ids) {
+  const updateQuery = `
+    UPDATE pedidos
+    SET 
+        identificador_pago = NULL,
+        link_de_pago = NULL,
+        transaccion_Id = NULL
+    WHERE id_pedido IN (?)`;
+
+  try {
+    const [result] = await pool.query(updateQuery, [ids]);
+    return result;
+  } catch (error) {
+    throw new Error("Error al cancelar los datos de pago de los pedidos");
+  }
+}
+
 module.exports = {
   createOrder,
   getPendingOrdersByMatricula,
@@ -329,5 +349,6 @@ module.exports = {
   getAvailableMonths,
   updateOrders,
   updateOrderStatus,
-  updateOrderSurcharge
-}; 
+  updateOrderSurcharge,
+  cancelOrdersPaymentData
+};
