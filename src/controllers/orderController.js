@@ -6,7 +6,7 @@ const {
   updateOrders,
   cancelOrdersPaymentData
 } = require('../models/orderModel');
-const { 
+const {
   getCustomer,
   createCharge,
   createDirectCharge,
@@ -270,7 +270,7 @@ const getCancelOrdersData = async (req, res, next) => {
 
   try {
     // Extraer IDs de los pedidos con links de pago
-    const pedidoIds = pedidosConLinks.flatMap(grupo => 
+    const pedidoIds = pedidosConLinks.flatMap(grupo =>
       grupo.pedidos ? grupo.pedidos.map(p => p.id_pedido) : [grupo.id_pedido]
     ).filter(id => id);
 
@@ -282,16 +282,16 @@ const getCancelOrdersData = async (req, res, next) => {
     await cancelOrdersPaymentData(pedidoIds);
 
     // Obtener los pedidos actualizados
-    const matricula = pedidosConLinks[0]?.matricula || 
-                     (pedidosConLinks[0]?.pedidos && pedidosConLinks[0].pedidos[0]?.matricula);
-    
+    const matricula = pedidosConLinks[0]?.matricula ||
+      (pedidosConLinks[0]?.pedidos && pedidosConLinks[0].pedidos[0]?.matricula);
+
     if (!matricula) {
       return res.status(400).json({ message: 'No se pudo determinar la matrícula' });
     }
 
     const pedidosActualizados = await getPendingOrdersByMatricula(matricula);
     const pedidosProcesados = pedidosActualizados.map(processOrderDates);
-    
+
     res.json(pedidosProcesados);
 
   } catch (error) {
@@ -342,7 +342,7 @@ const formatOrders = async (orders) => {
   return Promise.all(orders.map(async (order) => {
     const monto = order.monto_real_pago;
     const fechaFormateada = formatPaymentDate(order.fecha_pago);
-         const openpayStatus = await getCustomerChargesStatus(order.open_pay_id, order.identificador_pago);
+    const openpayStatus = await getCustomerChargesStatus(order.open_pay_id, order.identificador_pago);
     const mesAnio = formatMonthYear(order.mes, order.anio);
 
     return {
