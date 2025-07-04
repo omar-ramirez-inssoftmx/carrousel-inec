@@ -9,7 +9,7 @@ async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tar
             nombre_tarjeta,
             tipo,
             titular,
-            vencimiento,    
+            vencimiento 
         )
         VALUES (?, ?, ?, ?, ?, ?, ?);
     `;
@@ -45,7 +45,7 @@ async function getStudentCardsByMatricula(matricula) {
             t.nombre_tarjeta,
             t.tipo,
             t.activa,
-            t.token,
+            t.token
         FROM alumno a
         LEFT JOIN tarjetas t ON a.id_alumno = t.id_alumno
         WHERE a.matricula = ? and t.eliminada = false;
@@ -72,7 +72,7 @@ async function getStudentCardsByMatriculaActive(matricula) {
             t.nombre_tarjeta,
             t.tipo,
             t.activa,
-            t.token,
+            t.token
         FROM alumno a
         LEFT JOIN tarjetas t ON a.id_alumno = t.id_alumno
         WHERE a.matricula = ? 
@@ -95,14 +95,12 @@ async function getStudentCardsByMatriculaActive(matricula) {
 
 async function activateStudentCard(id_tarjeta, id_alumno) {
   const disableQuery = `
-        UPDATE tarjetas 
-        SET activa = false 
+        UPDATE tarjetas SET activa = false 
         WHERE id_alumno = ?;
     `;
 
   const activateQuery = `
-        UPDATE tarjetas 
-        SET activa = true 
+        UPDATE tarjetas SET activa = true 
         WHERE id = ? AND id_alumno = ?;
     `;
 
