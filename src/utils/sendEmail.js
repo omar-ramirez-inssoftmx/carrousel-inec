@@ -1,12 +1,12 @@
 const nodemailer = require("nodemailer");
-const { getTempleteEmail } = require('../models/customerModel');
+const emailTemplates = require('../templates/emailTemplates');
 const { formatCurrency } = require('./utils');
 
 async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, email) {
   try {
-    const template = await getTempleteEmail("email");
-    const subject = "Link de pago INEC";
-    const body = template.template;
+    const template = emailTemplates.email;
+    const subject = template.subject;
+    const body = template.body;
 
     const vigeniaFechaDate = new Date(vigeniaFecha); // Crear un objeto Date a partir de la fecha ajustada
 

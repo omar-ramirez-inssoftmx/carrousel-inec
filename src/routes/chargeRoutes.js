@@ -1,8 +1,8 @@
 const express = require('express');
-const { createCharge } = require('../controllers/chargeController');
+const { createDirectChargeHandler } = require('../controllers/orderController');
 
 const router = express.Router();
 
-router.post('/create', createCharge);
+router.post('/create', createDirectChargeHandler);
 
 module.exports = router;

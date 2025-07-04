@@ -1,10 +1,10 @@
-const { getPedidosAllMatricula } = require('../models/selectStudentSataModel');
-const { getCustomerChargesStatus } = require('.././controllers/chargesList');
-const { updateStatus } = require('../models/customerModel');
+const { getAllOrdersForSurcharge } = require('../models/orderModel');
+const { getCustomerChargesStatus } = require('../services/chargeService');
+const { updateOrderStatus } = require('../models/orderModel');
 
 async function procesoProgramadoUpdateStatus() {
   try {
-    const pedidos = await getPedidosAllMatricula();
+    const pedidos = await getAllOrdersForSurcharge();
 
     await Promise.all(
       pedidos.map(async (pedido) => {
@@ -31,7 +31,7 @@ async function procesoProgramadoUpdateStatus() {
 
         // Actualizar el estado del pedido en la base de datos si tiene identificador_pago y transaccion_Id
         if (pedido.identificador_pago && pedido.transaccion_Id && estado != 'Desconocido') {
-          await updateStatus(pedido.id_pedido, estado, openpayStatus);
+          await updateOrderStatus(pedido.id_pedido, estado, openpayStatus);
         }
 
         return {

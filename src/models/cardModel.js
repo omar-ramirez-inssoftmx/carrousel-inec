@@ -106,14 +106,12 @@ async function getStudentCardsByMatriculaActive(matricula) {
 }
 
 async function activateStudentCard(id_tarjeta, id_alumno) {
-  // Primero desactivamos todas las tarjetas del alumno
   const disableQuery = `
         UPDATE tarjetas 
         SET activa = false 
         WHERE id_alumno = ?;
     `;
 
-  // Luego activamos la tarjeta específica
   const activateQuery = `
         UPDATE tarjetas 
         SET activa = true 
@@ -121,17 +119,9 @@ async function activateStudentCard(id_tarjeta, id_alumno) {
     `;
 
   try {
-    // Iniciamos una transacción para asegurar la atomicidad
-    await pool.query('START TRANSACTION');
-
-    // Desactivamos todas las tarjetas del alumno
     await pool.query(disableQuery, [id_alumno]);
 
-    // Activamos la tarjeta específica
     const [result] = await pool.query(activateQuery, [id_tarjeta, id_alumno]);
-
-    // Confirmamos la transacción
-    await pool.query('COMMIT');
 
     return {
       success: true,
@@ -139,7 +129,6 @@ async function activateStudentCard(id_tarjeta, id_alumno) {
       message: `Tarjeta ${id_tarjeta} activada y demás tarjetas desactivadas`
     };
   } catch (error) {
-    await pool.query('ROLLBACK');
     throw error;
   }
 }

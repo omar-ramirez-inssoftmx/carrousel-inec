@@ -1,9 +1,9 @@
 const express = require('express');
-const { createCustomer, listCustomer, editCustomer } = require('../controllers/customerController');
+const { createCustomerWithPayment, listCustomer, editCustomer } = require('../controllers/studentController');
 
 const router = express.Router();
 
-router.post('/create', createCustomer);
+router.post('/create', createCustomerWithPayment);
 router.post('/list', listCustomer);
 router.post('/edit', editCustomer);
 

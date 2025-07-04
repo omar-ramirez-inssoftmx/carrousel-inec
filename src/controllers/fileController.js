@@ -1,6 +1,7 @@
 const xlsx = require('xlsx');
 const fs = require('fs');
-const { createAlumno, createPedido } = require('../models/customerModel')
+const { createStudent } = require('../models/studentModel');
+const { createOrder } = require('../models/orderModel');
 
 const { openpay } = require('../utils/openPay');
 
@@ -61,7 +62,7 @@ const uploadFile = async (req, res) => {
         };
 
         const customer = await findOrCreateCustomer(customerData);
-        const resultAlumno = await createAlumno(row[0], row[1], row[2], row[3], row[5].trim(), row[4], customer.id);
+        const resultAlumno = await createStudent(row[0], row[1], row[2], row[3], row[5].trim(), row[4], customer.id);
 
         const ciclo = parseInt(row[11]) || 0;
         const mesInicial = parseInt(row[12]) || 1;
@@ -78,7 +79,7 @@ const uploadFile = async (req, res) => {
             anioActual += Math.floor((mesActual - 1) / 12);
           }
 
-          await createPedido(
+          await createOrder(
             resultAlumno,
             null,
             null,

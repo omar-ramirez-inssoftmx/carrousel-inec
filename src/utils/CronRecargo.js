@@ -1,9 +1,9 @@
-const { getPedidosAllMatricula } = require('../models/selectStudentSataModel');
-const { updateRecargo } = require('../models/cronModel');
+const { getAllOrdersForSurcharge } = require('../models/orderModel');
+const { updateOrderSurcharge } = require('../models/orderModel');
 
 async function procesoProgramadoRecargo() {
   try {
-    const pedidos = await getPedidosAllMatricula();
+    const pedidos = await getAllOrdersForSurcharge();
 
     if (!pedidos || pedidos.length === 0) {
       return { success: true, message: 'No hay pedidos para procesar' };
@@ -35,11 +35,11 @@ async function procesoProgramadoRecargo() {
           const nuevaFechaVigencia = new Date(nextYear, nextMonth, 15);
           const formattedDate = nuevaFechaVigencia.toISOString().split('T')[0];
 
-          await updateRecargo(pedido.id_pedido, nuevoMonto, formattedDate);
+          await updateOrderSurcharge(pedido.id_pedido, nuevoMonto, formattedDate);
 
           recargosAplicados++;
           console.log(`Recargo aplicado al pedido ${pedido.id_pedido} - Nuevo monto: ${nuevoMonto}`);
-        } 
+        }
 
         pedidosActualizados++;
       } catch (error) {

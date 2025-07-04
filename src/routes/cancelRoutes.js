@@ -1,8 +1,8 @@
 const express = require('express');
-const { selectStudentData } = require('../controllers/cancelController');
+const { getCancelOrdersData } = require('../controllers/orderController');
 
 const router = express.Router();
 
-router.post('/cancel', selectStudentData);
+router.post('/cancel', getCancelOrdersData);
 
 module.exports = router;

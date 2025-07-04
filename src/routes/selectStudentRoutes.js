@@ -1,9 +1,9 @@
 const express = require('express');
-const { selectStudentData, selectMyMatricula } = require('../controllers/selectStudentDataController');
+const { getStudentData, getStudentByMatriculaData } = require('../controllers/studentController');
 
 const router = express.Router();
 
-router.post('/selectStudent', selectStudentData);
-router.post('/selectStudentMatricula', selectMyMatricula);
+router.post('/selectStudent', getStudentData);
+router.post('/selectStudentMatricula', getStudentByMatriculaData);
 
 module.exports = router;
