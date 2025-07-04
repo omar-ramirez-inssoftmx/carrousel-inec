@@ -6,13 +6,11 @@ const {
   updateOrders,
   cancelOrdersPaymentData
 } = require('../models/orderModel');
-const { createCardForStudent } = require('../models/cardModel');
 const { 
   getCustomer,
   createCharge,
   createDirectCharge,
   createChargeRequestWithSurcharge,
-  createCustomerCard
 } = require('../services/openpayService');
 const { getCustomerChargesStatus } = require('../services/chargeService');
 const {
@@ -30,11 +28,6 @@ const {
   processOrderDates
 } = require('../services/formatService');
 const { sendMailOtp } = require('../utils/sendEmail');
-
-/**
- * Controlador consolidado para órdenes
- * Unifica ordersController, ordersIdController, cancelController, actividadController, chargeController
- */
 
 /**
  * Crear link de pago simple
@@ -196,15 +189,6 @@ const processCharge = async (req, res) => {
       orderId,
       deviceSessionId,
       pedidoIds,
-      fechaVigencia,
-      pedidosSeleccionados,
-      saveCard,
-      tokenGuardar,
-      telefono,
-      ciudad,
-      postal,
-      idAlumno,
-      nombreTarjeta
     } = req.body;
 
     if (!customer_id || !token || !amount || !description || !orderId || !deviceSessionId) {
@@ -213,9 +197,7 @@ const processCharge = async (req, res) => {
 
     const charge = await createChargeWithCard(
       customer_id, token, amount, description, orderId, deviceSessionId,
-      pedidoIds, fechaVigencia, pedidosSeleccionados, saveCard, tokenGuardar,
-      telefono, ciudad, postal, idAlumno, nombreTarjeta
-    );
+      pedidoIds);
 
     res.status(200).json({ success: true, charge });
 
@@ -227,25 +209,10 @@ const processCharge = async (req, res) => {
 /**
  * Crear charge con tarjeta (función auxiliar)
  */
-const createChargeWithCard = async (customerId, token, amount, description, orderId, deviceSessionId, ids, fechaVigencia, pedidosSeleccionados, saveCard, tokenGuardar, telefono, ciudad, postal, idAlumno, nombreTarjeta) => {
+const createChargeWithCard = async (customerId, token, amount, description, orderId, deviceSessionId, ids) => {
   try {
     let cardId = token;
 
-    // Si debemos guardar la tarjeta
-    if (saveCard) {
-      const cardRequest = {
-        token_id: token,
-        device_session_id: deviceSessionId,
-      };
-
-      const card = await createCustomerCard(customerId, cardRequest);
-      cardId = card.id;
-
-      const vencimiento = `${card.expiration_month}/${card.expiration_year}`;
-      await createCardForStudent(idAlumno, card.card_number, card.id, nombreTarjeta, card.brand, card.holder_name, vencimiento, telefono, ciudad, postal);
-    }
-
-    // Preparamos la solicitud de cargo
     const chargeRequest = {
       source_id: cardId,
       method: 'card',

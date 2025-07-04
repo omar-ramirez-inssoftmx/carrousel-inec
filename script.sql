@@ -59,9 +59,6 @@ CREATE TABLE `tarjetas` (
     `titular` varchar(255) NOT NULL,
     `vencimiento` varchar(255) NOT NULL,
     `eliminada` tinyint(1) NOT NULL DEFAULT '0',
-    `telefono` varchar(255) NOT NULL,
-    `ciudad` varchar(255) NOT NULL,
-    `postal` varchar(255) NOT NULL,
     PRIMARY KEY (`id`),
     KEY `id_alumno` (`id_alumno`),
     CONSTRAINT `tarjetas_ibfk_1` FOREIGN KEY (`id_alumno`) REFERENCES `alumno` (`id_alumno`) ON DELETE CASCADE

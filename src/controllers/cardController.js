@@ -8,7 +8,7 @@ const {
 } = require('../models/cardModel');
 
 const createCard = async (req, res) => {
-  const { card_number, holder_name, expiration_year, expiration_month, cvv2, device_session_id, customer_id, id_alumno, nombre_tarjeta, telefono, ciudad, postal } = req.body;
+  const { card_number, holder_name, expiration_year, expiration_month, cvv2, device_session_id, customer_id, id_alumno, nombre_tarjeta } = req.body;
 
   const cardRequest = {
     card_number,
@@ -35,9 +35,6 @@ const createCard = async (req, res) => {
         card.brand,
         holder_name,
         vencimiento,
-        telefono,
-        ciudad,
-        postal
       );
 
       res.json({ openpayCard: card, savedCard: saveCard });

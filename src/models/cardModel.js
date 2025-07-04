@@ -1,6 +1,6 @@
 const pool = require('../utils/pool');
 
-async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento, telefono, ciudad, postal) {
+async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento) {
   const query = `
         INSERT INTO tarjetas (
             id_alumno, 
@@ -9,16 +9,13 @@ async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tar
             nombre_tarjeta,
             tipo,
             titular,
-            vencimiento,
-            telefono,
-            ciudad, 
-            postal     
+            vencimiento,    
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?);
     `;
 
   try {
-    const [result] = await pool.query(query, [id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento, telefono, ciudad, postal]);
+    const [result] = await pool.query(query, [id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento]);
 
     return {
       id_tarjeta: result.insertId,
@@ -29,9 +26,6 @@ async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tar
       tipo,
       titular,
       vencimiento,
-      telefono,
-      ciudad,
-      postal
     };
   } catch (error) {
     throw error;
@@ -52,9 +46,6 @@ async function getStudentCardsByMatricula(matricula) {
             t.tipo,
             t.activa,
             t.token,
-            t.telefono,
-            t.ciudad,
-            t.postal
         FROM alumno a
         LEFT JOIN tarjetas t ON a.id_alumno = t.id_alumno
         WHERE a.matricula = ? and t.eliminada = false;
@@ -82,9 +73,6 @@ async function getStudentCardsByMatriculaActive(matricula) {
             t.tipo,
             t.activa,
             t.token,
-            t.telefono,
-            t.ciudad,
-            t.postal
         FROM alumno a
         LEFT JOIN tarjetas t ON a.id_alumno = t.id_alumno
         WHERE a.matricula = ? 
