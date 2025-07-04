@@ -90,7 +90,6 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
     // Crear la orden de pago (Cargo)
     openpay.customers.charges.create(customerData.id, chargeRequest, (error, order) => {
       if (error) {
-        console.error("Error al crear el pedido:", error);
         return res.status(400).json({ error: error.description });
       }
 
@@ -107,7 +106,6 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
 
     });
   } catch (error) {
-    console.error("Error en la creación del link de pago:", error);
     return res.status(400).json({ error: error.message });
   }
 };
@@ -146,8 +144,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
       redirect_url: "http://inecestudiantes.s3-website-us-east-1.amazonaws.com/",
       due_date: fechaVigencia,
     };
-    console.log("chargeRequest ", chargeRequest)
-    // Envolver la llamada a OpenPay en una promesa
+
     const createCharge = (customer_id, chargeRequest) => {
       return new Promise((resolve, reject) => {
         openpay.customers.charges.create(customer_id, chargeRequest, (error, order) => {
@@ -160,9 +157,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
       });
     };
 
-    // Esperar la creación del cargo
     const order = await createCharge(customer_id, chargeRequest);
-    console.log("order creada", order)
     const paymentUrl = order.payment_method?.url || "No se generó un link de pago";
     const customerPhone = 52 + student.celular; // Asegúrate de que el cliente tenga un número de teléfono
     const nameFull = student.nombre + " " + student.apellido_paterno + " " + student.apellido_materno;
@@ -177,9 +172,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
 
     try {
       await updatePedidos(idsSeleccionados, actualizar); // Actualizamos los registros
-      console.log("Pedidos actualizados correctamente.");
-    } catch (error) {
-      console.error("Error al actualizar los pedidos:", error);
+    } catch {
       return res.status(500).json({ error: "Error al actualizar los pedidos." });
     }
 
@@ -193,7 +186,6 @@ const createPaymentLinkStudent = async (req, res, next) => {
     res.json({ payment_url: paymentUrl });
 
   } catch (error) {
-    console.error("Error en la creación del link de pago:", error);
     return res.status(400).json({ error: error.message });
   }
 };

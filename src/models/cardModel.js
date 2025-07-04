@@ -1,7 +1,7 @@
-const pool = require('../config/conexionAsync');
+const pool = require('../utils/pool');
 
 async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento, telefono, ciudad, postal) {
-    const query = `
+  const query = `
         INSERT INTO tarjetas (
             id_alumno, 
             numero_tarjeta, 
@@ -17,30 +17,29 @@ async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tar
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
 
-    try {
-        const [result] = await pool.query(query, [id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento, telefono, ciudad, postal]);
+  try {
+    const [result] = await pool.query(query, [id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento, telefono, ciudad, postal]);
 
-        return { 
-            id_tarjeta: result.insertId, 
-            id_alumno, 
-            numero_tarjeta, 
-            token,
-            nombre_tarjeta, 
-            tipo,
-            titular, 
-            vencimiento,
-            telefono,
-            ciudad, 
-            postal  
-        };
-    } catch (error) {
-        console.error("Error al guardar la tarjeta:", error);
-        throw error;
-    }
+    return {
+      id_tarjeta: result.insertId,
+      id_alumno,
+      numero_tarjeta,
+      token,
+      nombre_tarjeta,
+      tipo,
+      titular,
+      vencimiento,
+      telefono,
+      ciudad,
+      postal
+    };
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function getStudentCardsByMatricula(matricula) {
-    const query = `
+  const query = `
             SELECT 
             a.id_alumno,
             a.nombre,
@@ -61,17 +60,16 @@ async function getStudentCardsByMatricula(matricula) {
         WHERE a.matricula = ? and t.eliminada = false;
     `;
 
-    try {
-        const [rows] = await pool.query(query, [matricula]);
-        return rows;
-    } catch (error) {
-        console.error("Error al obtener tarjetas del alumno:", error);
-        throw error;
-    }
+  try {
+    const [rows] = await pool.query(query, [matricula]);
+    return rows;
+  } catch {
+    throw new Error("Error al obtener tarjetas del alumno");
+  }
 }
 
 async function getStudentCardsByMatriculaActive(matricula) {
-    const query = `
+  const query = `
         SELECT 
             a.id_alumno,
             a.nombre,
@@ -99,86 +97,82 @@ async function getStudentCardsByMatriculaActive(matricula) {
           );
     `;
 
-    try {
-        const [rows] = await pool.query(query, [matricula]);
-        return rows;
-    } catch (error) {
-        console.error("Error al obtener tarjetas del alumno:", error);
-        throw error;
-    }
+  try {
+    const [rows] = await pool.query(query, [matricula]);
+    return rows;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function activateStudentCard(id_tarjeta, id_alumno) {
-    // Primero desactivamos todas las tarjetas del alumno
-    const disableQuery = `
+  // Primero desactivamos todas las tarjetas del alumno
+  const disableQuery = `
         UPDATE tarjetas 
         SET activa = false 
         WHERE id_alumno = ?;
     `;
-    
-    // Luego activamos la tarjeta específica
-    const activateQuery = `
+
+  // Luego activamos la tarjeta específica
+  const activateQuery = `
         UPDATE tarjetas 
         SET activa = true 
         WHERE id = ? AND id_alumno = ?;
     `;
 
-    try {
-        // Iniciamos una transacción para asegurar la atomicidad
-        await pool.query('START TRANSACTION');
-        
-        // Desactivamos todas las tarjetas del alumno
-        await pool.query(disableQuery, [id_alumno]);
-        
-        // Activamos la tarjeta específica
-        const [result] = await pool.query(activateQuery, [id_tarjeta, id_alumno]);
-        
-        // Confirmamos la transacción
-        await pool.query('COMMIT');
-        
-        return { 
-            success: true,
-            affectedRows: result.affectedRows,
-            message: `Tarjeta ${id_tarjeta} activada y demás tarjetas desactivadas`
-        };
-    } catch (error) {
-        // Si hay error, hacemos rollback
-        await pool.query('ROLLBACK');
-        console.error("Error al activar/desactivar tarjetas:", error);
-        throw error;
-    }
+  try {
+    // Iniciamos una transacción para asegurar la atomicidad
+    await pool.query('START TRANSACTION');
+
+    // Desactivamos todas las tarjetas del alumno
+    await pool.query(disableQuery, [id_alumno]);
+
+    // Activamos la tarjeta específica
+    const [result] = await pool.query(activateQuery, [id_tarjeta, id_alumno]);
+
+    // Confirmamos la transacción
+    await pool.query('COMMIT');
+
+    return {
+      success: true,
+      affectedRows: result.affectedRows,
+      message: `Tarjeta ${id_tarjeta} activada y demás tarjetas desactivadas`
+    };
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    throw error;
+  }
 }
 
 
 async function deleteStudentCard(id_tarjeta, id_alumno) {
-    const query = `
+  const query = `
         UPDATE tarjetas 
         SET activa = 0, eliminada = 1 
         WHERE token = ? AND id_alumno = ?;
     `;
 
-    try {
-        const [result] = await pool.query(query, [id_tarjeta, id_alumno]);
-        
-        if (result.affectedRows === 0) {
-            throw new Error('No se encontró la tarjeta o no pertenece al alumno');
-        }
-        
-        return { 
-            success: true,
-            affectedRows: result.affectedRows,
-            message: `Tarjeta ${id_tarjeta} desactivada y marcada como eliminada`
-        };
-    } catch (error) {
-        console.error("Error en deleteStudentCard:", error);
-        throw error;
+  try {
+    const [result] = await pool.query(query, [id_tarjeta, id_alumno]);
+
+    if (result.affectedRows === 0) {
+      throw new Error('No se encontró la tarjeta o no pertenece al alumno');
     }
+
+    return {
+      success: true,
+      affectedRows: result.affectedRows,
+      message: `Tarjeta ${id_tarjeta} desactivada y marcada como eliminada`
+    };
+  } catch {
+    throw new Error("Error al desactivar la tarjeta");
+  }
 }
 
 module.exports = {
-    createCardForStudent,
-    getStudentCardsByMatricula,
-    activateStudentCard,
-    deleteStudentCard,
-    getStudentCardsByMatriculaActive
+  createCardForStudent,
+  getStudentCardsByMatricula,
+  activateStudentCard,
+  deleteStudentCard,
+  getStudentCardsByMatriculaActive
 };

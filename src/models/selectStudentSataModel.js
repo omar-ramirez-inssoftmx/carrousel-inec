@@ -1,4 +1,4 @@
-const pool = require('../config/conexionAsync');
+const pool = require('../utils/pool');
 
 async function getPedidosByMatricula(matricula) {
   const checkQuery = 'SELECT * FROM alumno WHERE matricula = ?';
@@ -35,12 +35,10 @@ async function getPedidosByMatricula(matricula) {
         JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
         WHERE a.matricula = ? AND p.id_cat_estatus != 1;
         `;
-
   try {
     const [result] = await pool.query(query, [matricula]);
     return result;
-  } catch (error) {
-    console.error("Error al obtener pedidos por matrícula:", error);
+  } catch {
     throw new Error("Error al obtener pedidos por matrícula");
   }
 }
@@ -82,8 +80,7 @@ async function getPedidosAllMatricula() {
     }
 
     return result;
-  } catch (error) {
-    console.error("Error al obtener todos los pedidos por matrícula:", error);
+  } catch {
     throw new Error("Error al obtener todos los pedidos por matrícula");
   }
 }
@@ -121,8 +118,7 @@ async function getMyOpenPay(customer_id) {
     } else {
       return result[0];
     }
-  } catch (error) {
-    console.error("Error al obtener la matrícula:", error);
+  } catch {
     throw new Error("Error al obtener la matrícula");
   }
 }

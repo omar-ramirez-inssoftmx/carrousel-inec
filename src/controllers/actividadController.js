@@ -15,7 +15,6 @@ const selectStudentOrders = async (req, res, next) => {
       mesesDisponibles: meses
     });
   } catch (error) {
-    console.error("Error en la obtención de órdenes:", error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -57,7 +56,6 @@ const agruparPedidos = (pedidos) => {
 };
 
 const formatOrders = async (orders) => {
-  // Usamos Promise.all para esperar a que todas las promesas del map se resuelvan
   return Promise.all(orders.map(async (order) => {
     const monto = order.monto_real_pago;
 
@@ -87,7 +85,7 @@ const formatOrders = async (orders) => {
       fecha: fechaFormateada,
       monto: `$${monto.toLocaleString('es-MX')}`,
       factura: order.transaccion_Id ? 'Descargar' : 'Sin factura',
-      concepto_original: order.concepto_pedido || 'Sin concepto', // Mantener el concepto original por si se necesita
+      concepto_original: order.concepto_pedido || 'Sin concepto',
       card: {
         card_brand: openpayStatus.card.brand || 'N/A',
         card_number: openpayStatus.card.card_number || 'N/A',

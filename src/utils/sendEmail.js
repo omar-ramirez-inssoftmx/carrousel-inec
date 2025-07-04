@@ -63,7 +63,7 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
       to: email,
       subject: subject,
       html: body
-        .replace('${matricula}', matricula) 
+        .replace('${matricula}', matricula)
         .replace('${creaFecha}', creaFecha)
         .replace('${vigeniaFecha}', vigeniaFechaFormateada)
         .replace('${pedidos}', pedidosHtml)
@@ -85,7 +85,7 @@ function calcularTotal(pedidos) {
     const monto = getPagoActual(pedido);
     total += parseFloat(monto);
   }
-  return total.toFixed(2);  
+  return total.toFixed(2);
 }
 
 const getPagoActual = (pedido) => {

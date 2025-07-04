@@ -16,7 +16,6 @@ exports.createPaymentLink = (req, res, next) => {
 
   openpay.charges.create(chargeRequest, (error, order) => {
     if (error) {
-      console.error("Error al crear el pedido:", error);
       return res.status(400).json({ error: error.description });
     }
 

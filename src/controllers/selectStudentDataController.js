@@ -22,7 +22,6 @@ const selectStudentData = async (req, res) => {
 
         const openpayStatus = await getCustomerChargesStatus(pedido.open_pay_id, pedido.identificador_pago);
 
-        console.log("openpayStatus ", openpayStatus)
         let estatus = null;
         if (openpayStatus != null) {
           if (openpayStatus.status === "charge_pending") {
@@ -30,7 +29,6 @@ const selectStudentData = async (req, res) => {
             const now = new Date();
 
             if (dueDate < now) {
-              console.log(`Cargo ${openpayStatus.id} vencido, marcando como CANCELLED`);
               estatus = "CANCELLED"
             } else {
               estatus = openpayStatus.status;
@@ -42,9 +40,6 @@ const selectStudentData = async (req, res) => {
 
         const estado = mapOpenpayStatusToDBStatus(estatus);
 
-        console.log("estado ", estado)
-
-        // Actualizar el estado del pedido en la base de datos si tiene identificador_pago y transaccion_Id
         if (pedido.identificador_pago && pedido.transaccion_Id && estado != 'Desconocido') {
           await updateStatus(pedido.id_pedido, estado, openpayStatus);
         }
@@ -88,13 +83,11 @@ const selectMyMatricula = async (req, res) => {
 
     res.json(student);
   } catch (error) {
-    console.error("Error al obtener alumno:", error);
     res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
   }
 };
 
 function mapOpenpayStatusToDBStatus(openpayStatus) {
-  console.log("openpayStatus", openpayStatus)
   switch (openpayStatus && openpayStatus.toUpperCase()) {
     case 'COMPLETED':
       return 1;

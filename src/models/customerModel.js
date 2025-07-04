@@ -1,13 +1,10 @@
-const pool = require('../config/conexionAsync');
+const pool = require('../utils/pool');
 
 async function createAlumno(matricula, nombre, apellido_paterno, apellido_materno, email, celular, openPayId) {
-  // Verificar si el alumno ya existe por matrícula
   const checkQuery = 'SELECT id_alumno FROM alumno WHERE matricula = ?';
   const [existingAlumno] = await pool.query(checkQuery, [matricula]);
 
   if (existingAlumno.length < 1) {
-
-    // Si el alumno no existe, insertarlo
     const insertQuery = `
             INSERT INTO alumno (matricula, nombre, apellido_paterno, apellido_materno, email, celular, open_pay_id, fecha_alta, fecha_modificacion)
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW());
@@ -18,7 +15,6 @@ async function createAlumno(matricula, nombre, apellido_paterno, apellido_matern
 
       return result.insertId;
     } catch (error) {
-      console.error("Error al crear el alumno:", error);
       throw error;
     }
 
@@ -120,7 +116,6 @@ async function createPedido(
       monto_real_pago
     };
   } catch (error) {
-    console.error("Error al crear el pedido:", error);
     throw error;
   }
 }
@@ -138,12 +133,9 @@ async function updatePedidos(ids, actualizar) {
         WHERE id_pedido IN (?)`;  // Corregido: eliminada la coma extra
 
   try {
-    // Ejecutar la consulta
     const [result] = await pool.query(updateQuery, [identificador_pago, link_de_pago, transaccion_Id, ids]);
-    console.log('Registros actualizados:', result.affectedRows);
     return result;
   } catch (error) {
-    console.error('Error al actualizar los pedidos:', error);
     throw error;
   }
 }
@@ -175,18 +167,9 @@ async function updateStatus(id, status, pedido) {
 
   try {
     const [result] = await pool.query(updateQuery, queryParams);
-
-    if (result.affectedRows === 0) {
-      console.log('No se encontró el pedido con ID:', id);
-    } else {
-      console.log(`Pedido ${id} actualizado - Estatus: ${status} | 
-                        ${isCompleted ? `Fecha pago: ${fechaPago}` : 'Sin cambio de fecha'}`);
-    }
-
     return result;
-  } catch (error) {
-    console.error('Error al actualizar el pedido:', error);
-    throw error;
+  } catch {
+    throw new Error("Error al actualizar el pedido");
   }
 }
 
@@ -204,7 +187,6 @@ async function getTempleteEmail(clave) {
       return result[0];
     }
   } catch (error) {
-    console.error("Error al obtener el template:", error);
     throw new Error("Error al obtener la template");
   }
 }
