@@ -38,4 +38,4 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/payment/method', cardRoutes);
 
-app.listen(3000, () => console.log(`Server running on port 3000`));
+app.listen(443, () => console.log(`Server running on port 443`));
