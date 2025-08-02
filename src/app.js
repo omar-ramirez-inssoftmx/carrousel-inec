@@ -7,6 +7,8 @@ const cron = require("node-cron");
 
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
@@ -38,4 +40,4 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/payment/method', cardRoutes);
 
-app.listen(3000, () => console.log(`Server running on port 3000`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
