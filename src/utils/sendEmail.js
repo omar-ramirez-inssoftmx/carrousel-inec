@@ -1,14 +1,31 @@
 const nodemailer = require("nodemailer");
-const emailTemplates = require('../templates/emailTemplates');
 const { formatCurrency } = require('./utils');
+
+const emailTemplate = {
+  subject: "Link de pago INEC",
+  body: `
+      <div style="font-family: Arial, sans-serif;">
+        <h2>Hola, tu link de pago está listo</h2>
+        <p>Matrícula: <b>${'${matricula}'}</b></p>
+        <p>Fecha de creación: <b>${'${creaFecha}'}</b></p>
+        <p>Fecha de vigencia: <b>${'${vigeniaFecha}'}</b></p>
+        <table width="100%" style="border-collapse: collapse;">
+          <tbody>
+            ${'${pedidos}'}
+          </tbody>
+        </table>
+        <h3>Total: ${'${total}'}</h3>
+        <p><a href="${'${link}'}" style="background: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Pagar ahora</a></p>
+      </div>
+    `
+};
 
 async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, email) {
   try {
-    const template = emailTemplates.email;
-    const subject = template.subject;
-    const body = template.body;
+    const subject = emailTemplate.subject;
+    const body = emailTemplate.body;
 
-    const vigeniaFechaDate = new Date(vigeniaFecha); // Crear un objeto Date a partir de la fecha ajustada
+    const vigeniaFechaDate = new Date(vigeniaFecha);
 
     const opciones = {
       day: "numeric",
@@ -18,11 +35,12 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
 
     const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", opciones);
 
-    // Genera el HTML de los pedidos
     let pedidosHtml = '';
+
     for (let i = 0; i < pedidos.length; i++) {
       const pedido = pedidos[i];
-      const monto = getPagoActual(pedido); // Llama a la función getPagoActual aquí
+      const monto = pedido.pago || "0";
+
       pedidosHtml += `
             <tr>
               <td style="border-bottom: 2px solid #F0F0F0; padding: 20px;">
@@ -82,16 +100,10 @@ function calcularTotal(pedidos) {
   let total = 0;
   for (let i = 0; i < pedidos.length; i++) {
     const pedido = pedidos[i];
-    const monto = getPagoActual(pedido);
+    const monto = pedido.pago || "0";
     total += parseFloat(monto);
   }
   return total.toFixed(2);
 }
-
-const getPagoActual = (pedido) => {
-  const fechaActual = new Date();
-
-  return pedido.pago || "0";
-};
 
 module.exports = { sendMailOtp };
