@@ -1,5 +1,5 @@
 const { getStudentByMatricula } = require('../models/studentModel');
-const { getPendingOrdersByMatricula, updateOrderStatus } = require('../models/orderModel');
+const { updateOrderStatus, getOrdersByMatricula } = require('../models/orderModel');
 const { 
   mapOpenpayStatusToDBStatus,
   createChargeRequestWithSurcharge,
@@ -20,7 +20,7 @@ const getStudentData = async (req, res) => {
       return res.status(400).json({ error: 'Es necesario colocar una matrícula.' });
     }
 
-    const pedidos = await getPendingOrdersByMatricula(matricula);
+    const pedidos = await getOrdersByMatricula(matricula, 'pending');
 
     if (!pedidos || pedidos.length === 0) {
       return res.status(404).json({ message: 'No se encontraron pagos para la matrícula' });
@@ -61,7 +61,7 @@ const getStudentData = async (req, res) => {
     );
 
     // Obtener pedidos actualizados
-    const pedidosActualizados = await getPendingOrdersByMatricula(matricula);
+    const pedidosActualizados = await getOrdersByMatricula(matricula, 'pending');
     const pedidosProcesados = pedidosActualizados.map(processOrderDates);
 
     res.json(pedidosProcesados);
@@ -71,10 +71,6 @@ const getStudentData = async (req, res) => {
   }
 };
 
-/**
- * Obtener información básica del estudiante por matrícula
- * Ruta: POST /api/students/profile
- */
 const getStudentByMatriculaData = async (req, res) => {
   try {
     const { matricula } = req.body;
