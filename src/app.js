@@ -28,13 +28,11 @@ const iniciarCronJobRecardo = async () => {
 iniciarCronJobUpdateStatus();
 iniciarCronJobRecardo();
 
-const chargeRoutes = require('./routes/chargeRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const ordersRoutes = require('./routes/ordersRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const cardRoutes = require('./routes/cardRoutes');
 
-app.use('/api/charges', chargeRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/files', fileRoutes);

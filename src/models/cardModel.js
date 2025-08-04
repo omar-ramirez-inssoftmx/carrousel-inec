@@ -2,20 +2,17 @@ const pool = require('../utils/pool');
 
 async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento) {
   const query = `
-        INSERT INTO tarjetas (
-            id_alumno, 
-            numero_tarjeta, 
-            token,
-            nombre_tarjeta,
-            tipo,
-            titular,
-            vencimiento 
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?);
-    `;
+      INSERT INTO tarjetas (
+        id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?);
+  `;
 
   try {
-    const [result] = await pool.query(query, [id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento]);
+    const [result] = await pool.query(
+      query,
+      [id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento]
+    );
 
     return {
       id_tarjeta: result.insertId,
@@ -34,22 +31,22 @@ async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tar
 
 async function getStudentCardsByMatricula(matricula) {
   const query = `
-            SELECT 
-            a.id_alumno,
-            a.nombre,
-            a.matricula,
-            t.id AS id_tarjeta,
-            t.numero_tarjeta,
-            t.titular,
-            t.vencimiento,
-            t.nombre_tarjeta,
-            t.tipo,
-            t.activa,
-            t.token
-        FROM alumno a
-        LEFT JOIN tarjetas t ON a.id_alumno = t.id_alumno
-        WHERE a.matricula = ? and t.eliminada = false;
-    `;
+        SELECT 
+        a.id_alumno,
+        a.nombre,
+        a.matricula,
+        t.id AS id_tarjeta,
+        t.numero_tarjeta,
+        t.titular,
+        t.vencimiento,
+        t.nombre_tarjeta,
+        t.tipo,
+        t.activa,
+        t.token
+    FROM alumno a
+    LEFT JOIN tarjetas t ON a.id_alumno = t.id_alumno
+    WHERE a.matricula = ? and t.eliminada = false;
+  `;
 
   try {
     const [rows] = await pool.query(query, [matricula]);
@@ -94,15 +91,8 @@ async function getStudentCardsByMatriculaActive(matricula) {
 }
 
 async function activateStudentCard(id_tarjeta, id_alumno) {
-  const disableQuery = `
-        UPDATE tarjetas SET activa = false 
-        WHERE id_alumno = ?;
-    `;
-
-  const activateQuery = `
-        UPDATE tarjetas SET activa = true 
-        WHERE id = ? AND id_alumno = ?;
-    `;
+  const disableQuery = `UPDATE tarjetas SET activa = false WHERE id_alumno = ?;`;
+  const activateQuery = `UPDATE tarjetas SET activa = true WHERE id = ? AND id_alumno = ?;`;
 
   try {
     await pool.query(disableQuery, [id_alumno]);
@@ -119,13 +109,8 @@ async function activateStudentCard(id_tarjeta, id_alumno) {
   }
 }
 
-
 async function deleteStudentCard(id_tarjeta, id_alumno) {
-  const query = `
-        UPDATE tarjetas 
-        SET activa = 0, eliminada = 1 
-        WHERE token = ? AND id_alumno = ?;
-    `;
+  const query = `UPDATE tarjetas SET activa = 0, eliminada = 1 WHERE token = ? AND id_alumno = ?;`;
 
   try {
     const [result] = await pool.query(query, [id_tarjeta, id_alumno]);

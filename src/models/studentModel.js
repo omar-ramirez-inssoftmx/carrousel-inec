@@ -2,6 +2,7 @@ const pool = require('../utils/pool');
 
 async function createStudent(matricula, nombre, apellido_paterno, apellido_materno, email, celular, openPayId) {
   const checkQuery = 'SELECT id_alumno FROM alumno WHERE matricula = ?';
+
   const [existingAlumno] = await pool.query(checkQuery, [matricula]);
 
   if (existingAlumno.length < 1) {
@@ -11,7 +12,10 @@ async function createStudent(matricula, nombre, apellido_paterno, apellido_mater
     `;
 
     try {
-      const [result] = await pool.query(insertQuery, [matricula, nombre, apellido_paterno, apellido_materno, email, celular, openPayId]);
+      const [result] = await pool.query(
+        insertQuery,
+        [matricula, nombre, apellido_paterno, apellido_materno, email, celular, openPayId]
+      );
       return result.insertId;
     } catch (error) {
       throw error;
@@ -28,13 +32,10 @@ async function getStudentByMatricula(matricula) {
   try {
     const [result] = await pool.query(query, [matricula]);
 
-    if (result.length < 1) {
-      return null;
-    } else {
-      return result;
-    }
+    if (result.length < 1) return null
+
+    return result;
   } catch (error) {
-    console.error("Error al obtener la matrícula:", error);
     throw new Error("Error al obtener la matrícula");
   }
 }
@@ -45,11 +46,9 @@ async function getStudentByOpenPayId(customer_id) {
   try {
     const [result] = await pool.query(query, [customer_id]);
 
-    if (result.length < 1) {
-      return null;
-    } else {
-      return result[0];
-    }
+    if (result.length < 1) return null
+    
+    return result[0];
   } catch {
     throw new Error("Error al obtener la matrícula");
   }

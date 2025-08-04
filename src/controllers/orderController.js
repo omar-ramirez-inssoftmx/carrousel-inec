@@ -1,7 +1,6 @@
 const { getStudentByOpenPayId } = require('../models/studentModel');
 const {
-  getPendingOrdersByMatricula,
-  getCompletedOrdersByMatricula,
+  getOrdersByMatricula,
   getAvailableMonths,
   updateOrders,
   cancelOrdersPaymentData
@@ -11,8 +10,8 @@ const {
   createCharge,
   createDirectCharge,
   createChargeRequestWithSurcharge,
+  getChargeStatusByOrderId
 } = require('../services/openpayService');
-const { getCustomerChargesStatus } = require('../services/chargeService');
 const {
   sendOrderConfirmationMessage,
   sendPaymentLinkMessage,
@@ -29,10 +28,6 @@ const {
 } = require('../services/formatService');
 const { sendMailOtp } = require('../utils/sendEmail');
 
-/**
- * Crear link de pago simple
- * Ruta: POST /api/orders/create
- */
 const createPaymentLink = (req, res, next) => {
   const { customer, description, enrollment } = req.body;
 
@@ -56,10 +51,6 @@ const createPaymentLink = (req, res, next) => {
     });
 };
 
-/**
- * Crear link de pago para customer específico con ID
- * Ruta: POST /api/orders/createId
- */
 const createPaymentLinkIdCustomer = async (req, res, next) => {
   const { customer_id, description } = req.body;
 
@@ -175,10 +166,6 @@ const createPaymentLinkStudent = async (req, res, next) => {
   }
 };
 
-/**
- * Procesar cargo con tarjeta
- * Ruta: POST /api/orders/pay
- */
 const processCharge = async (req, res) => {
   try {
     const {
@@ -191,13 +178,9 @@ const processCharge = async (req, res) => {
       pedidoIds,
     } = req.body;
 
-    if (!customer_id || !token || !amount || !description || !orderId || !deviceSessionId) {
-      return res.status(400).json({ error: 'Faltan parámetros' });
-    }
-
     const charge = await createChargeWithCard(
-      customer_id, token, amount, description, orderId, deviceSessionId,
-      pedidoIds);
+      customer_id, token, amount, description, orderId, deviceSessionId, pedidoIds
+    );
 
     res.status(200).json({ success: true, charge });
 
@@ -206,9 +189,6 @@ const processCharge = async (req, res) => {
   }
 };
 
-/**
- * Crear charge con tarjeta (función auxiliar)
- */
 const createChargeWithCard = async (customerId, token, amount, description, orderId, deviceSessionId, ids) => {
   try {
     let cardId = token;
@@ -247,7 +227,7 @@ const getStudentOrdersActivity = async (req, res, next) => {
   const { matricula } = req.body;
 
   try {
-    const pedidos = await getCompletedOrdersByMatricula(matricula);
+    const pedidos = await getOrdersByMatricula(matricula, 'completed');
     const meses = await getAvailableMonths(matricula);
     const pedidosFormateados = await formatOrders(pedidos);
     const pedidosAgrupados = groupOrdersByPaymentId(pedidosFormateados);
@@ -278,7 +258,6 @@ const getCancelOrdersData = async (req, res, next) => {
       return res.status(400).json({ message: 'No se encontraron pedidos válidos para cancelar' });
     }
 
-    // Cancelar los datos de pago de los pedidos
     await cancelOrdersPaymentData(pedidoIds);
 
     // Obtener los pedidos actualizados
@@ -289,48 +268,14 @@ const getCancelOrdersData = async (req, res, next) => {
       return res.status(400).json({ message: 'No se pudo determinar la matrícula' });
     }
 
-    const pedidosActualizados = await getPendingOrdersByMatricula(matricula);
+    const pedidosActualizados = await getOrdersByMatricula(matricula, 'pending');
     const pedidosProcesados = pedidosActualizados.map(processOrderDates);
 
     res.json(pedidosProcesados);
 
   } catch (error) {
-    console.error('Error al cancelar pedidos:', error);
     return res.status(400).json({ error: error.message });
   }
-};
-
-/**
- * Crear charge directo (legacy)
- * Ruta: POST /api/charges/create
- */
-const createDirectChargeHandler = (req, res, next) => {
-  const {
-    token_id,
-    device_session_id,
-    customer,
-    amount,
-    description,
-    currency
-  } = req.body;
-
-  const chargeRequest = {
-    source_id: token_id,
-    method: 'card',
-    amount,
-    currency,
-    description,
-    device_session_id,
-    customer,
-  };
-
-  createDirectCharge(chargeRequest)
-    .then(charge => {
-      res.status(200).json({ charge });
-    })
-    .catch(error => {
-      return next(error);
-    });
 };
 
 // === FUNCIONES AUXILIARES ===
@@ -342,7 +287,7 @@ const formatOrders = async (orders) => {
   return Promise.all(orders.map(async (order) => {
     const monto = order.monto_real_pago;
     const fechaFormateada = formatPaymentDate(order.fecha_pago);
-    const openpayStatus = await getCustomerChargesStatus(order.open_pay_id, order.identificador_pago);
+    const openpayStatus = await getChargeStatusByOrderId(order.open_pay_id, order.identificador_pago);
     const mesAnio = formatMonthYear(order.mes, order.anio);
 
     return {
@@ -361,9 +306,6 @@ const formatOrders = async (orders) => {
   }));
 };
 
-/**
- * Agrupar pedidos por identificador de pago
- */
 const groupOrdersByPaymentId = (pedidos) => {
   const grupos = {};
 
@@ -404,5 +346,4 @@ module.exports = {
   processCharge,
   getStudentOrdersActivity,
   getCancelOrdersData,
-  createDirectChargeHandler
 };

@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const { formatCurrency } = require('./utils');
+const { formatCurrencyMX } = require('../services/formatService');
 
 const emailTemplate = {
   subject: "Link de pago INEC",
@@ -52,7 +52,9 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
                       <p style="margin: 5px 0;">Cant. 1</p>
                     </td>
                     <td style="text-align: right;">
-                      <h4 style="font-size: 20px; font-weight: bold; margin: 0;">${formatCurrency(monto)}</h4>
+                      <h4 style="font-size: 20px; font-weight: bold; margin: 0;">
+                        ${formatCurrencyMX(monto)}
+                      </h4>
                     </td>
                   </tr>
                 </table>
@@ -85,7 +87,7 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
         .replace('${creaFecha}', creaFecha)
         .replace('${vigeniaFecha}', vigeniaFechaFormateada)
         .replace('${pedidos}', pedidosHtml)
-        .replace('${total}', formatCurrency(total))
+        .replace('${total}', formatCurrencyMX(total))
         .replace('${link}', link)
     };
 

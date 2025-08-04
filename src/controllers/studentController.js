@@ -1,27 +1,17 @@
 const { getStudentByMatricula } = require('../models/studentModel');
 const { getPendingOrdersByMatricula, updateOrderStatus } = require('../models/orderModel');
 const { 
-  getChargeStatusByOrderId, 
   mapOpenpayStatusToDBStatus,
   createChargeRequestWithSurcharge,
-  createCharge
+  createCharge,
+  getChargeStatusByOrderId
 } = require('../services/openpayService');
-const { getCustomerChargesStatus } = require('../services/chargeService');
 const {
   sendOrderConfirmationMessage,
   formatMexicanPhoneNumber
 } = require('../services/whatsappService');
 const { processOrderDates } = require('../services/formatService');
 
-/**
- * Controlador consolidado para estudiantes
- * Unifica selectStudentDataController y customerController
- */
-
-/**
- * Obtener datos de estudiante y sus pedidos pendientes
- * Ruta: POST /api/students/select
- */
 const getStudentData = async (req, res) => {
   try {
     const { matricula } = req.body;
@@ -39,7 +29,7 @@ const getStudentData = async (req, res) => {
     // Procesar los pedidos para obtener el estado de cada uno y actualizarlo en la base de datos
     const pedidosConEstado = await Promise.all(
       pedidos.map(async (pedido) => {
-        const openpayStatus = await getCustomerChargesStatus(pedido.open_pay_id, pedido.identificador_pago);
+        const openpayStatus = await getChargeStatusByOrderId(pedido.open_pay_id, pedido.identificador_pago);
 
         let estatus = null;
         if (openpayStatus != null) {

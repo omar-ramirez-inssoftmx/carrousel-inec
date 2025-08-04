@@ -51,7 +51,6 @@ const listCard = async (req, res) => {
 
   try {
     const saveCard = await getStudentCardsByMatricula(matricula);
-
     res.json(saveCard);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener las tarjetas del alumno" });
@@ -63,7 +62,6 @@ const activeCard = async (req, res) => {
 
   try {
     const saveCard = await getStudentCardsByMatriculaActive(matricula);
-
     res.json(saveCard);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener las tarjetas del alumno" });
@@ -84,15 +82,7 @@ const activateCard = async (req, res) => {
 const deleteCard = async (req, res) => {
   const { id_tarjeta, customer_id, id_alumno } = req.body;
 
-  if (!id_tarjeta || !customer_id || !id_alumno) {
-    return res.status(400).json({
-      error: "Parámetros faltantes",
-      required: ["id_tarjeta", "customer_id", "id_alumno"]
-    });
-  }
-
   try {
-    // Eliminar en Openpay (API asíncrona)
     await new Promise((resolve, reject) => {
       openpay.customers.cards.delete(customer_id, id_tarjeta, (error) => {
         if (error) return reject(error);
@@ -100,7 +90,6 @@ const deleteCard = async (req, res) => {
       });
     });
 
-    // Eliminar en nuestra base de datos
     const dbResult = await deleteStudentCard(id_tarjeta, id_alumno);
 
     res.json({
@@ -112,7 +101,6 @@ const deleteCard = async (req, res) => {
       },
       details: dbResult
     });
-
   } catch (error) {
     const errorResponse = {
       success: false,

@@ -1,13 +1,5 @@
 const axios = require('axios');
 
-/**
- * Servicio para envío de mensajes de WhatsApp
- * Consolida la lógica que estaba duplicada en múltiples controladores
- */
-
-/**
- * Enviar mensaje simple de confirmación de orden
- */
 const sendOrderConfirmationMessage = (phoneNumber, message) => {
   const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
@@ -37,9 +29,6 @@ const sendOrderConfirmationMessage = (phoneNumber, message) => {
   });
 };
 
-/**
- * Enviar mensaje con link de pago para INEC
- */
 const sendPaymentLinkMessage = (fecha, link, nombre, phoneNumber, matricula) => {
   const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
@@ -79,9 +68,6 @@ const sendPaymentLinkMessage = (fecha, link, nombre, phoneNumber, matricula) => 
   });
 };
 
-/**
- * Formatear número de teléfono para México
- */
 const formatMexicanPhoneNumber = (phoneNumber) => {
   // Asegurar que tenga el código de país +52
   const cleanNumber = phoneNumber.toString().replace(/\D/g, '');

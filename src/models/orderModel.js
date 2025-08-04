@@ -1,8 +1,5 @@
 const pool = require('../utils/pool');
 
-/**
- * Crear un nuevo pedido
- */
 async function createOrder(
   id_alumno,
   identificador_pago,
@@ -100,56 +97,12 @@ async function createOrder(
 }
 
 /**
- * Obtener pedidos pendientes por matrícula (estatus != 1)
+ * Obtener pedidos por matrícula y estatus
+ * @param {string} matricula 
+ * @param {string} status 'completed' o 'pending'
+ * @returns 
  */
-async function getPendingOrdersByMatricula(matricula) {
-  const checkQuery = 'SELECT * FROM alumno WHERE matricula = ?';
-  const [existingAlumno] = await pool.query(checkQuery, [matricula]);
-
-  if (existingAlumno.length < 1) {
-    return null;
-  }
-
-  const query = `
-    SELECT p.id_pedido,
-        p.identificador_pago,
-        p.identificador_pedido,         
-        p.producto_servicio_motivo_pago AS nombre_producto,
-        p.concepto_pago AS concepto,
-        p.id_cat_estatus,
-        ce.descripcion AS estatus,
-        p.pago,
-        p.fecha_vigencia_pago,
-        p.link_de_pago,
-        p.concepto_pago AS concepto_pedido,
-        p.transaccion_Id,
-        p.mes,
-        p.anio,
-        a.matricula,
-        a.open_pay_id,
-        a.nombre AS nombre_alumno,
-        a.apellido_paterno,
-        a.apellido_materno,
-        a.email,
-        a.celular
-    FROM pedidos p
-    JOIN alumno a ON p.id_alumno = a.id_alumno       
-    JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
-    WHERE a.matricula = ? AND p.id_cat_estatus != 1;
-  `;
-
-  try {
-    const [result] = await pool.query(query, [matricula]);
-    return result;
-  } catch {
-    throw new Error("Error al obtener pedidos por matrícula");
-  }
-}
-
-/**
- * Obtener pedidos completados por matrícula (estatus = 1)
- */
-async function getCompletedOrdersByMatricula(matricula) {
+async function getOrdersByMatricula(matricula, status) {  
   const query = `
     SELECT p.id_pedido,
         p.identificador_pago,
@@ -177,7 +130,7 @@ async function getCompletedOrdersByMatricula(matricula) {
     FROM pedidos p
     JOIN alumno a ON p.id_alumno = a.id_alumno    
     JOIN cat_estatus ce ON p.id_cat_estatus = ce.id_cat_estatus
-    WHERE a.matricula = ? AND p.id_cat_estatus = 1;
+    WHERE a.matricula = ? AND ${status === 'completed' ? 'p.id_cat_estatus = 1' : 'p.id_cat_estatus != 1'}
   `;
 
   try {
@@ -220,11 +173,6 @@ async function getAllOrdersForSurcharge() {
 
   try {
     const [result] = await pool.query(query);
-
-    if (!result || result.length === 0) {
-      console.log("No se encontraron pedidos con matrícula.");
-      return [];
-    }
 
     return result;
   } catch {
@@ -272,9 +220,6 @@ async function updateOrders(ids, actualizar) {
   }
 }
 
-/**
- * Actualizar estatus de un pedido
- */
 async function updateOrderStatus(id, status, pedido) {
   const isCompleted = status === 1;
 
@@ -307,11 +252,11 @@ async function updateOrderStatus(id, status, pedido) {
   }
 }
 
-/**
- * Actualizar recargo de un pedido
- */
 async function updateOrderSurcharge(id, pago, fecha) {
-  const updateQuery = `UPDATE pedidos SET pago = ?, fecha_vigencia_pago = ? WHERE id_pedido = ?`;
+  const updateQuery = `
+    UPDATE pedidos
+    SET pago = ?, fecha_vigencia_pago = ?
+    WHERE id_pedido = ?`;
 
   try {
     const [result] = await pool.query(updateQuery, [pago, fecha, id]);
@@ -321,16 +266,10 @@ async function updateOrderSurcharge(id, pago, fecha) {
   }
 }
 
-/**
- * Cancelar pedidos eliminando datos de pago
- */
 async function cancelOrdersPaymentData(ids) {
   const updateQuery = `
     UPDATE pedidos
-    SET 
-        identificador_pago = NULL,
-        link_de_pago = NULL,
-        transaccion_Id = NULL
+    SET identificador_pago = NULL, link_de_pago = NULL, transaccion_Id = NULL
     WHERE id_pedido IN (?)`;
 
   try {
@@ -343,8 +282,7 @@ async function cancelOrdersPaymentData(ids) {
 
 module.exports = {
   createOrder,
-  getPendingOrdersByMatricula,
-  getCompletedOrdersByMatricula,
+  getOrdersByMatricula,
   getAllOrdersForSurcharge,
   getAvailableMonths,
   updateOrders,

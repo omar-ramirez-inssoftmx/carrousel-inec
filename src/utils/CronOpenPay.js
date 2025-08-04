@@ -1,5 +1,5 @@
+const { getChargeStatusByOrderId, mapOpenpayStatusToDBStatus } = require('../services/openpayService');
 const { getAllOrdersForSurcharge } = require('../models/orderModel');
-const { getCustomerChargesStatus } = require('../services/chargeService');
 const { updateOrderStatus } = require('../models/orderModel');
 
 async function procesoProgramadoUpdateStatus() {
@@ -9,9 +9,10 @@ async function procesoProgramadoUpdateStatus() {
     await Promise.all(
       pedidos.map(async (pedido) => {
 
-        const openpayStatus = await getCustomerChargesStatus(pedido.open_pay_id, pedido.identificador_pago);
+        const openpayStatus = await getChargeStatusByOrderId(pedido.open_pay_id, pedido.identificador_pago);
 
         let estatus = null;
+        
         if (openpayStatus != null) {
           if (openpayStatus.status === "charge_pending") {
             const dueDate = new Date(openpayStatus.due_date);
@@ -42,26 +43,6 @@ async function procesoProgramadoUpdateStatus() {
     );
   } catch (error) {
     console.error("Error proceso procesoProgramadoUpdateStatus: ", error);
-  }
-}
-
-function mapOpenpayStatusToDBStatus(openpayStatus) {
-  switch (openpayStatus && openpayStatus.toUpperCase()) {
-    case 'COMPLETED':
-      return 1;
-    case 'IN_PROGRESS':
-    case 'CHARGE_PENDING':
-      return 3;
-    case 'CANCELLED':
-      return 2;
-    case 'FAILED':
-    case 'REFUNDED':
-    case 'CHARGEBACK_PENDING':
-    case 'CHARGEBACK_ACCEPTED':
-    case 'CHARGEBACK_ADJUSTMENT':
-      return 2;
-    default:
-      return 'Desconocido';
   }
 }
 

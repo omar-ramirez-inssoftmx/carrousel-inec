@@ -9,7 +9,6 @@ const {
 
 const router = express.Router();
 
-// Rutas para gestión de estudiantes
 router.post('/create', createCustomerWithPayment);
 router.post('/list', listCustomer);
 router.post('/edit', editCustomer);

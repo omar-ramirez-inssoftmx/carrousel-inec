@@ -1,18 +1,9 @@
 const { openpay } = require('../utils/openPay');
 
-/**
- * Servicio para todas las operaciones de OpenPay
- * Consolida la lógica que estaba dispersa en múltiples controladores
- */
-
-/**
- * Crear o buscar un cliente en OpenPay
- */
 const findOrCreateCustomer = async (customerData) => {
   const { external_id, name, last_name, email, phone_number } = customerData;
 
   try {
-    // Buscar cliente existente
     const customers = await new Promise((resolve, reject) => {
       openpay.customers.list({ external_id }, (error, customers) => {
         if (error) return reject(error);
@@ -20,11 +11,8 @@ const findOrCreateCustomer = async (customerData) => {
       });
     });
 
-    if (customers.length > 0) {
-      return customers[0];
-    }
+    if (customers.length > 0) return customers[0]
 
-    // Crear nuevo cliente
     const newCustomer = await new Promise((resolve, reject) => {
       openpay.customers.create({ name, last_name, email, phone_number, external_id }, (error, customer) => {
         if (error) return reject(error);
@@ -38,9 +26,6 @@ const findOrCreateCustomer = async (customerData) => {
   }
 };
 
-/**
- * Obtener datos de un cliente
- */
 const getCustomer = async (customer_id) => {
   return new Promise((resolve, reject) => {
     openpay.customers.get(customer_id, (error, customerData) => {
@@ -53,9 +38,6 @@ const getCustomer = async (customer_id) => {
   });
 };
 
-/**
- * Crear cargo/charge para un cliente
- */
 const createCharge = (customer_id, chargeRequest) => {
   return new Promise((resolve, reject) => {
     openpay.customers.charges.create(customer_id, chargeRequest, (error, order) => {
@@ -68,9 +50,6 @@ const createCharge = (customer_id, chargeRequest) => {
   });
 };
 
-/**
- * Crear cargo directo (sin cliente específico)
- */
 const createDirectCharge = (chargeRequest) => {
   return new Promise((resolve, reject) => {
     openpay.charges.create(chargeRequest, (error, charge) => {
@@ -83,9 +62,6 @@ const createDirectCharge = (chargeRequest) => {
   });
 };
 
-/**
- * Listar charges de un cliente con filtros
- */
 const getCustomerCharges = (customer_id, searchParams = {}) => {
   return new Promise((resolve, reject) => {
     openpay.customers.charges.list(customer_id, searchParams, (error, charges) => {
@@ -98,17 +74,12 @@ const getCustomerCharges = (customer_id, searchParams = {}) => {
   });
 };
 
-/**
- * Obtener el estado de un charge específico por order_id
- */
 const getChargeStatusByOrderId = async (customer_id, order_id) => {
   try {
     const charges = await getCustomerCharges(customer_id, { order_id });
     const charge = charges.find((charge) => charge.order_id === order_id);
 
-    if (!charge) {
-      return null;
-    }
+    if (!charge) return null
 
     return charge;
   } catch (error) {
@@ -116,9 +87,6 @@ const getChargeStatusByOrderId = async (customer_id, order_id) => {
   }
 };
 
-/**
- * Crear tarjeta para un cliente
- */
 const createCustomerCard = (customer_id, cardRequest) => {
   return new Promise((resolve, reject) => {
     openpay.customers.cards.create(customer_id, cardRequest, (error, card) => {
@@ -126,21 +94,6 @@ const createCustomerCard = (customer_id, cardRequest) => {
         reject(error);
       } else {
         resolve(card);
-      }
-    });
-  });
-};
-
-/**
- * Eliminar tarjeta de un cliente
- */
-const deleteCustomerCard = (customer_id, card_id) => {
-  return new Promise((resolve, reject) => {
-    openpay.customers.cards.delete(customer_id, card_id, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(true);
       }
     });
   });
@@ -202,7 +155,6 @@ module.exports = {
   getCustomerCharges,
   getChargeStatusByOrderId,
   createCustomerCard,
-  deleteCustomerCard,
   mapOpenpayStatusToDBStatus,
   createChargeRequestWithSurcharge
 }; 

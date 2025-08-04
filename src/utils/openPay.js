@@ -1,5 +1,5 @@
 const Openpay = require('openpay');
-const isProduction = process.env.OPENPAY_PRIVATE_TYPE === 'true';
+const isProduction = process.env.OPENPAY_SANDBOX === 'false';
 
 const openpay = new Openpay(
   process.env.OPENPAY_MERCHANT_ID,
