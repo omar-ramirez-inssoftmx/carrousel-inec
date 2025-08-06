@@ -1,21 +1,16 @@
 import pool from '../utils/pool.ts';
 
-async function createOrder(
+export async function createOrder(
   id_alumno,
   identificador_pago,
-  identificador_pedido,
-  sku,
   id_cat_estatus,
   tipo_pago,
-  producto_servicio_motivo_pago,
-  concepto_pago,
   ciclo,
   mes,
   anio,
   pago,
   fecha_vigencia_pago,
   link_de_pago,
-  concepto,
   transaccion_Id,
   fecha_carga = null,
   fecha_pago = null,
@@ -25,44 +20,34 @@ async function createOrder(
     INSERT INTO pedidos (
       id_alumno, 
       identificador_pago, 
-      identificador_pedido, 
-      sku, 
       id_cat_estatus, 
       tipo_pago,
-      producto_servicio_motivo_pago,
-      concepto_pago,
       ciclo,
       mes,
       anio,
       pago, 
       fecha_vigencia_pago, 
       link_de_pago,
-      concepto,
       transaccion_Id,
       fecha_carga,
       fecha_pago,
       monto_real_pago
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
   `;
 
   try {
     const [result] = await pool.query(query, [
       id_alumno,
       identificador_pago,
-      identificador_pedido,
-      sku,
       id_cat_estatus,
       tipo_pago,
-      producto_servicio_motivo_pago,
-      concepto_pago,
       ciclo,
       mes,
       anio,
       pago,
       fecha_vigencia_pago,
       link_de_pago,
-      concepto,
       transaccion_Id,
       fecha_carga || new Date().toISOString().split('T')[0],
       fecha_pago,
@@ -73,19 +58,14 @@ async function createOrder(
       id_pedido: result.insertId,
       id_alumno,
       identificador_pago,
-      identificador_pedido,
-      sku,
       id_cat_estatus,
       tipo_pago,
-      producto_servicio_motivo_pago,
-      concepto_pago,
       ciclo,
       mes,
       anio,
       pago,
       fecha_vigencia_pago,
       link_de_pago,
-      concepto,
       transaccion_Id,
       fecha_carga,
       fecha_pago,
@@ -102,19 +82,15 @@ async function createOrder(
  * @param {string} status 'completed' o 'pending'
  * @returns 
  */
-async function getOrdersByMatricula(matricula, status) {  
+export async function getOrdersByMatricula(matricula, status) {  
   const query = `
     SELECT p.id_pedido,
-        p.identificador_pago,
-        p.identificador_pedido,        
-        p.producto_servicio_motivo_pago AS nombre_producto,
-        p.concepto_pago AS concepto,
+        p.identificador_pago,  
         p.id_cat_estatus,
         ce.descripcion AS estatus,
         p.pago,
         p.fecha_vigencia_pago,
         p.link_de_pago,
-        p.concepto_pago AS concepto_pedido,
         p.transaccion_Id,
         p.monto_real_pago,
         p.mes,
@@ -144,19 +120,15 @@ async function getOrdersByMatricula(matricula, status) {
 /**
  * Obtener todos los pedidos para recargo (estatus = 3)
  */
-async function getAllOrdersForSurcharge() {
+export async function getAllOrdersForSurcharge() {
   const query = `
     SELECT p.id_pedido,
-        p.identificador_pago,
-        p.identificador_pedido,        
-        p.producto_servicio_motivo_pago AS nombre_producto,
-        p.concepto_pago AS concepto,
+        p.identificador_pago,       
         p.id_cat_estatus,
         ce.descripcion AS estatus,
         p.pago,
         p.fecha_vigencia_pago,
         p.link_de_pago,
-        p.concepto_pago AS concepto_pedido,
         p.transaccion_Id,
         a.matricula,
         a.open_pay_id,
@@ -183,7 +155,7 @@ async function getAllOrdersForSurcharge() {
 /**
  * Obtener meses disponibles para un estudiante
  */
-async function getAvailableMonths(matricula) {
+export async function getAvailableMonths(matricula) {
   const query = `
     SELECT 
       DISTINCT DATE_FORMAT(fecha_pago, '%b-%y') AS month_display,
@@ -201,7 +173,7 @@ async function getAvailableMonths(matricula) {
 /**
  * Actualizar múltiples pedidos
  */
-async function updateOrders(ids, actualizar) {
+export async function updateOrders(ids, actualizar) {
   const { identificador_pago, link_de_pago, transaccion_Id } = actualizar;
 
   const updateQuery = `
@@ -220,7 +192,7 @@ async function updateOrders(ids, actualizar) {
   }
 }
 
-async function updateOrderStatus(id, status, pedido) {
+export async function updateOrderStatus(id, status, pedido) {
   const isCompleted = status === 1;
 
   const fechaPago = isCompleted && pedido.operation_date
@@ -252,7 +224,7 @@ async function updateOrderStatus(id, status, pedido) {
   }
 }
 
-async function updateOrderSurcharge(id, pago, fecha) {
+export async function updateOrderSurcharge(id, pago, fecha) {
   const updateQuery = `
     UPDATE pedidos
     SET pago = ?, fecha_vigencia_pago = ?
@@ -266,7 +238,7 @@ async function updateOrderSurcharge(id, pago, fecha) {
   }
 }
 
-async function cancelOrdersPaymentData(ids) {
+export async function cancelOrdersPaymentData(ids) {
   const updateQuery = `
     UPDATE pedidos
     SET identificador_pago = NULL, link_de_pago = NULL, transaccion_Id = NULL
@@ -279,14 +251,3 @@ async function cancelOrdersPaymentData(ids) {
     throw new Error("Error al cancelar los datos de pago de los pedidos");
   }
 }
-
-export {
-  createOrder,
-  getOrdersByMatricula,
-  getAllOrdersForSurcharge,
-  getAvailableMonths,
-  updateOrders,
-  updateOrderStatus,
-  updateOrderSurcharge,
-  cancelOrdersPaymentData
-};

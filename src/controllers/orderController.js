@@ -344,7 +344,6 @@ const formatOrders = async (orders) => {
       fecha: fechaFormateada,
       monto: formatCurrencyMX(monto),
       factura: order.transaccion_Id ? 'Descargar' : 'Sin factura',
-      concepto_original: order.concepto_pedido || 'Sin concepto',
       card: {
         card_brand: openpayStatus?.card?.brand || 'N/A',
         card_number: openpayStatus?.card?.card_number || 'N/A',

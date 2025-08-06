@@ -35,19 +35,14 @@ model pedidos {
   id_pedido                     Int         @id @default(autoincrement())
   id_alumno                     Int
   identificador_pago            String?     @db.VarChar(45)
-  identificador_pedido          String?     @db.VarChar(45)
-  sku                           Int?        @default(0)
   id_cat_estatus                Int
   tipo_pago                     String      @db.VarChar(50)
-  producto_servicio_motivo_pago String      @db.VarChar(250)
-  concepto_pago                 String      @db.VarChar(255)
   ciclo                         Int
   mes                           Int
   anio                          Int
   pago                          Decimal?    @db.Decimal(10, 2)
   fecha_vigencia_pago           DateTime?   @db.Date
   link_de_pago                  String?     @db.VarChar(255)
-  concepto                      String?     @db.VarChar(255)
   transaccion_Id                String?     @db.VarChar(100)
   fecha_carga                   DateTime?   @db.Date
   fecha_pago                    DateTime?   @db.DateTime(0)

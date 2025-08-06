@@ -1,6 +1,6 @@
 import pool from '../utils/pool.ts';
 
-async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento) {
+export async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento) {
   const query = `
       INSERT INTO tarjetas (
         id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento
@@ -29,7 +29,7 @@ async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tar
   }
 }
 
-async function getStudentCardsByMatricula(matricula) {
+export async function getStudentCardsByMatricula(matricula) {
   const query = `
         SELECT 
         a.id_alumno,
@@ -56,7 +56,7 @@ async function getStudentCardsByMatricula(matricula) {
   }
 }
 
-async function getStudentCardsByMatriculaActive(matricula) {
+export async function getStudentCardsByMatriculaActive(matricula) {
   const query = `
         SELECT 
             a.id_alumno,
@@ -90,7 +90,7 @@ async function getStudentCardsByMatriculaActive(matricula) {
   }
 }
 
-async function activateStudentCard(id_tarjeta, id_alumno) {
+export async function activateStudentCard(id_tarjeta, id_alumno) {
   const disableQuery = `UPDATE tarjetas SET activa = false WHERE id_alumno = ?;`;
   const activateQuery = `UPDATE tarjetas SET activa = true WHERE id = ? AND id_alumno = ?;`;
 
@@ -109,7 +109,7 @@ async function activateStudentCard(id_tarjeta, id_alumno) {
   }
 }
 
-async function deleteStudentCard(id_tarjeta, id_alumno) {
+export async function deleteStudentCard(id_tarjeta, id_alumno) {
   const query = `UPDATE tarjetas SET activa = 0, eliminada = 1 WHERE token = ? AND id_alumno = ?;`;
 
   try {
@@ -128,11 +128,3 @@ async function deleteStudentCard(id_tarjeta, id_alumno) {
     throw new Error("Error al desactivar la tarjeta");
   }
 }
-
-export {
-  createCardForStudent,
-  getStudentCardsByMatricula,
-  activateStudentCard,
-  deleteStudentCard,
-  getStudentCardsByMatriculaActive
-};
