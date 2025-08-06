@@ -26,7 +26,7 @@ const {
   generateUniqueOrderId,
   processOrderDates
 } = require('../services/formatService');
-const { sendMailOtp } = require('../utils/sendEmail');
+const { sendMailOtp, sendPaymentConfirmationEmail } = require('../utils/sendEmail');
 
 const createPaymentLink = (req, res, next) => {
   const { customer, description, enrollment } = req.body;
@@ -235,6 +235,32 @@ const createChargeWithCard = async (customerId, token, amount, description, orde
     };
 
     await updateOrders(ids, actualizar);
+
+    // Si el pago fue exitoso, enviar email de confirmación
+    if (charge && (charge.status === 'completed' || charge.status === 'COMPLETED')) {
+      try {
+        // Obtener datos del estudiante
+        const student = await getStudentByOpenPayId(customerId);
+        
+        // Obtener los pedidos pagados
+        const pedidosPagados = await getOrdersByMatricula(student.matricula, null);
+        const pedidosSeleccionados = pedidosPagados.filter(pedido => ids.includes(pedido.id_pedido));
+        
+        // Enviar email de confirmación
+        await sendPaymentConfirmationEmail(
+          student.matricula,
+          pedidosSeleccionados,
+          charge.id,
+          amount,
+          student.email
+        );
+        
+        console.log(`Email de confirmación enviado a ${student.email} para la transacción ${charge.id}`);
+      } catch (emailError) {
+        console.error('Error al enviar email de confirmación:', emailError);
+        // No fallar el pago por error en el email
+      }
+    }
 
     return { charge };
   } catch (error) {

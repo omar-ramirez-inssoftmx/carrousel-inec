@@ -1,79 +1,32 @@
 const nodemailer = require("nodemailer");
-const { formatCurrencyMX } = require('../services/formatService');
+const { paymentConfirmationTemplate, paymentLinkTemplate } = require('./emailTemplates');
 
-const emailTemplate = {
-  subject: "Link de pago INEC",
-  body: `
-      <div style="font-family: Arial, sans-serif;">
-        <h2>Hola, tu link de pago está listo</h2>
-        <p>Matrícula: <b>${'${matricula}'}</b></p>
-        <p>Fecha de creación: <b>${'${creaFecha}'}</b></p>
-        <p>Fecha de vigencia: <b>${'${vigeniaFecha}'}</b></p>
-        <table width="100%" style="border-collapse: collapse;">
-          <tbody>
-            ${'${pedidos}'}
-          </tbody>
-        </table>
-        <h3>Total: ${'${total}'}</h3>
-        <p><a href="${'${link}'}" style="background: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Pagar ahora</a></p>
-      </div>
-    `
+const paymentLinkEmailConfig = {
+  subject: "Link de pago INEC"
 };
 
+/**
+ * Envía email con link de pago (OTP)
+ */
 async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, email) {
   try {
-    const subject = emailTemplate.subject;
-    const body = emailTemplate.body;
+    const subject = paymentLinkEmailConfig.subject;
 
     const vigeniaFechaDate = new Date(vigeniaFecha);
-
     const opciones = {
       day: "numeric",
       month: "long",
       year: "numeric"
     };
-
     const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", opciones);
-
-    let pedidosHtml = '';
-
-    for (let i = 0; i < pedidos.length; i++) {
-      const pedido = pedidos[i];
-      const monto = pedido.pago || "0";
-
-      // Generar concepto dinámico para el email
-      const meses = [
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-      ];
-      const nombreMes = meses[pedido.mes - 1] || "Mes desconocido";
-      const conceptoEmail = `Pago de ${nombreMes} ${pedido.anio}`;
-
-      pedidosHtml += `
-            <tr>
-              <td style="border-bottom: 2px solid #F0F0F0; padding: 20px;">
-                <table role="presentation" width="100%">
-                  <tr>
-                    <td style="text-align: left;">
-                      <h4 style="font-size: 20px; font-weight: bold; margin: 0;">Mensualidad</h4>
-                      <p style="margin: 5px 0;">${conceptoEmail}</p>
-                      <p style="margin: 5px 0;">Cant. 1</p>
-                    </td>
-                    <td style="text-align: right;">
-                      <h4 style="font-size: 20px; font-weight: bold; margin: 0;">
-                        ${formatCurrencyMX(monto)}
-                      </h4>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-      `;
-    }
-
+    
     const total = calcularTotal(pedidos);
+    
+    // Generar el HTML usando el template separado
+    const htmlContent = paymentLinkTemplate(matricula, creaFecha, vigeniaFechaFormateada, pedidos, total, link);
 
-    let transporter = nodemailer.createTransport({
+    // Usar transportador centralizado
+    const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
       port: 587,
       secure: false,
@@ -86,17 +39,11 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
       }
     });
 
-    let mailOptions = {
+    const mailOptions = {
       from: '"INEC" <test@test.com>',
       to: email,
       subject: subject,
-      html: body
-        .replace('${matricula}', matricula)
-        .replace('${creaFecha}', creaFecha)
-        .replace('${vigeniaFecha}', vigeniaFechaFormateada)
-        .replace('${pedidos}', pedidosHtml)
-        .replace('${total}', formatCurrencyMX(total))
-        .replace('${link}', link)
+      html: htmlContent
     };
 
     await transporter.sendMail(mailOptions);
@@ -116,4 +63,43 @@ function calcularTotal(pedidos) {
   return total.toFixed(2);
 }
 
-module.exports = { sendMailOtp };
+/**
+ * Envía email de confirmación de pago exitoso
+ */
+async function sendPaymentConfirmationEmail(matricula, pedidos, transactionId, amount, email) {
+  try {
+    const subject = "Confirmación de pago exitoso - INEC";
+    
+    // Generar el HTML usando el template separado
+    const htmlContent = paymentConfirmationTemplate(matricula, pedidos, transactionId, amount);
+
+    // Usar transportador centralizado
+    const transporter = nodemailer.createTransporter({
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "desarrollo.movil@inssoftmx.com",
+        pass: "6wVcjd7W0kFyEHhp"
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    const mailOptions = {
+      from: '"INEC" <test@test.com>',
+      to: email,
+      subject: subject,
+      html: htmlContent
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Email de confirmación de pago enviado a: ${email}`);
+
+  } catch (error) {
+    console.error("Error al enviar el email de confirmación de pago: ", error);
+  }
+}
+
+module.exports = { sendMailOtp, sendPaymentConfirmationEmail };
