@@ -108,12 +108,35 @@ const createPaymentLinkStudent = async (req, res, next) => {
       return res.status(404).json({ message: 'No se encontraron datos de la matrícula' });
     }
 
-    let concepto = "";
-    if (pedidosSeleccionados.length > 2) {
-      concepto = "Varios pagos";
-    } else {
-      concepto = pedidosSeleccionados[0].concepto_pedido;
-    }
+    // Función para generar concepto dinámico
+    const generarConcepto = (pedidos) => {
+      const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+
+      if (pedidos.length === 1) {
+        const pedido = pedidos[0];
+        const nombreMes = meses[pedido.mes - 1] || "Mes desconocido";
+        return `Pago de ${nombreMes} ${pedido.anio}`;
+      } else {
+        // Para múltiples pagos, listar todos los meses
+        const mesesUnicos = [...new Set(pedidos.map(p => p.mes))].sort((a, b) => a - b);
+        const nombresMeses = mesesUnicos.map(mes => meses[mes - 1] || "Mes desconocido");
+        const anio = pedidos[0].anio;
+
+        if (nombresMeses.length === 1) {
+          return `Pago de ${nombresMeses[0]} ${anio}`;
+        } else if (nombresMeses.length === 2) {
+          return `Pago de ${nombresMeses[0]} y ${nombresMeses[1]} ${anio}`;
+        } else {
+          const ultimoMes = nombresMeses.pop();
+          return `Pago de ${nombresMeses.join(", ")} y ${ultimoMes} ${anio}`;
+        }
+      }
+    };
+
+    const concepto = generarConcepto(pedidosSeleccionados);
 
     const orderId = `${student.matricula}-${generateUniqueOrderId()}`;
 

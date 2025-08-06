@@ -41,6 +41,14 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
       const pedido = pedidos[i];
       const monto = pedido.pago || "0";
 
+      // Generar concepto dinámico para el email
+      const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+      const nombreMes = meses[pedido.mes - 1] || "Mes desconocido";
+      const conceptoEmail = `Pago de ${nombreMes} ${pedido.anio}`;
+
       pedidosHtml += `
             <tr>
               <td style="border-bottom: 2px solid #F0F0F0; padding: 20px;">
@@ -48,7 +56,7 @@ async function sendMailOtp(matricula, creaFecha, vigeniaFecha, pedidos, link, em
                   <tr>
                     <td style="text-align: left;">
                       <h4 style="font-size: 20px; font-weight: bold; margin: 0;">Mensualidad</h4>
-                      <p style="margin: 5px 0;">${pedido.concepto_pedido}</p>
+                      <p style="margin: 5px 0;">${conceptoEmail}</p>
                       <p style="margin: 5px 0;">Cant. 1</p>
                     </td>
                     <td style="text-align: right;">
