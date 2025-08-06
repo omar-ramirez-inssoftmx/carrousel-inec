@@ -2,36 +2,38 @@
  * Template para email de confirmación de pago
  */
 const paymentConfirmationTemplate = (matricula, pedidos, transactionId, totalAmount) => {
-  // Array de nombres de meses en español
-  const meses = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
+    // Array de nombres de meses en español
+    const meses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
 
-  // Generar lista de pedidos
-  const pedidosList = pedidos.map(pedido => {
-    const mesNombre = meses[pedido.mes - 1];
-    return `
+    // Generar lista de pedidos
+    const pedidosList = pedidos.map(pedido => {
+        const mesNombre = meses[pedido.mes - 1];
+        // Usar la propiedad correcta: pago en lugar de monto
+        const monto = pedido.pago || pedido.monto || 0;
+        return `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">
           <strong>Pago de ${mesNombre} ${pedido.anio}</strong>
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
-          $${pedido.monto.toFixed(2)} MXN
+          $${parseFloat(monto).toFixed(2)} MXN
         </td>
       </tr>
     `;
-  }).join('');
+    }).join('');
 
-  const fechaActual = new Date().toLocaleDateString('es-MX', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+    const fechaActual = new Date().toLocaleDateString('es-MX', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 
-  return `
+    return `
     <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -49,23 +51,18 @@ const paymentConfirmationTemplate = (matricula, pedidos, transactionId, totalAmo
                 max-width: 600px;
                 margin: 0 auto;
                 background-color: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 overflow: hidden;
             }
             .header {
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                padding: 30px;
+                color: black;
+                border: 2px solid #F0F0F0;
+                border-radius: 10px;
+                padding: 20px;
                 text-align: center;
             }
             .header h1 {
                 margin: 0;
                 font-size: 24px;
-            }
-            .success-icon {
-                font-size: 48px;
-                margin-bottom: 10px;
             }
             .content {
                 padding: 30px;
@@ -119,14 +116,6 @@ const paymentConfirmationTemplate = (matricula, pedidos, transactionId, totalAmo
                 font-weight: bold;
                 color: #155724;
             }
-            .info-box {
-                background-color: #e7f3ff;
-                border: 1px solid #b8daff;
-                border-radius: 5px;
-                padding: 15px;
-                margin: 20px 0;
-                color: #004085;
-            }
             .footer {
                 background-color: #f8f9fa;
                 padding: 20px;
@@ -139,7 +128,6 @@ const paymentConfirmationTemplate = (matricula, pedidos, transactionId, totalAmo
     <body>
         <div class="container">
             <div class="header">
-                <div class="success-icon">✅</div>
                 <h1>¡Pago Confirmado!</h1>
                 <p style="margin: 10px 0 0 0; opacity: 0.9;">Tu pago ha sido procesado exitosamente</p>
             </div>
@@ -181,17 +169,7 @@ const paymentConfirmationTemplate = (matricula, pedidos, transactionId, totalAmo
                 </table>
 
                 <div class="total-amount">
-                    💰 Total Pagado: $${totalAmount.toFixed(2)} MXN
-                </div>
-
-                <div class="info-box">
-                    <h4 style="margin-top: 0; color: #004085;">📋 Información Importante</h4>
-                    <ul style="margin: 10px 0; padding-left: 20px; color: #004085;">
-                        <li>Conserva este email como comprobante de pago</li>
-                        <li>Tu pago será reflejado en tu estado de cuenta en las próximas 24 horas</li>
-                        <li>Si tienes alguna duda, contacta al departamento de finanzas</li>
-                        <li>El ID de transacción es: <strong>${transactionId}</strong></li>
-                    </ul>
+                    Total Pagado: $${totalAmount.toFixed(2)} MXN
                 </div>
             </div>
             

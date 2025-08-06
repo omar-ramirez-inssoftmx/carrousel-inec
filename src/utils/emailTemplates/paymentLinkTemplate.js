@@ -1,20 +1,17 @@
-/**
- * Template para email de link de pago
- */
 const paymentLinkTemplate = (matricula, creaFecha, vigeniaFecha, pedidos, total, link) => {
-  // Array de nombres de meses en español
-  const meses = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
+    // Array de nombres de meses en español
+    const meses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
 
-  // Generar lista de pedidos
-  const pedidosList = pedidos.map(pedido => {
-    const mesNombre = meses[pedido.mes - 1] || 'Mes desconocido';
-    const conceptoEmail = `Pago de ${mesNombre} ${pedido.anio}`;
-    const monto = pedido.pago || "0";
-    
-    return `
+    // Generar lista de pedidos
+    const pedidosList = pedidos.map(pedido => {
+        const mesNombre = meses[pedido.mes - 1] || 'Mes desconocido';
+        const conceptoEmail = `Pago de ${mesNombre} ${pedido.anio}`;
+        const monto = pedido.pago || "0";
+
+        return `
       <tr>
         <td style="border-bottom: 2px solid #F0F0F0; padding: 20px;">
           <table role="presentation" width="100%">
@@ -34,9 +31,9 @@ const paymentLinkTemplate = (matricula, creaFecha, vigeniaFecha, pedidos, total,
         </td>
       </tr>
     `;
-  }).join('');
+    }).join('');
 
-  return `
+    return `
     <!DOCTYPE html>
     <html lang="es">
     <head>
@@ -49,6 +46,12 @@ const paymentLinkTemplate = (matricula, creaFecha, vigeniaFecha, pedidos, total,
                 background-color: #f4f4f4;
                 margin: 0;
                 padding: 20px;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #ffffff;
+                overflow: hidden;
             }
             .header {
                 border: 2px solid #F0F0F0;

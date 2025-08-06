@@ -74,7 +74,7 @@ async function sendPaymentConfirmationEmail(matricula, pedidos, transactionId, a
     const htmlContent = paymentConfirmationTemplate(matricula, pedidos, transactionId, amount);
 
     // Usar transportador centralizado
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
       port: 587,
       secure: false,
