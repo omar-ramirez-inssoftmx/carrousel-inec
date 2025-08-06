@@ -1,7 +1,3 @@
-/**
- * Template para email de confirmación de pago
- */
-
 interface Pedido {
     mes: number;
     anio: number;
@@ -22,10 +18,8 @@ const paymentConfirmationTemplate = (
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
 
-    // Generar lista de pedidos
     const pedidosList = pedidos.map(pedido => {
         const mesNombre = meses[pedido.mes - 1];
-        // Usar la propiedad correcta: pago en lugar de monto
         const monto = pedido.pago || pedido.monto || 0;
         return `
       <tr>
