@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
-const { paymentConfirmationTemplate } = require('./paymentConfirmationTemplate');
-const { paymentLinkTemplate } = require('./paymentLinkTemplate');
+const paymentConfirmationTemplate = require('./emailTemplates/paymentConfirmationTemplate');
+const paymentLinkTemplate = require('./emailTemplates/paymentLinkTemplate');
 
 function createTransporter() {
   return nodemailer.createTransport({
