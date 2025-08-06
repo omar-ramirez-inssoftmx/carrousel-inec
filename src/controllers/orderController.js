@@ -39,7 +39,6 @@ const createPaymentLink = (req, res, next) => {
     customer,
     send_email: true,
     confirm: false,
-    redirect_url: "http://localhost:3000/payment-success"
   };
 
   createDirectCharge(chargeRequest)

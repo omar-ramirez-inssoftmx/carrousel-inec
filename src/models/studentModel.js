@@ -58,4 +58,4 @@ module.exports = {
   createStudent,
   getStudentByMatricula,
   getStudentByOpenPayId,
-}; 
+};

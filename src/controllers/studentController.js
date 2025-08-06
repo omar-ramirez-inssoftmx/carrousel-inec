@@ -128,9 +128,6 @@ const createCustomerWithPayment = async (req, res) => {
       null // sin due_date específico
     );
 
-    // Configurar redirect URL para customer creation
-    chargeRequest.redirect_url = "http://localhost:3000/payment-success";
-
     // Crear la orden de pago
     const order = await createCharge(customer.id, chargeRequest);
 

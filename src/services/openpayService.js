@@ -157,4 +157,4 @@ module.exports = {
   createCustomerCard,
   mapOpenpayStatusToDBStatus,
   createChargeRequestWithSurcharge
-}; 
+};

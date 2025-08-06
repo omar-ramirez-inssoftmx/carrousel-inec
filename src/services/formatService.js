@@ -42,9 +42,6 @@ const formatPaymentDate = (fechaPago) => {
   }
 };
 
-/**
- * Validar y formatear datos de fecha con default values
- */
 const processOrderDates = (pedido) => {
   return {
     ...pedido,
