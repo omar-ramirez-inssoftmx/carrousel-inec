@@ -1,5 +1,4 @@
-const { getAllOrdersForSurcharge } = require('../models/orderModel');
-const { updateOrderSurcharge } = require('../models/orderModel');
+import { getAllOrdersForSurcharge, updateOrderSurcharge } from '../models/orderModel.js';
 
 async function procesoProgramadoRecargo() {
   try {
@@ -58,4 +57,4 @@ async function procesoProgramadoRecargo() {
   }
 }
 
-module.exports = { procesoProgramadoRecargo };
+export { procesoProgramadoRecargo };

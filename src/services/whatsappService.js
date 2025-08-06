@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const sendOrderConfirmationMessage = (phoneNumber, message) => {
   const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
@@ -74,8 +74,8 @@ const formatMexicanPhoneNumber = (phoneNumber) => {
   return 52 + cleanNumber;
 };
 
-module.exports = {
+export {
   sendOrderConfirmationMessage,
   sendPaymentLinkMessage,
   formatMexicanPhoneNumber
-}; 
+};

@@ -1,9 +1,9 @@
-const xlsx = require('xlsx');
-const fs = require('fs');
-const { createStudent } = require('../models/studentModel');
-const { createOrder } = require('../models/orderModel');
+import xlsx from 'xlsx';
+import fs from 'fs';
+import { createStudent } from '../models/studentModel.js';
+import { createOrder } from '../models/orderModel.js';
 
-const { openpay } = require('../utils/openPay');
+import { openpay } from '../utils/openPay.ts';
 
 const columnMapping = {
   "Matrícula *": "matricula",
@@ -157,4 +157,4 @@ const findOrCreateCustomer = async (customerData) => {
   }
 };
 
-module.exports = { uploadFile };
+export { uploadFile };

@@ -1,12 +1,12 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   createPaymentLink,
   createPaymentLinkIdCustomer,
   createPaymentLinkStudent,
   processCharge,
   getStudentOrdersActivity,
   getCancelOrdersData
-} = require('../controllers/orderController');
+} from '../controllers/orderController.js';
 
 const router = express.Router();
 
@@ -17,4 +17,4 @@ router.post('/activity', getStudentOrdersActivity);
 router.post('/pay', processCharge);
 router.post('/cancel', getCancelOrdersData);
 
-module.exports = router;
+export default router;

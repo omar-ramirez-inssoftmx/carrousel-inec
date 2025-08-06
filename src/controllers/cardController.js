@@ -1,11 +1,11 @@
-const { openpay } = require('../utils/openPay');
-const {
+import { openpay } from '../utils/openPay.ts';
+import {
   createCardForStudent,
   getStudentCardsByMatricula,
   activateStudentCard,
   deleteStudentCard,
   getStudentCardsByMatriculaActive
-} = require('../models/cardModel');
+} from '../models/cardModel.js';
 
 const createCard = async (req, res) => {
   const { card_number, holder_name, expiration_year, expiration_month, cvv2, device_session_id, customer_id, id_alumno, nombre_tarjeta } = req.body;
@@ -116,7 +116,7 @@ const deleteCard = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createCard,
   listCard,
   activateCard,

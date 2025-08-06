@@ -1,4 +1,4 @@
-const pool = require('../utils/pool');
+import pool from '../utils/pool.ts';
 
 async function createStudent(matricula, nombre, apellido_paterno, apellido_materno, email, celular, openPayId) {
   const checkQuery = 'SELECT id_alumno FROM alumno WHERE matricula = ?';
@@ -36,7 +36,8 @@ async function getStudentByMatricula(matricula) {
 
     return result;
   } catch (error) {
-    throw new Error("Error al obtener la matrícula");
+    console.error('Error en getStudentByMatricula:', error);
+    throw new Error(`Error al obtener la matrícula: ${error.message}`);
   }
 }
 
@@ -49,12 +50,13 @@ async function getStudentByOpenPayId(customer_id) {
     if (result.length < 1) return null
     
     return result[0];
-  } catch {
-    throw new Error("Error al obtener la matrícula");
+  } catch (error) {
+    console.error('Error en getStudentByOpenPayId:', error);
+    throw new Error(`Error al obtener la matrícula por OpenPay ID: ${error.message}`);
   }
 }
 
-module.exports = {
+export {
   createStudent,
   getStudentByMatricula,
   getStudentByOpenPayId,

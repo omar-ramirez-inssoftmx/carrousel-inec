@@ -1,23 +1,23 @@
-const { getStudentByOpenPayId } = require('../models/studentModel');
-const {
+import { getStudentByOpenPayId } from '../models/studentModel.js';
+import {
   getOrdersByMatricula,
   getAvailableMonths,
   updateOrders,
   cancelOrdersPaymentData
-} = require('../models/orderModel');
-const {
+} from '../models/orderModel.js';
+import {
   getCustomer,
   createCharge,
   createDirectCharge,
   createChargeRequestWithSurcharge,
   getChargeStatusByOrderId
-} = require('../services/openpayService');
-const {
+} from '../services/openpayService.js';
+import {
   sendOrderConfirmationMessage,
   sendPaymentLinkMessage,
   formatMexicanPhoneNumber
-} = require('../services/whatsappService');
-const {
+} from '../services/whatsappService.js';
+import {
   formatPaymentDate,
   formatMonthYear,
   formatCurrencyMX,
@@ -25,8 +25,8 @@ const {
   createDueDateISO,
   generateUniqueOrderId,
   processOrderDates
-} = require('../services/formatService');
-const { sendMailOtp, sendPaymentConfirmationEmail } = require('../utils/sendEmail');
+} from '../services/formatService.js';
+import { sendMailOtp, sendPaymentConfirmationEmail } from '../utils/sendEmail.ts';
 
 const createPaymentLink = (req, res, next) => {
   const { customer, description, enrollment } = req.body;
@@ -387,7 +387,7 @@ const groupOrdersByPaymentId = (pedidos) => {
   }));
 };
 
-module.exports = {
+export {
   createPaymentLink,
   createPaymentLinkIdCustomer,
   createPaymentLinkStudent,

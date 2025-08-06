@@ -1,4 +1,4 @@
-const pool = require('../utils/pool');
+import pool from '../utils/pool.ts';
 
 async function createCardForStudent(id_alumno, numero_tarjeta, token, nombre_tarjeta, tipo, titular, vencimiento) {
   const query = `
@@ -129,7 +129,7 @@ async function deleteStudentCard(id_tarjeta, id_alumno) {
   }
 }
 
-module.exports = {
+export {
   createCardForStudent,
   getStudentCardsByMatricula,
   activateStudentCard,

@@ -1,9 +1,10 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import cron from 'node-cron';
 
-const express = require('express');
-const helmet = require('helmet');
-const cors = require('cors');
-const cron = require("node-cron");
+dotenv.config();
 
 const app = express();
 
@@ -14,8 +15,8 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const { procesoProgramadoUpdateStatus } = require('./utils/CronOpenPay');
-const { procesoProgramadoRecargo } = require('./utils/CronRecargo');
+import { procesoProgramadoUpdateStatus } from './utils/CronOpenPay.js';
+import { procesoProgramadoRecargo } from './utils/CronRecargo.js';
 
 const iniciarCronJobUpdateStatus = async () => {
   cron.schedule("*/5 * * * *", () => procesoProgramadoUpdateStatus());
@@ -28,10 +29,10 @@ const iniciarCronJobRecardo = async () => {
 iniciarCronJobUpdateStatus();
 iniciarCronJobRecardo();
 
-const studentRoutes = require('./routes/studentRoutes');
-const ordersRoutes = require('./routes/ordersRoutes');
-const fileRoutes = require('./routes/fileRoutes');
-const cardRoutes = require('./routes/cardRoutes');
+import studentRoutes from './routes/studentRoutes.js';
+import ordersRoutes from './routes/ordersRoutes.js';
+import fileRoutes from './routes/fileRoutes.js';
+import cardRoutes from './routes/cardRoutes.js';
 
 app.use('/api/students', studentRoutes);
 app.use('/api/orders', ordersRoutes);

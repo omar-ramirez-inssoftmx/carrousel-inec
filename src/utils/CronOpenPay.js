@@ -1,6 +1,5 @@
-const { getChargeStatusByOrderId, mapOpenpayStatusToDBStatus } = require('../services/openpayService');
-const { getAllOrdersForSurcharge } = require('../models/orderModel');
-const { updateOrderStatus } = require('../models/orderModel');
+import { getChargeStatusByOrderId, mapOpenpayStatusToDBStatus } from '../services/openpayService.js';
+import { getAllOrdersForSurcharge, updateOrderStatus } from '../models/orderModel.js';
 
 async function procesoProgramadoUpdateStatus() {
   try {
@@ -46,4 +45,4 @@ async function procesoProgramadoUpdateStatus() {
   }
 }
 
-module.exports = { procesoProgramadoUpdateStatus };
+export { procesoProgramadoUpdateStatus };

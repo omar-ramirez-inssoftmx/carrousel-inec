@@ -1,4 +1,4 @@
-const pool = require('../utils/pool');
+import pool from '../utils/pool.ts';
 
 async function createOrder(
   id_alumno,
@@ -280,7 +280,7 @@ async function cancelOrdersPaymentData(ids) {
   }
 }
 
-module.exports = {
+export {
   createOrder,
   getOrdersByMatricula,
   getAllOrdersForSurcharge,

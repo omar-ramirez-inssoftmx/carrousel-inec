@@ -1,19 +1,19 @@
 import dotenv from 'dotenv';
-import mysql, { Pool, PoolOptions } from 'mysql2/promise';
+import mysql from 'mysql2/promise';
 
 dotenv.config();
 
 const config = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'test',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 };
 
-const pool: Pool = mysql.createPool(config as PoolOptions);
+const pool = mysql.createPool(config);
 
 pool.on('connection', () => {
   console.log('Connected to the database');

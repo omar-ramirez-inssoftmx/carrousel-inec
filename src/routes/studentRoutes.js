@@ -1,11 +1,11 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   createCustomerWithPayment,
   listCustomer,
   editCustomer,
   getStudentData,
   getStudentByMatriculaData
-} = require('../controllers/studentController');
+} from '../controllers/studentController.js';
 
 const router = express.Router();
 
@@ -15,4 +15,4 @@ router.post('/edit', editCustomer);
 router.post('/select', getStudentData);
 router.post('/profile', getStudentByMatriculaData);
 
-module.exports = router;
+export default router;

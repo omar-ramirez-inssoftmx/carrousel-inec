@@ -1,11 +1,11 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   activeCard,
   createCard,
   listCard,
   activateCard,
   deleteCard
-} = require('../controllers/cardController');
+} from '../controllers/cardController.js';
 
 const router = express.Router();
 
@@ -15,4 +15,4 @@ router.post('/activateCard', activeCard);
 router.post('/activate', activateCard);
 router.post('/delete', deleteCard);
 
-module.exports = router;
+export default router;

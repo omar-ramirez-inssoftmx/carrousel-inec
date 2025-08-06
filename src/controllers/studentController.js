@@ -1,16 +1,17 @@
-const { getStudentByMatricula } = require('../models/studentModel');
-const { updateOrderStatus, getOrdersByMatricula } = require('../models/orderModel');
-const { 
+import { getStudentByMatricula } from '../models/studentModel.js';
+import { updateOrderStatus, getOrdersByMatricula } from '../models/orderModel.js';
+import { 
   mapOpenpayStatusToDBStatus,
   createChargeRequestWithSurcharge,
   createCharge,
   getChargeStatusByOrderId
-} = require('../services/openpayService');
-const {
+} from '../services/openpayService.js';
+import {
   sendOrderConfirmationMessage,
   formatMexicanPhoneNumber
-} = require('../services/whatsappService');
-const { processOrderDates } = require('../services/formatService');
+} from '../services/whatsappService.js';
+import { processOrderDates } from '../services/formatService.js';
+import { openpay } from '../utils/openPay.ts';
 
 const getStudentData = async (req, res) => {
   try {
@@ -87,6 +88,7 @@ const getStudentByMatriculaData = async (req, res) => {
 
     res.json(student);
   } catch (error) {
+    console.error("Error al obtener datos de la matrícula:", error);
     res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
   }
 };
@@ -109,7 +111,7 @@ const createCustomerWithPayment = async (req, res) => {
 
     // Crear customer en OpenPay
     const customer = await new Promise((resolve, reject) => {
-      const { openpay } = require('../utils/openPay');
+      // openpay ya está importado al inicio del archivo
       openpay.customers.create(customerData, (error, customer) => {
         if (error) reject(error);
         else resolve(customer);
@@ -167,7 +169,7 @@ const listCustomer = async (req, res) => {
   const { external_id } = req.body;
   const searchParams = { external_id };
 
-  const { openpay } = require('../utils/openPay');
+  // openpay ya está importado al inicio del archivo
   openpay.customers.list(searchParams, (error, customers) => {
     if (error) {
       return res.status(400).json({ error: error.description });
@@ -188,7 +190,7 @@ const editCustomer = async (req, res) => {
     email,
   };
 
-  const { openpay } = require('../utils/openPay');
+  // openpay ya está importado al inicio del archivo
   openpay.customers.update(customerId, searchParams, function (error, customers) {
     if (error) {
       return res.status(400).json({ error: error.description });
@@ -197,7 +199,7 @@ const editCustomer = async (req, res) => {
   });
 };
 
-module.exports = {
+export {
   getStudentData,
   getStudentByMatriculaData,
   createCustomerWithPayment,

@@ -1,4 +1,4 @@
-const { openpay } = require('../utils/openPay');
+import { openpay } from '../utils/openPay.ts';
 
 const findOrCreateCustomer = async (customerData) => {
   const { external_id, name, last_name, email, phone_number } = customerData;
@@ -147,7 +147,7 @@ const createChargeRequestWithSurcharge = (baseAmount, description, orderId, dueD
   };
 };
 
-module.exports = {
+export {
   findOrCreateCustomer,
   getCustomer,
   createCharge,

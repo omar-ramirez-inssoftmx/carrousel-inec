@@ -56,7 +56,7 @@ const generateUniqueOrderId = (prefix = '') => {
   return prefix ? `${prefix}-${timestamp}` : timestamp.toString();
 };
 
-module.exports = {
+export {
   formatCurrencyMX,
   formatMonthYear,
   getCurrentFormattedDate,
@@ -64,4 +64,4 @@ module.exports = {
   formatPaymentDate,
   processOrderDates,
   generateUniqueOrderId
-}; 
+};
