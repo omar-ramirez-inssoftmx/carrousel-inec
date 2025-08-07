@@ -73,53 +73,6 @@ export async function getStudentCardsByMatricula(matricula: string) {
   }
 }
 
-export async function getStudentCardsByMatriculaActive(matricula: string) {
-  try {
-    const result = await prisma.alumno.findFirst({
-      where: { matricula },
-      include: {
-        tarjetas: {
-          where: {
-            eliminada: false,
-            activa: true,
-            vencimiento: {
-              not: null
-            }
-          },
-          select: {
-            id: true,
-            numero_tarjeta: true,
-            titular: true,
-            vencimiento: true,
-            nombre_tarjeta: true,
-            tipo: true,
-            activa: true,
-            token: true
-          }
-        }
-      }
-    });
-
-    if (!result) return [];
-
-    return result.tarjetas.map(tarjeta => ({
-      id_alumno: result.id_alumno,
-      nombre: result.nombre,
-      matricula: result.matricula,
-      id_tarjeta: tarjeta.id,
-      numero_tarjeta: tarjeta.numero_tarjeta,
-      titular: tarjeta.titular,
-      vencimiento: tarjeta.vencimiento,
-      nombre_tarjeta: tarjeta.nombre_tarjeta,
-      tipo: tarjeta.tipo,
-      activa: tarjeta.activa,
-      token: tarjeta.token
-    }));
-  } catch (error) {
-    throw error;
-  }
-}
-
 export async function activateStudentCard(id_tarjeta: number, id_alumno: number) {
   try {
     // Desactivar todas las tarjetas del alumno

@@ -4,7 +4,6 @@ import {
   getStudentCardsByMatricula,
   activateStudentCard,
   deleteStudentCard,
-  getStudentCardsByMatriculaActive
 } from '../models/cardModel.ts';
 
 const createCard = async (req, res) => {
@@ -57,28 +56,6 @@ const listCard = async (req, res) => {
   }
 };
 
-const activeCard = async (req, res) => {
-  const { matricula } = req.body;
-
-  try {
-    const saveCard = await getStudentCardsByMatriculaActive(matricula);
-    res.json(saveCard);
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener las tarjetas del alumno" });
-  }
-};
-
-const activateCard = async (req, res) => {
-  const { id_tarjeta, id_alumno } = req.body;
-
-  try {
-    const result = await activateStudentCard(id_tarjeta, id_alumno);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Error al activar la tarjeta" });
-  }
-};
-
 const deleteCard = async (req, res) => {
   const { id_tarjeta, customer_id, id_alumno } = req.body;
 
@@ -119,7 +96,5 @@ const deleteCard = async (req, res) => {
 export {
   createCard,
   listCard,
-  activateCard,
   deleteCard,
-  activeCard
 };
