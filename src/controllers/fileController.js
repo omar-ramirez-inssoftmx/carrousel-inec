@@ -12,11 +12,11 @@ const columnMapping = {
   "Apellido Materno": "apellido_materno",
   "Celular": "celular",
   "Correo *": "correo",
-  "Pago": "pago",
-  "Fecha de Vencimiento Pago": "fecha_vencimiento_pago",
-  "Tipo de Pago": "tipo_pago",
-  "Producto / Servicio Motivo de pago": "producto_servicio_motivo_pago",
-  "Concepto de pago *": "concepto_pago",
+  "Pago": "pago",//[6]
+  "Fecha de Vencimiento Pago": "fecha_vencimiento_pago",//[7]
+  "Tipo de Pago": "tipo_pago", // [8]
+  "Producto / Servicio Motivo de pago": "producto_servicio_motivo_pago", // NO [9]
+  "Concepto de pago *": "concepto_pago", // NO [10]
   "Ciclo": "ciclo",
   "Mes": "mes",
   "Año": "anio"
@@ -80,25 +80,20 @@ const uploadFile = async (req, res) => {
           }
 
           await createOrder(
-            resultAlumno,
-            null,
-            null,
-            0,
-            3,
-            row[8],
-            row[9],
-            row[10],
-            ciclo,
-            mes,
-            anioActual,
-            parseFloat(row[6]) || 0,
-            excelSerialToDate(row[7], mes, anioActual),
-            null,
-            row[10],
-            null,
-            new Date().toISOString().split('T')[0],
-            null,
-            0.00
+            resultAlumno,  //id_alumno
+            null,//identificador_pago
+            3,//id_cat_estatus
+            row[8],//tipo_pago
+            ciclo,// ciclo
+            mes,// mes
+            anioActual,// anio
+            parseFloat(row[6]) || 0,//pago
+            excelSerialToDate(row[7], mes, anioActual),//fecha_vigencia_pago
+            null,//link_pago
+            null,//transaction_id
+            new Date().toISOString().split('T')[0],//fecha_carga
+            null,//fecha_pago
+            0.00//monto_real_pago
           );
         }
       } catch (error) {
