@@ -32,7 +32,7 @@ async function sendMailOtp(
     const transporter = createTransporter();
 
     await transporter.sendMail({
-      from: '"INEC" <test@test.com>',
+      from: '"INEC" <no-reply@inec.com>',
       to: email,
       subject: '"Enlace de pago - INEC"',
       html: htmlContent
@@ -64,7 +64,7 @@ async function sendPaymentConfirmationEmail(
     const transporter = createTransporter();
 
     await transporter.sendMail({
-      from: '"INEC" <test@test.com>',
+      from: '"INEC" <no-reply@inec.com>',
       to: email,
       subject: '"Confirmación de pago exitoso - INEC"',
       html: htmlContent
