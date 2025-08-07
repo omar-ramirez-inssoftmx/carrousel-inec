@@ -1,5 +1,5 @@
 import { getChargeStatusByOrderId, mapOpenpayStatusToDBStatus } from '../services/openpayService.js';
-import { getAllOrdersForSurcharge, updateOrderStatus } from '../models/orderModel.js';
+import { getAllOrdersForSurcharge, updateOrderStatus } from '../models/orderModel.ts';
 
 async function procesoProgramadoUpdateStatus() {
   try {
@@ -11,7 +11,7 @@ async function procesoProgramadoUpdateStatus() {
         const openpayStatus = await getChargeStatusByOrderId(pedido.open_pay_id, pedido.identificador_pago);
 
         let estatus = null;
-        
+
         if (openpayStatus != null) {
           if (openpayStatus.status === "charge_pending") {
             const dueDate = new Date(openpayStatus.due_date);

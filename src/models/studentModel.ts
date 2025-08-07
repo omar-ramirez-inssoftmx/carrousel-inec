@@ -64,7 +64,7 @@ export async function getStudentByOpenPayId(customer_id: string) {
 
     if (!alumno) return null;
 
-    return [alumno];
+    return alumno;
   } catch (error) {
     console.error('Error en getStudentByOpenPayId:', error);
     throw new Error(`Error al obtener el alumno por OpenPay ID: ${error}`);

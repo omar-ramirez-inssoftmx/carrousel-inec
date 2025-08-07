@@ -1,4 +1,4 @@
-import { getAllOrdersForSurcharge, updateOrderSurcharge } from '../models/orderModel.js';
+import { getAllOrdersForSurcharge, updateOrderSurcharge } from '../models/orderModel.ts';
 
 async function procesoProgramadoRecargo() {
   try {

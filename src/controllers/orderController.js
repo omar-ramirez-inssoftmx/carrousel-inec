@@ -207,6 +207,7 @@ const processCharge = async (req, res) => {
     res.status(200).json({ success: true, charge });
 
   } catch (error) {
+    console.error("Error al procesar el pago:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -240,11 +241,11 @@ const createChargeWithCard = async (customerId, token, amount, description, orde
       try {
         // Obtener datos del estudiante
         const student = await getStudentByOpenPayId(customerId);
-        
+
         // Obtener los pedidos pagados
         const pedidosPagados = await getOrdersByMatricula(student.matricula, null);
         const pedidosSeleccionados = pedidosPagados.filter(pedido => ids.includes(pedido.id_pedido));
-        
+
         // Enviar email de confirmación
         await sendPaymentConfirmationEmail(
           student.matricula,
@@ -253,7 +254,7 @@ const createChargeWithCard = async (customerId, token, amount, description, orde
           amount,
           student.email
         );
-        
+
         console.log(`Email de confirmación enviado a ${student.email} para la transacción ${charge.id}`);
       } catch (emailError) {
         console.error('Error al enviar email de confirmación:', emailError);
