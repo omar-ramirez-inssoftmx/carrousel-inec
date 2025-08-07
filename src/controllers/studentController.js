@@ -1,5 +1,5 @@
-import { getStudentByMatricula } from '../models/studentModel.js';
-import { updateOrderStatus, getOrdersByMatricula } from '../models/orderModel.js';
+import { getStudentByMatricula } from '../models/studentModel.ts';
+import { updateOrderStatus, getOrdersByMatricula } from '../models/orderModel.ts';
 import { 
   mapOpenpayStatusToDBStatus,
   createChargeRequestWithSurcharge,

@@ -1,10 +1,10 @@
-import { getStudentByOpenPayId } from '../models/studentModel.js';
+import { getStudentByOpenPayId } from '../models/studentModel.ts';
 import {
   getOrdersByMatricula,
   getAvailableMonths,
   updateOrders,
   cancelOrdersPaymentData
-} from '../models/orderModel.js';
+} from '../models/orderModel.ts';
 import {
   getCustomer,
   createCharge,

@@ -5,7 +5,7 @@ import {
   activateStudentCard,
   deleteStudentCard,
   getStudentCardsByMatriculaActive
-} from '../models/cardModel.js';
+} from '../models/cardModel.ts';
 
 const createCard = async (req, res) => {
   const { card_number, holder_name, expiration_year, expiration_month, cvv2, device_session_id, customer_id, id_alumno, nombre_tarjeta } = req.body;
