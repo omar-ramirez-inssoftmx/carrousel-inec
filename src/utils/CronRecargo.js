@@ -9,10 +9,6 @@ async function procesoProgramadoRecargo() {
     }
 
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    const cutoffDate = new Date(currentYear, currentMonth, 15);
-
     let recargosAplicados = 0;
     let pedidosActualizados = 0;
 
@@ -20,24 +16,18 @@ async function procesoProgramadoRecargo() {
       try {
         const dueDate = new Date(pedido.fecha_vigencia_pago);
 
-        if (dueDate <= cutoffDate) {
-          // Calcular nuevo monto con 10% de recargo
-          const nuevoMonto = Math.round((pedido.pago * 1.10) * 100) / 100;
-
-          // Calcular nueva fecha (15 del siguiente mes)
-          let nextMonth = currentMonth + 1;
-          let nextYear = currentYear;
-          if (nextMonth > 11) {
-            nextMonth = 0;
-            nextYear++;
+        // Solo aplicar recargo si la fecha de vencimiento ya pasó
+        if (dueDate < currentDate) {
+          const { monto, fecha } = calculateSurchargeForOrder(pedido.pago, dueDate, currentDate);
+          
+          // Solo actualizar si hay cambios en el monto o fecha
+          if (monto !== pedido.pago || fecha.getTime() !== dueDate.getTime()) {
+            const formattedDate = fecha.toISOString().split('T')[0];
+            await updateOrderSurcharge(pedido.id_pedido, monto, formattedDate);
+            
+            recargosAplicados++;
+            console.log(`Recargo aplicado al pedido ${pedido.id_pedido} - Monto anterior: ${pedido.pago}, Nuevo monto: ${monto}`);
           }
-          const nuevaFechaVigencia = new Date(nextYear, nextMonth, 15);
-          const formattedDate = nuevaFechaVigencia.toISOString().split('T')[0];
-
-          await updateOrderSurcharge(pedido.id_pedido, nuevoMonto, formattedDate);
-
-          recargosAplicados++;
-          console.log(`Recargo aplicado al pedido ${pedido.id_pedido} - Nuevo monto: ${nuevoMonto}`);
         }
 
         pedidosActualizados++;
@@ -55,6 +45,27 @@ async function procesoProgramadoRecargo() {
   } catch (error) {
     throw error;
   }
+}
+
+// Función para calcular recargos acumulativos desde la fecha de vencimiento hasta hoy
+function calculateSurchargeForOrder(montoOriginal, fechaVencimiento, fechaActual) {
+  let montoActual = montoOriginal;
+  let fechaProximaVigencia = new Date(fechaVencimiento);
+  
+  // Calcular cuántos períodos de recargo han pasado
+  while (fechaProximaVigencia < fechaActual) {
+    // Aplicar recargo del 10%
+    montoActual = Math.round((montoActual * 1.10) * 100) / 100;
+    
+    // Mover la fecha al 15 del siguiente mes
+    const siguienteMes = fechaProximaVigencia.getMonth() + 1;
+    const siguienteAnio = fechaProximaVigencia.getFullYear() + (siguienteMes > 11 ? 1 : 0);
+    const mesAjustado = siguienteMes > 11 ? 0 : siguienteMes;
+    
+    fechaProximaVigencia = new Date(siguienteAnio, mesAjustado, 15);
+  }
+  
+  return { monto: montoActual, fecha: fechaProximaVigencia };
 }
 
 export { procesoProgramadoRecargo };

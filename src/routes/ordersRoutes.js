@@ -5,7 +5,7 @@ import {
   createPaymentLinkStudent,
   processCharge,
   getStudentOrdersActivity,
-  getCancelOrdersData
+  getCancelOrdersData,
 } from '../controllers/orderController.js';
 
 const router = express.Router();

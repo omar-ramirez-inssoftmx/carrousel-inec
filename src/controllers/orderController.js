@@ -3,7 +3,9 @@ import {
   getOrdersByMatricula,
   getAvailableMonths,
   updateOrders,
-  cancelOrdersPaymentData
+  cancelOrdersPaymentData,
+  getAllOrdersForSurcharge,
+  updateOrderSurcharge
 } from '../models/orderModel.ts';
 import {
   getCustomer,
@@ -385,7 +387,72 @@ const groupOrdersByPaymentId = (pedidos) => {
     cantidadConceptos: grupo.conceptos.length,
     pedidosDetail: grupo.detalles
   }));
+
+  return groupedOrders;
 };
+
+// Función para actualizar recargos manualmente
+const updateSurcharges = async (req, res) => {
+  try {
+    const pedidos = await getAllOrdersForSurcharge();
+    const currentDate = new Date();
+    let pedidosActualizados = 0;
+    let recargosAplicados = 0;
+
+    for (const pedido of pedidos) {
+      try {
+        const dueDate = new Date(pedido.fecha_vigencia_pago);
+
+        // Solo procesar si la fecha de vencimiento ya pasó
+        if (dueDate < currentDate) {
+          const { monto, fecha } = calculateSurchargeForOrder(pedido.pago, dueDate, currentDate);
+          
+          // Solo actualizar si hay cambios en el monto o fecha
+          if (monto !== pedido.pago || fecha.getTime() !== dueDate.getTime()) {
+            const formattedDate = fecha.toISOString().split('T')[0];
+            await updateOrderSurcharge(pedido.id_pedido, monto, formattedDate);
+            recargosAplicados++;
+          }
+        }
+        pedidosActualizados++;
+      } catch (error) {
+        console.error(`Error actualizando pedido ${pedido.id_pedido}:`, error);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Recargos actualizados exitosamente',
+      totalPedidos: pedidos.length,
+      pedidosActualizados,
+      recargosAplicados
+    });
+  } catch (error) {
+    console.error('Error al actualizar recargos:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+// Función para calcular recargos acumulativos desde la fecha de vencimiento hasta hoy
+function calculateSurchargeForOrder(montoOriginal, fechaVencimiento, fechaActual) {
+  let montoActual = montoOriginal;
+  let fechaProximaVigencia = new Date(fechaVencimiento);
+  
+  // Calcular cuántos períodos de recargo han pasado
+  while (fechaProximaVigencia < fechaActual) {
+    // Aplicar recargo del 10%
+    montoActual = Math.round((montoActual * 1.10) * 100) / 100;
+    
+    // Mover la fecha al 15 del siguiente mes
+    const siguienteMes = fechaProximaVigencia.getMonth() + 1;
+    const siguienteAnio = fechaProximaVigencia.getFullYear() + (siguienteMes > 11 ? 1 : 0);
+    const mesAjustado = siguienteMes > 11 ? 0 : siguienteMes;
+    
+    fechaProximaVigencia = new Date(siguienteAnio, mesAjustado, 15);
+  }
+  
+  return { monto: montoActual, fecha: fechaProximaVigencia };
+}
 
 export {
   createPaymentLink,
@@ -394,4 +461,5 @@ export {
   processCharge,
   getStudentOrdersActivity,
   getCancelOrdersData,
+  updateSurcharges,
 };

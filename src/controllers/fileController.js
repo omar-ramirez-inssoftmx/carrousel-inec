@@ -1,7 +1,7 @@
 import xlsx from 'xlsx';
 import fs from 'fs';
-import { createStudent } from '../models/studentModel.js';
-import { createOrder } from '../models/orderModel.js';
+import { createStudent } from '../models/studentModel.ts';
+import { createOrder, getAllOrdersForSurcharge, updateOrderSurcharge } from '../models/orderModel.ts';
 
 import { openpay } from '../utils/openPay.ts';
 
@@ -43,10 +43,6 @@ const uploadFile = async (req, res) => {
       return Object.keys(columnMapping).some(key => cell.includes(key));
     }));
 
-    if (headerRowIndex === -1) {
-      return res.status(400).json({ error: 'No se encontraron encabezados válidos en el archivo' });
-    }
-
     const filteredData = data
       .slice(headerRowIndex + 1)
       .filter(row => row.some(cell => cell !== null && cell !== ''));
@@ -58,11 +54,11 @@ const uploadFile = async (req, res) => {
           name: row[1],
           last_name: row[2] + ' ' + row[3],
           email: row[5].trim(),
-          phone_number: row[4]
+          phone_number: String(row[4] || '')
         };
 
         const customer = await findOrCreateCustomer(customerData);
-        const resultAlumno = await createStudent(row[0], row[1], row[2], row[3], row[5].trim(), row[4], customer.id);
+        const resultAlumno = await createStudent(row[0], row[1], row[2], row[3], row[5].trim(), String(row[4] || ''), customer.id);
 
         const ciclo = parseInt(row[11]) || 0;
         const mesInicial = parseInt(row[12]) || 1;
@@ -79,6 +75,19 @@ const uploadFile = async (req, res) => {
             anioActual += Math.floor((mesActual - 1) / 12);
           }
 
+          const fechaVigencia = excelSerialToDate(row[7], mes, anioActual);
+          const fechaVigenciaDate = fechaVigencia ? new Date(fechaVigencia) : null;
+          
+          // Calcular el monto con recargos si la fecha ya venció
+          let montoFinal = parseFloat(row[6]) || 0;
+          let fechaFinal = fechaVigenciaDate;
+          
+          if (fechaVigenciaDate) {
+            const { monto, fecha } = calculateSurchargeIfNeeded(montoFinal, fechaVigenciaDate);
+            montoFinal = monto;
+            fechaFinal = fecha;
+          }
+
           await createOrder(
             resultAlumno,  //id_alumno
             null,//identificador_pago
@@ -87,11 +96,11 @@ const uploadFile = async (req, res) => {
             ciclo,// ciclo
             mes,// mes
             anioActual,// anio
-            parseFloat(row[6]) || 0,//pago
-            excelSerialToDate(row[7], mes, anioActual),//fecha_vigencia_pago
+            montoFinal,//pago
+            fechaFinal,//fecha_vigencia_pago
             null,//link_pago
             null,//transaction_id
-            new Date().toISOString().split('T')[0],//fecha_carga
+            new Date(),//fecha_carga
             null,//fecha_pago
             0.00//monto_real_pago
           );
@@ -101,6 +110,9 @@ const uploadFile = async (req, res) => {
       }
     }
 
+    // Actualizar pedidos existentes con recargos si es necesario
+    await updateExistingOrdersSurcharges();
+
     res.json({ message: "Proceso de carga completado" });
     fs.unlinkSync(filePath);
 
@@ -109,6 +121,40 @@ const uploadFile = async (req, res) => {
     res.status(500).json({ error: 'Error al procesar el archivo', details: error.message });
   }
 };
+
+// Función para actualizar pedidos existentes con recargos acumulativos
+async function updateExistingOrdersSurcharges() {
+  try {
+    const pedidos = await getAllOrdersForSurcharge();
+    const currentDate = new Date();
+    let pedidosActualizados = 0;
+
+    for (const pedido of pedidos) {
+      try {
+        const dueDate = new Date(pedido.fecha_vigencia_pago);
+
+        // Solo procesar si la fecha de vencimiento ya pasó
+        if (dueDate < currentDate) {
+          const { monto, fecha } = calculateSurchargeIfNeeded(pedido.pago, dueDate);
+          
+          // Solo actualizar si hay cambios en el monto o fecha
+          if (monto !== pedido.pago || fecha.getTime() !== dueDate.getTime()) {
+            const formattedDate = fecha.toISOString().split('T')[0];
+            await updateOrderSurcharge(pedido.id_pedido, monto, formattedDate);
+            pedidosActualizados++;
+            console.log(`Pedido ${pedido.id_pedido} actualizado - Monto anterior: ${pedido.pago}, Nuevo monto: ${monto}`);
+          }
+        }
+      } catch (error) {
+        console.error(`Error actualizando pedido ${pedido.id_pedido}:`, error);
+      }
+    }
+
+    console.log(`Se actualizaron ${pedidosActualizados} pedidos con recargos acumulativos`);
+  } catch (error) {
+    console.error('Error al actualizar pedidos existentes:', error);
+  }
+}
 
 function excelSerialToDate(excelSerialDate, mes, anio) {
   if (typeof excelSerialDate === 'undefined' || !excelSerialDate || isNaN(parseFloat(excelSerialDate))) {
@@ -121,7 +167,40 @@ function excelSerialToDate(excelSerialDate, mes, anio) {
 
   const day = adjustedDate.getDate();
 
-  return `${anio}-${mes}-${day}`;
+  // Formatear con ceros a la izquierda para cumplir con ISO-8601
+  const mesFormatted = mes.toString().padStart(2, '0');
+  const dayFormatted = day.toString().padStart(2, '0');
+
+  return `${anio}-${mesFormatted}-${dayFormatted}`;
+}
+
+// Función para calcular recargos acumulativos si la fecha ya venció
+function calculateSurchargeIfNeeded(montoOriginal, fechaVencimiento) {
+  const hoy = new Date();
+  const fechaVenc = new Date(fechaVencimiento);
+  
+  // Si la fecha no ha vencido, no hay recargo
+  if (fechaVenc >= hoy) {
+    return { monto: montoOriginal, fecha: fechaVencimiento };
+  }
+  
+  let montoActual = montoOriginal;
+  let fechaActual = new Date(fechaVenc);
+  
+  // Calcular cuántos períodos de recargo han pasado
+  while (fechaActual < hoy) {
+    // Aplicar recargo del 10%
+    montoActual = Math.round((montoActual * 1.10) * 100) / 100;
+    
+    // Mover la fecha al 15 del siguiente mes
+    const siguienteMes = fechaActual.getMonth() + 1;
+    const siguienteAnio = fechaActual.getFullYear() + (siguienteMes > 11 ? 1 : 0);
+    const mesAjustado = siguienteMes > 11 ? 0 : siguienteMes;
+    
+    fechaActual = new Date(siguienteAnio, mesAjustado, 15);
+  }
+  
+  return { monto: montoActual, fecha: fechaActual };
 }
 
 const findOrCreateCustomer = async (customerData) => {

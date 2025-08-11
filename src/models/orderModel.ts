@@ -46,7 +46,7 @@ export async function createOrder(
 
 export async function getOrdersByMatricula(matricula: string, status: string) {
   try {
-    const whereCondition = status === 'completed' 
+    const whereCondition = status === 'completed'
       ? { id_cat_estatus: 1 }
       : { id_cat_estatus: { not: 1 } };
 
@@ -147,12 +147,12 @@ export async function getAvailableMonths(matricula: string) {
 
     const months = pedidos.map(pedido => {
       if (!pedido.fecha_pago) return null;
-      
+
       const date = new Date(pedido.fecha_pago);
       const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
       const month_display = `${monthNames[date.getMonth()]}-${date.getFullYear().toString().slice(-2)}`;
       const month_value = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-      
+
       return { month_display, month_value };
     }).filter(Boolean);
 
