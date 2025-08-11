@@ -17,8 +17,6 @@ model alumno {
   email              String     @db.VarChar(50)
   celular            String     @db.VarChar(10)
   open_pay_id        String?    @db.VarChar(50)
-  fecha_alta         DateTime   @db.DateTime(0)
-  fecha_modificacion DateTime   @db.DateTime(0)
   pedidos            pedidos[]
   tarjetas           tarjetas[]
 }

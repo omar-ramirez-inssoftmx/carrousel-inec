@@ -27,8 +27,6 @@ export async function createStudent(
           email,
           celular,
           open_pay_id: openPayId,
-          fecha_alta: new Date(),
-          fecha_modificacion: new Date()
         }
       });
       
