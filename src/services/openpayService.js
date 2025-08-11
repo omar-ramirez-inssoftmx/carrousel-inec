@@ -1,6 +1,6 @@
 import { openpay } from '../utils/openPay.ts';
 
-const findOrCreateCustomer = async (customerData) => {
+export const findOrCreateCustomer = async (customerData) => {
   const { external_id, name, last_name, email, phone_number } = customerData;
 
   try {
@@ -26,55 +26,43 @@ const findOrCreateCustomer = async (customerData) => {
   }
 };
 
-const getCustomer = async (customer_id) => {
+export const getCustomer = async (customer_id) => {
   return new Promise((resolve, reject) => {
     openpay.customers.get(customer_id, (error, customerData) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(customerData);
-      }
+      if (error) return reject(error);
+      resolve(customerData);
     });
   });
 };
 
-const createCharge = (customer_id, chargeRequest) => {
+export const createCharge = (customer_id, chargeRequest) => {
   return new Promise((resolve, reject) => {
     openpay.customers.charges.create(customer_id, chargeRequest, (error, order) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(order);
-      }
+      if (error) return reject(error);
+      resolve(order);
     });
   });
 };
 
-const createDirectCharge = (chargeRequest) => {
+export const createDirectCharge = (chargeRequest) => {
   return new Promise((resolve, reject) => {
     openpay.charges.create(chargeRequest, (error, charge) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(charge);
-      }
+      if (error) return reject(error);
+      resolve(charge);
     });
   });
 };
 
-const getCustomerCharges = (customer_id, searchParams = {}) => {
+export const getCustomerCharges = (customer_id, searchParams = {}) => {
   return new Promise((resolve, reject) => {
     openpay.customers.charges.list(customer_id, searchParams, (error, charges) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(charges);
-      }
+      if (error) return reject(error);
+      resolve(charges);
     });
   });
 };
 
-const getChargeStatusByOrderId = async (customer_id, order_id) => {
+export const getChargeStatusByOrderId = async (customer_id, order_id) => {
   try {
     const charges = await getCustomerCharges(customer_id, { order_id });
     const charge = charges.find((charge) => charge.order_id === order_id);
@@ -87,22 +75,16 @@ const getChargeStatusByOrderId = async (customer_id, order_id) => {
   }
 };
 
-const createCustomerCard = (customer_id, cardRequest) => {
+export const createCustomerCard = (customer_id, cardRequest) => {
   return new Promise((resolve, reject) => {
     openpay.customers.cards.create(customer_id, cardRequest, (error, card) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(card);
-      }
+      if (error) return reject(error);
+      resolve(card);
     });
   });
 };
 
-/**
- * Mapear estatus de OpenPay a estatus de base de datos
- */
-const mapOpenpayStatusToDBStatus = (openpayStatus) => {
+export const mapOpenpayStatusToDBStatus = (openpayStatus) => {
   switch (openpayStatus && openpayStatus.toUpperCase()) {
     case 'COMPLETED':
       return 1;
@@ -122,10 +104,7 @@ const mapOpenpayStatusToDBStatus = (openpayStatus) => {
   }
 };
 
-/**
- * Crear solicitud de charge con recargo si es necesario
- */
-const createChargeRequestWithSurcharge = (baseAmount, description, orderId, dueDate) => {
+export const createChargeRequestWithSurcharge = (baseAmount, description, orderId, dueDate) => {
   const fecha = new Date();
   const dia = fecha.getDate();
   let amount = baseAmount;
@@ -145,16 +124,4 @@ const createChargeRequestWithSurcharge = (baseAmount, description, orderId, dueD
     redirect_url: "http://inecestudiantes.s3-website-us-east-1.amazonaws.com/",
     due_date: dueDate,
   };
-};
-
-export {
-  findOrCreateCustomer,
-  getCustomer,
-  createCharge,
-  createDirectCharge,
-  getCustomerCharges,
-  getChargeStatusByOrderId,
-  createCustomerCard,
-  mapOpenpayStatusToDBStatus,
-  createChargeRequestWithSurcharge
 };

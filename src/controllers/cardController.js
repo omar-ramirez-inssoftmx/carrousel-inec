@@ -2,11 +2,10 @@ import { openpay } from '../utils/openPay.ts';
 import {
   createCardForStudent,
   getStudentCardsByMatricula,
-  activateStudentCard,
   deleteStudentCard,
 } from '../models/cardModel.ts';
 
-const createCard = async (req, res) => {
+export const createCard = async (req, res) => {
   const { card_number, holder_name, expiration_year, expiration_month, cvv2, device_session_id, customer_id, id_alumno, nombre_tarjeta } = req.body;
 
   const cardRequest = {
@@ -45,7 +44,7 @@ const createCard = async (req, res) => {
 };
 
 
-const listCard = async (req, res) => {
+export const listCard = async (req, res) => {
   const { matricula } = req.body;
 
   try {
@@ -56,7 +55,7 @@ const listCard = async (req, res) => {
   }
 };
 
-const deleteCard = async (req, res) => {
+export const deleteCard = async (req, res) => {
   const { id_tarjeta, customer_id, id_alumno } = req.body;
 
   try {
@@ -91,10 +90,4 @@ const deleteCard = async (req, res) => {
     const statusCode = error.description ? 400 : 500;
     res.status(statusCode).json(errorResponse);
   }
-};
-
-export {
-  createCard,
-  listCard,
-  deleteCard,
 };

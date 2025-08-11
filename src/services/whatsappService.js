@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const sendOrderConfirmationMessage = (phoneNumber, message) => {
+export const sendOrderConfirmationMessage = (phoneNumber, message) => {
   const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
   const messagePayload = {
@@ -29,7 +29,7 @@ const sendOrderConfirmationMessage = (phoneNumber, message) => {
   });
 };
 
-const sendPaymentLinkMessage = (fecha, link, nombre, phoneNumber, matricula) => {
+export const sendPaymentLinkMessage = (fecha, link, nombre, phoneNumber, matricula) => {
   const whatsappApiUrl = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
   const vigeniaFechaDate = new Date(fecha);
@@ -68,14 +68,7 @@ const sendPaymentLinkMessage = (fecha, link, nombre, phoneNumber, matricula) => 
   });
 };
 
-const formatMexicanPhoneNumber = (phoneNumber) => {
-  // Asegurar que tenga el código de país +52
+export const formatMexicanPhoneNumber = (phoneNumber) => {
   const cleanNumber = phoneNumber.toString().replace(/\D/g, '');
   return 52 + cleanNumber;
-};
-
-export {
-  sendOrderConfirmationMessage,
-  sendPaymentLinkMessage,
-  formatMexicanPhoneNumber
 };

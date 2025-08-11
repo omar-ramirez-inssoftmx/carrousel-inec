@@ -30,7 +30,7 @@ import {
 } from '../services/formatService.js';
 import { sendMailOtp, sendPaymentConfirmationEmail } from '../utils/sendEmail.ts';
 
-const createPaymentLink = (req, res, next) => {
+export const createPaymentLink = (req, res, next) => {
   const { customer, description, enrollment } = req.body;
 
   const chargeRequest = {
@@ -52,7 +52,7 @@ const createPaymentLink = (req, res, next) => {
     });
 };
 
-const createPaymentLinkIdCustomer = async (req, res, next) => {
+export const createPaymentLinkIdCustomer = async (req, res, next) => {
   const { customer_id, description } = req.body;
 
   try {
@@ -88,11 +88,7 @@ const createPaymentLinkIdCustomer = async (req, res, next) => {
   }
 };
 
-/**
- * Crear link de pago para estudiante con múltiples pedidos
- * Ruta: POST /api/orders/createOrderStudent
- */
-const createPaymentLinkStudent = async (req, res, next) => {
+export const createPaymentLinkStudent = async (req, res, next) => {
   const {
     customer_id,
     description,
@@ -190,7 +186,7 @@ const createPaymentLinkStudent = async (req, res, next) => {
   }
 };
 
-const processCharge = async (req, res) => {
+export const processCharge = async (req, res) => {
   try {
     const {
       customer_id,
@@ -214,7 +210,7 @@ const processCharge = async (req, res) => {
   }
 };
 
-const createChargeWithCard = async (customerId, token, amount, description, orderId, deviceSessionId, ids) => {
+export const createChargeWithCard = async (customerId, token, amount, description, orderId, deviceSessionId, ids) => {
   try {
     let cardId = token;
 
@@ -270,11 +266,7 @@ const createChargeWithCard = async (customerId, token, amount, description, orde
   }
 };
 
-/**
- * Obtener órdenes completadas del estudiante (actividad)
- * Ruta: POST /api/orders/activity
- */
-const getStudentOrdersActivity = async (req, res, next) => {
+export const getStudentOrdersActivity = async (req, res, next) => {
   const { matricula } = req.body;
 
   try {
@@ -292,11 +284,7 @@ const getStudentOrdersActivity = async (req, res, next) => {
   }
 };
 
-/**
- * Cancelar pedidos eliminando datos de pago
- * Ruta: POST /api/orders/cancel
- */
-const getCancelOrdersData = async (req, res, next) => {
+export const getCancelOrdersData = async (req, res, next) => {
   const { pedidosConLinks, pedidosComp } = req.body;
 
   try {
@@ -329,12 +317,7 @@ const getCancelOrdersData = async (req, res, next) => {
   }
 };
 
-// === FUNCIONES AUXILIARES ===
-
-/**
- * Formatear órdenes para display
- */
-const formatOrders = async (orders) => {
+export const formatOrders = async (orders) => {
   return Promise.all(orders.map(async (order) => {
     const monto = order.monto_real_pago;
     const fechaFormateada = formatPaymentDate(order.fecha_pago);
@@ -356,7 +339,7 @@ const formatOrders = async (orders) => {
   }));
 };
 
-const groupOrdersByPaymentId = (pedidos) => {
+export const groupOrdersByPaymentId = (pedidos) => {
   const grupos = {};
 
   pedidos.forEach(pedido => {
@@ -391,50 +374,8 @@ const groupOrdersByPaymentId = (pedidos) => {
   return groupedOrders;
 };
 
-// Función para actualizar recargos manualmente
-const updateSurcharges = async (req, res) => {
-  try {
-    const pedidos = await getAllOrdersForSurcharge();
-    const currentDate = new Date();
-    let pedidosActualizados = 0;
-    let recargosAplicados = 0;
-
-    for (const pedido of pedidos) {
-      try {
-        const dueDate = new Date(pedido.fecha_vigencia_pago);
-
-        // Solo procesar si la fecha de vencimiento ya pasó
-        if (dueDate < currentDate) {
-          const { monto, fecha } = calculateSurchargeForOrder(pedido.pago, dueDate, currentDate);
-          
-          // Solo actualizar si hay cambios en el monto o fecha
-          if (monto !== pedido.pago || fecha.getTime() !== dueDate.getTime()) {
-            const formattedDate = fecha.toISOString().split('T')[0];
-            await updateOrderSurcharge(pedido.id_pedido, monto, formattedDate);
-            recargosAplicados++;
-          }
-        }
-        pedidosActualizados++;
-      } catch (error) {
-        console.error(`Error actualizando pedido ${pedido.id_pedido}:`, error);
-      }
-    }
-
-    res.json({
-      success: true,
-      message: 'Recargos actualizados exitosamente',
-      totalPedidos: pedidos.length,
-      pedidosActualizados,
-      recargosAplicados
-    });
-  } catch (error) {
-    console.error('Error al actualizar recargos:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-};
-
 // Función para calcular recargos acumulativos desde la fecha de vencimiento hasta hoy
-function calculateSurchargeForOrder(montoOriginal, fechaVencimiento, fechaActual) {
+export function calculateSurchargeForOrder(montoOriginal, fechaVencimiento, fechaActual) {
   let montoActual = montoOriginal;
   let fechaProximaVigencia = new Date(fechaVencimiento);
   
@@ -453,13 +394,3 @@ function calculateSurchargeForOrder(montoOriginal, fechaVencimiento, fechaActual
   
   return { monto: montoActual, fecha: fechaProximaVigencia };
 }
-
-export {
-  createPaymentLink,
-  createPaymentLinkIdCustomer,
-  createPaymentLinkStudent,
-  processCharge,
-  getStudentOrdersActivity,
-  getCancelOrdersData,
-  updateSurcharges,
-};

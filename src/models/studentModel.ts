@@ -17,23 +17,21 @@ export async function createStudent(
       select: { id_alumno: true }
     });
 
-    if (!existingAlumno) {
-      const alumno = await prisma.alumno.create({
-        data: {
-          matricula,
-          nombre,
-          apellido_paterno,
-          apellido_materno,
-          email,
-          celular,
-          open_pay_id: openPayId,
-        }
-      });
+    if (existingAlumno) return existingAlumno.id_alumno;
 
-      return alumno.id_alumno;
-    } else {
-      return existingAlumno.id_alumno;
-    }
+    const alumno = await prisma.alumno.create({
+      data: {
+        matricula,
+        nombre,
+        apellido_paterno,
+        apellido_materno,
+        email,
+        celular,
+        open_pay_id: openPayId,
+      }
+    });
+
+    return alumno.id_alumno;
   } catch (error) {
     throw error;
   }

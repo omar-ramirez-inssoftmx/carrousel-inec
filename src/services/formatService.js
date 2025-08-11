@@ -1,4 +1,4 @@
-const formatCurrencyMX = (amount) => {
+export const formatCurrencyMX = (amount) => {
   if (amount === null || amount === undefined || isNaN(amount)) {
     return '$0.00';
   }
@@ -10,26 +10,23 @@ const formatCurrencyMX = (amount) => {
   })}`;
 };
 
-const formatMonthYear = (mes, anio) => {
+export const formatMonthYear = (mes, anio) => {
   if (!mes || !anio) return 'Sin mes';
   return `${mes.toString().padStart(2, '0')}/${anio}`;
 };
 
-const getCurrentFormattedDate = (locale = 'es-ES', options = { year: 'numeric', month: 'long', day: 'numeric' }) => {
+export const getCurrentFormattedDate = (locale = 'es-ES', options = { year: 'numeric', month: 'long', day: 'numeric' }) => {
   const currentDate = new Date();
   return currentDate.toLocaleDateString(locale, options);
 };
 
-/**
- * Crear ISO date para vencimiento (1 hora desde ahora)
- */
-const createDueDateISO = (hoursFromNow = 1) => {
+export const createDueDateISO = (hoursFromNow = 1) => {
   const dueDate = new Date();
   dueDate.setHours(dueDate.getHours() + hoursFromNow);
   return dueDate.toISOString();
 };
 
-const formatPaymentDate = (fechaPago) => {
+export const formatPaymentDate = (fechaPago) => {
   if (!fechaPago) return "Sin fecha";
 
   try {
@@ -42,7 +39,7 @@ const formatPaymentDate = (fechaPago) => {
   }
 };
 
-const processOrderDates = (pedido) => {
+export const processOrderDates = (pedido) => {
   return {
     ...pedido,
     fecha_vigenica_descuento: pedido.fecha_vigenica_descuento || null,
@@ -51,17 +48,7 @@ const processOrderDates = (pedido) => {
   };
 };
 
-const generateUniqueOrderId = (prefix = '') => {
+export const generateUniqueOrderId = (prefix = '') => {
   const timestamp = new Date().getTime();
   return prefix ? `${prefix}-${timestamp}` : timestamp.toString();
-};
-
-export {
-  formatCurrencyMX,
-  formatMonthYear,
-  getCurrentFormattedDate,
-  createDueDateISO,
-  formatPaymentDate,
-  processOrderDates,
-  generateUniqueOrderId
 };

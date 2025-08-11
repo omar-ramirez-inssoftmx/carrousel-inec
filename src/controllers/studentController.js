@@ -1,6 +1,6 @@
 import { getStudentByMatricula } from '../models/studentModel.ts';
 import { updateOrderStatus, getOrdersByMatricula } from '../models/orderModel.ts';
-import { 
+import {
   mapOpenpayStatusToDBStatus,
   createChargeRequestWithSurcharge,
   createCharge,
@@ -13,7 +13,7 @@ import {
 import { processOrderDates } from '../services/formatService.js';
 import { openpay } from '../utils/openPay.ts';
 
-const getStudentData = async (req, res) => {
+export const getStudentData = async (req, res) => {
   try {
     const { matricula } = req.body;
 
@@ -54,25 +54,20 @@ const getStudentData = async (req, res) => {
           await updateOrderStatus(pedido.id_pedido, estado, openpayStatus);
         }
 
-        return {
-          ...pedido,
-          estado,
-        };
+        return { ...pedido, estado };
       })
     );
 
-    // Obtener pedidos actualizados
     const pedidosActualizados = await getOrdersByMatricula(matricula, 'pending');
     const pedidosProcesados = pedidosActualizados.map(processOrderDates);
 
     res.json(pedidosProcesados);
   } catch (error) {
-    console.error("Error al obtener pedidos:", error);
     res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
   }
 };
 
-const getStudentByMatriculaData = async (req, res) => {
+export const getStudentByMatriculaData = async (req, res) => {
   try {
     const { matricula } = req.body;
 
@@ -88,16 +83,11 @@ const getStudentByMatriculaData = async (req, res) => {
 
     res.json(student);
   } catch (error) {
-    console.error("Error al obtener datos de la matrícula:", error);
     res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
   }
 };
 
-/**
- * Crear cliente y generar link de pago
- * Ruta: POST /api/students/create
- */
-const createCustomerWithPayment = async (req, res) => {
+export const createCustomerWithPayment = async (req, res) => {
   try {
     const { name, last_name, email, phone_number, external_id } = req.body;
 
@@ -111,7 +101,6 @@ const createCustomerWithPayment = async (req, res) => {
 
     // Crear customer en OpenPay
     const customer = await new Promise((resolve, reject) => {
-      // openpay ya está importado al inicio del archivo
       openpay.customers.create(customerData, (error, customer) => {
         if (error) reject(error);
         else resolve(customer);
@@ -161,48 +150,14 @@ const createCustomerWithPayment = async (req, res) => {
   }
 };
 
-/**
- * Listar customer por external_id
- * Ruta: POST /api/students/list
- */
-const listCustomer = async (req, res) => {
+export const listCustomer = async (req, res) => {
   const { external_id } = req.body;
   const searchParams = { external_id };
 
-  // openpay ya está importado al inicio del archivo
   openpay.customers.list(searchParams, (error, customers) => {
     if (error) {
       return res.status(400).json({ error: error.description });
     }
     res.json(customers);
   });
-};
-
-/**
- * Editar customer
- * Ruta: POST /api/students/edit
- */
-const editCustomer = async (req, res) => {
-  const { email, customerId } = req.body;
-
-  const searchParams = {
-    name: "Jeny Álvarez Félix",
-    email,
-  };
-
-  // openpay ya está importado al inicio del archivo
-  openpay.customers.update(customerId, searchParams, function (error, customers) {
-    if (error) {
-      return res.status(400).json({ error: error.description });
-    }
-    res.json(customers);
-  });
-};
-
-export {
-  getStudentData,
-  getStudentByMatriculaData,
-  createCustomerWithPayment,
-  listCustomer,
-  editCustomer
 };
