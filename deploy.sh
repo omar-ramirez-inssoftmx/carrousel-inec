@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# Script de deploy para aplicación INEC Backend
-# Este script automatiza el proceso de despliegue con PM2
-
 echo "Iniciando proceso de deploy..."
-
-echo "Obteniendo últimos cambios del repositorio..."
 
 # Hacer pull de los últimos cambios
 git pull origin main
@@ -24,6 +19,17 @@ if [ $? -eq 0 ]; then
     echo "Dependencias instaladas correctamente"
 else
     echo "Error al instalar dependencias"
+    exit 1
+fi
+
+echo "Generando cliente de Prisma..."
+
+# Generar cliente de Prisma
+npx prisma generate
+if [ $? -eq 0 ]; then
+    echo "Cliente de Prisma generado correctamente"
+else
+    echo "Error al generar cliente de Prisma"
     exit 1
 fi
 
