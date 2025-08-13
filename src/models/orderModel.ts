@@ -110,6 +110,9 @@ export async function getAllOrdersForSurcharge() {
       fecha_vigencia_pago: pedido.fecha_vigencia_pago,
       link_de_pago: pedido.link_de_pago,
       transaccion_Id: pedido.transaccion_Id,
+      ciclo: pedido.ciclo,
+      mes: pedido.mes,
+      anio: pedido.anio,
       matricula: pedido.alumno.matricula,
       open_pay_id: pedido.alumno.open_pay_id,
       nombre_alumno: pedido.alumno.nombre,
@@ -215,15 +218,15 @@ export async function updateOrderStatus(id: number, status: number, pedido: any)
   }
 }
 
-export async function updateOrderSurcharge(id: number, pago: number, fecha: Date) {
+export async function updateOrderSurcharge(id: number, pago: number) {
   try {
     const result = await prisma.pedidos.update({
       where: {
         id_pedido: id
       },
       data: {
-        pago,
-        fecha_vigencia_pago: fecha
+        pago
+        // NO actualizar fecha_vigencia_pago - debe mantenerse original para la lógica de recargos
       }
     });
 

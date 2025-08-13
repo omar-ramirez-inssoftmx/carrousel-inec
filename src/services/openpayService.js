@@ -104,16 +104,27 @@ export const mapOpenpayStatusToDBStatus = (openpayStatus) => {
   }
 };
 
+// NOTA: Esta función ya no aplica recargos automáticos por día
+// Los recargos ahora se calculan mensualmente usando las funciones específicas de recargo
 export const createChargeRequestWithSurcharge = (baseAmount, description, orderId, dueDate) => {
-  const fecha = new Date();
-  const dia = fecha.getDate();
-  let amount = baseAmount;
+  // Removida la lógica de recargo por día para mantener consistencia
+  // con la nueva lógica de negocio que aplica recargos mes a mes
+  const amount = baseAmount;
 
-  // Si el día no es 1 ni 15, se agrega el 10%
-  if (dia !== 1 && dia !== 15) {
-    amount = amount + (amount * 0.10);
-  }
+  return {
+    method: "card",
+    amount: amount,
+    description,
+    order_id: orderId,
+    send_email: true,
+    confirm: false,
+    redirect_url: "http://inecestudiantes.s3-website-us-east-1.amazonaws.com/",
+    due_date: dueDate,
+  };
+};
 
+// Función alternativa para crear charge request sin recargos automáticos
+export const createChargeRequest = (amount, description, orderId, dueDate) => {
   return {
     method: "card",
     amount: amount,
