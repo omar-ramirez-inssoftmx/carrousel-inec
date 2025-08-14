@@ -380,53 +380,73 @@ export const groupOrdersByPaymentId = (pedidos) => {
 // Nueva función que calcula recargos considerando todo el ciclo
 // Esta es la implementación correcta de la lógica de negocio
 export function calculateSurchargeForCycle(pedidos, fechaActual) {
-  // Agrupar pedidos por matrícula y ciclo
-  const ciclosPorMatricula = {};
+  const pedidosAgrupados = {};
   
+  // Agrupar pedidos por ciclo
   pedidos.forEach(pedido => {
-    const key = `${pedido.matricula}_${pedido.ciclo}_${pedido.anio}`;
-    if (!ciclosPorMatricula[key]) {
-      ciclosPorMatricula[key] = [];
+    if (!pedidosAgrupados[pedido.ciclo]) {
+      pedidosAgrupados[pedido.ciclo] = [];
     }
-    ciclosPorMatricula[key].push(pedido);
+    pedidosAgrupados[pedido.ciclo].push(pedido);
   });
-  
+
   const resultados = [];
-  
-  // Procesar cada ciclo
-  Object.values(ciclosPorMatricula).forEach(ciclo => {
-    // Ordenar meses del ciclo
+
+  Object.keys(pedidosAgrupados).forEach(cicloKey => {
+    const ciclo = pedidosAgrupados[cicloKey];
+    
+    // Ordenar por año y mes
     ciclo.sort((a, b) => {
       if (a.anio !== b.anio) return a.anio - b.anio;
       return a.mes - b.mes;
     });
-    
-    // Calcular recargos para cada mes del ciclo
-    ciclo.forEach((pedidoActual, index) => {
-      let montoFinal = pedidoActual.pago; // Monto base se mantiene
-      let recargosAplicados = 0;
+
+    // Calcular montos acumulativos para todo el ciclo
+     const baseAmount = 1500;
+     const surchargeRate = 0.10;
+     const montos = [];
+     
+     // El primer mes del ciclo siempre mantiene el monto base
+     montos.push(baseAmount);
+     
+     // Calcular secuencialmente cada mes del ciclo
+     for (let i = 1; i < ciclo.length; i++) {
+       const pedidoAnterior = ciclo[i - 1];
+       const fechaVencimientoAnterior = new Date(pedidoAnterior.fecha_vigencia_pago);
+       
+       if (fechaVencimientoAnterior < fechaActual) {
+         // El mes anterior está vencido, aplicar 10% al monto del mes anterior
+         const montoAnterior = montos[i - 1];
+         const nuevoMonto = montoAnterior * (1 + surchargeRate);
+         montos.push(Math.round(nuevoMonto * 100) / 100);
+       } else {
+         // El mes anterior no está vencido, mantener monto base
+         montos.push(baseAmount);
+       }
+     }
+
+    // Asignar montos calculados a cada pedido
+     ciclo.forEach((pedidoActual, index) => {
+       const montoActual = parseFloat(pedidoActual.pago);
+       const yaTieneRecargo = montoActual > baseAmount;
+       const montoFinal = montos[index];
       
-      // Revisar todos los meses anteriores en el ciclo
+      // Contar recargos aplicados
+      let recargosAplicados = 0;
       for (let i = 0; i < index; i++) {
         const pedidoAnterior = ciclo[i];
         const fechaVencimientoAnterior = new Date(pedidoAnterior.fecha_vigencia_pago);
-        
-        // Si el mes anterior ya se venció, aplicar 10% al mes actual
         if (fechaVencimientoAnterior < fechaActual) {
           recargosAplicados++;
         }
       }
       
-      // Aplicar todos los recargos acumulados
-      for (let i = 0; i < recargosAplicados; i++) {
-        montoFinal = Math.round((montoFinal * 1.10) * 100) / 100;
-      }
-      
       resultados.push({
         ...pedidoActual,
-        montoOriginal: pedidoActual.pago,
+        montoOriginal: montoActual,
         montoConRecargo: montoFinal,
-        recargosAplicados
+        recargosAplicados,
+        yaTeniaRecargo: yaTieneRecargo
       });
     });
   });
