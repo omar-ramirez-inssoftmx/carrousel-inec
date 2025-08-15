@@ -1,4 +1,61 @@
-import { getAllOrdersForSurcharge, updateOrderSurcharge } from '../models/orderModel.ts';
+import { PrismaClient } from '../generated/prisma/index.js';
+
+const prisma = new PrismaClient();
+
+// Función para obtener todos los pedidos para recargo
+async function getAllOrdersForSurcharge() {
+  try {
+    const pedidos = await prisma.pedidos.findMany({
+      where: {
+        id_cat_estatus: 3
+      },
+      include: {
+        alumno: true,
+        cat_estatus: true
+      }
+    });
+
+    return pedidos.map(pedido => ({
+      id_pedido: pedido.id_pedido,
+      identificador_pago: pedido.identificador_pago,
+      id_cat_estatus: pedido.id_cat_estatus,
+      estatus: pedido.cat_estatus.descripcion,
+      pago: pedido.pago,
+      fecha_vigencia_pago: pedido.fecha_vigencia_pago,
+      link_de_pago: pedido.link_de_pago,
+      transaccion_Id: pedido.transaccion_Id,
+      ciclo: pedido.ciclo,
+      mes: pedido.mes,
+      anio: pedido.anio,
+      matricula: pedido.alumno.matricula,
+      open_pay_id: pedido.alumno.open_pay_id,
+      nombre_alumno: pedido.alumno.nombre,
+      apellido_paterno: pedido.alumno.apellido_paterno,
+      apellido_materno: pedido.alumno.apellido_materno,
+      email: pedido.alumno.email,
+      celular: pedido.alumno.celular
+    }));
+  } catch {
+    throw new Error("Error al obtener todos los pedidos por matrícula");
+  }
+}
+
+// Función para actualizar el recargo de un pedido
+async function updateOrderSurcharge(id, pago) {
+  try {
+    const result = await prisma.pedidos.update({
+      where: {
+        id_pedido: id
+      },
+      data: {
+        pago: pago
+      }
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function procesoProgramadoRecargo() {
   try {
