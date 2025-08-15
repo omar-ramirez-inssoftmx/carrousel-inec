@@ -17,18 +17,21 @@ async function procesoProgramadoRecargo() {
     
     for (const resultado of resultados) {
       try {
-        // Actualizar SIEMPRE si hay cambios en el monto (para corregir recargos incorrectos)
-        if (resultado.montoConRecargo !== resultado.montoOriginal) {
+        // Solo actualizar si realmente necesita actualización
+        if (resultado.necesitaActualizacion) {
           await updateOrderSurcharge(resultado.id_pedido, resultado.montoConRecargo);
           
           recargosAplicados++;
-          if (resultado.yaTeniaRecargo) {
+          
+          if (resultado.esPrimerMes) {
+            console.log(`Primer mes corregido en pedido ${resultado.id_pedido} - Monto anterior: ${resultado.montoOriginal}, Nuevo monto: ${resultado.montoConRecargo} (debe ser $1500)`);
+          } else if (resultado.yaTeniaRecargo) {
             console.log(`Recargo corregido en pedido ${resultado.id_pedido} - Monto anterior: ${resultado.montoOriginal}, Nuevo monto: ${resultado.montoConRecargo}, Recargos aplicados: ${resultado.recargosAplicados}`);
           } else {
             console.log(`Recargo aplicado al pedido ${resultado.id_pedido} - Monto anterior: ${resultado.montoOriginal}, Nuevo monto: ${resultado.montoConRecargo}, Recargos aplicados: ${resultado.recargosAplicados}`);
           }
         } else {
-          console.log(`Pedido ${resultado.id_pedido} mantiene monto correcto - Monto: ${resultado.montoOriginal}, Recargos: ${resultado.recargosAplicados}`);
+          console.log(`Pedido ${resultado.id_pedido} ya tiene el monto correcto - Monto: ${resultado.montoOriginal}, Recargos: ${resultado.recargosAplicados}`);
         }
 
         pedidosActualizados++;
@@ -155,8 +158,10 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
     // Asignar montos calculados a cada pedido
     ciclo.forEach((pedidoActual, index) => {
       const montoActual = parseFloat(pedidoActual.pago);
-      const yaTieneRecargo = montoActual > baseAmount;
       const montoFinal = montos[index];
+      
+      // Determinar si ya tenía recargo comparando con el monto base
+      const yaTieneRecargo = montoActual > baseAmount;
       
       // Contar recargos aplicados
       let recargosAplicados = 0;
@@ -171,12 +176,18 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
         }
       }
       
+      // Solo incluir en resultados si el monto calculado es diferente al actual
+      // Esto evita actualizaciones innecesarias y recargos duplicados
+      const necesitaActualizacion = Math.abs(montoActual - montoFinal) > 0.01;
+      
       resultados.push({
         ...pedidoActual,
-        montoOriginal: montoActual, // Usar el monto actual como original
+        montoOriginal: montoActual,
         montoConRecargo: montoFinal,
         recargosAplicados,
-        yaTeniaRecargo: yaTieneRecargo
+        yaTeniaRecargo: yaTieneRecargo,
+        necesitaActualizacion: necesitaActualizacion,
+        esPrimerMes: index === 0
       });
     });
   });
