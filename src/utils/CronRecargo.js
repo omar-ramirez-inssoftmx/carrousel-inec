@@ -110,11 +110,16 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
   Object.keys(pedidosAgrupados).forEach(cicloKey => {
     const ciclo = pedidosAgrupados[cicloKey];
     
-    // Ordenar por año y mes
+    // Ordenar por año y mes cronológicamente
     ciclo.sort((a, b) => {
       if (a.anio !== b.anio) return a.anio - b.anio;
       return a.mes - b.mes;
     });
+
+    // Identificar el primer mes del ciclo (el mes más temprano en la secuencia)
+    // Este será el mes base que debe mantener $1500
+    const primerMesCiclo = ciclo[0].mes;
+    const primerAnioCiclo = ciclo[0].anio;
 
     // Calcular montos acumulativos para todo el ciclo
     const baseAmount = 1500;
@@ -132,12 +137,12 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
       // Convertir fecha de vencimiento a horario de México
       const fechaVencimientoMexico = new Date(fechaVencimientoAnterior.toLocaleString("en-US", {timeZone: "America/Mexico_City"}));
       
-      // El recargo se aplica el día 16 a primera hora (00:00:01)
+      // El recargo se aplica el día 16 del mes de vencimiento del pedido anterior a primera hora (00:00:01)
       // Por lo tanto, el día 15 completo (hasta 23:59:59) es válido para pagar sin recargos
       const fechaLimiteRecargo = new Date(fechaVencimientoMexico.getFullYear(), fechaVencimientoMexico.getMonth(), 16, 0, 0, 1);
       
       if (fechaActualMexico >= fechaLimiteRecargo) {
-        // El mes anterior está vencido (ya pasó el día 15), aplicar 10% al monto del mes anterior
+        // El mes anterior está vencido (ya pasó el día 15 de su mes de vencimiento), aplicar 10% al monto del mes anterior
         const montoAnterior = montos[i - 1];
         const nuevoMonto = montoAnterior * (1 + surchargeRate);
         montos.push(Math.round(nuevoMonto * 100) / 100);
