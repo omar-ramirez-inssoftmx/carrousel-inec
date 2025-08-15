@@ -99,11 +99,13 @@ export const createPaymentLinkStudent = async (req, res, next) => {
   } = req.body;
 
   try {
-    const student = await getStudentByOpenPayId(customer_id);
+    const studentResult = await getStudentByOpenPayId(customer_id);
 
-    if (!student || student.length === 0) {
+    if (!studentResult || studentResult.length === 0) {
       return res.status(404).json({ message: 'No se encontraron datos de la matrícula' });
     }
+    
+    const student = studentResult[0]; // getStudentByOpenPayId devuelve un array
 
     // Función para generar concepto dinámico
     const generarConcepto = (pedidos) => {
@@ -261,7 +263,14 @@ export const createChargeWithCard = async (customerId, token, amount, descriptio
       try {
         console.log(`[${timestamp}] 🔍 Obteniendo datos del estudiante...`);
         // Obtener datos del estudiante
-        const student = await getStudentByOpenPayId(customerId);
+        const studentResult = await getStudentByOpenPayId(customerId);
+        
+        if (!studentResult || studentResult.length === 0) {
+          console.error(`[${timestamp}] ❌ No se encontró estudiante con customer_id: ${customerId}`);
+          throw new Error('Estudiante no encontrado');
+        }
+        
+        const student = studentResult[0]; // getStudentByOpenPayId devuelve un array
         console.log(`[${timestamp}] 👤 Estudiante encontrado: ${student.matricula} - ${student.email}`);
 
         console.log(`[${timestamp}] 📋 Obteniendo pedidos pagados...`);
