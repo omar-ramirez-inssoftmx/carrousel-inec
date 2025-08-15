@@ -17,7 +17,19 @@ async function sendMailOtp(
   link: string,
   email: string
 ): Promise<void> {
+  const timestamp = new Date().toISOString();
+  
+  console.log(`[${timestamp}] 📧 INICIANDO ENVÍO DE EMAIL CON ENLACE DE PAGO`);
+  console.log(`[${timestamp}] 📋 Detalles del envío:`);
+  console.log(`[${timestamp}]    - Matrícula: ${matricula}`);
+  console.log(`[${timestamp}]    - Email destino: ${email}`);
+  console.log(`[${timestamp}]    - Fecha creación: ${creaFecha}`);
+  console.log(`[${timestamp}]    - Fecha vigencia: ${vigeniaFecha}`);
+  console.log(`[${timestamp}]    - Número de pedidos: ${pedidos.length}`);
+  console.log(`[${timestamp}]    - Link de pago: ${link}`);
+  
   try {
+    console.log(`[${timestamp}] 🔄 Procesando fecha de vigencia...`);
     const vigeniaFechaDate = new Date(vigeniaFecha);
     const opciones: Intl.DateTimeFormatOptions = {
       day: "numeric",
@@ -26,19 +38,37 @@ async function sendMailOtp(
     };
     const vigeniaFechaFormateada = vigeniaFechaDate.toLocaleDateString("es-Mx", opciones);
 
+    console.log(`[${timestamp}] 🔄 Calculando total de pedidos...`);
     const total = calcularTotal(pedidos);
+    console.log(`[${timestamp}] 💰 Total calculado: $${total}`);
+    
+    console.log(`[${timestamp}] 🔄 Generando contenido HTML del email...`);
     const htmlContent = paymentLinkTemplate(matricula, creaFecha, vigeniaFechaFormateada, pedidos, total, link);
 
+    console.log(`[${timestamp}] 🔄 Creando transporter de email...`);
     const transporter = createTransporter();
 
-    await transporter.sendMail({
+    console.log(`[${timestamp}] 🔄 Enviando email con enlace de pago...`);
+    const emailResult = await transporter.sendMail({
       from: '"INEC" <no-reply@inec.com>',
       to: email,
       subject: '"Enlace de pago - INEC"',
       html: htmlContent
-    })
+    });
+    
+    console.log(`[${timestamp}] ✅ EMAIL CON ENLACE DE PAGO ENVIADO EXITOSAMENTE`);
+    console.log(`[${timestamp}] 📧 Message ID: ${emailResult.messageId}`);
+    console.log(`[${timestamp}] 📧 Response: ${emailResult.response}`);
+    
   } catch (error) {
-    console.error("Error al enviar el email: ", error);
+    console.error(`[${timestamp}] ❌ ERROR AL ENVIAR EMAIL CON ENLACE DE PAGO:`);
+    console.error(`[${timestamp}] 📧 Matrícula: ${matricula}`);
+    console.error(`[${timestamp}] 📧 Email: ${email}`);
+    console.error(`[${timestamp}] 📧 Link: ${link}`);
+    console.error(`[${timestamp}] 📧 Error details:`, error);
+    
+    // Re-lanzar el error para que el código que llama pueda manejarlo
+    throw error;
   }
 }
 
@@ -59,19 +89,44 @@ async function sendPaymentConfirmationEmail(
   amount: string | number,
   email: string
 ): Promise<void> {
+  const timestamp = new Date().toISOString();
+  
+  console.log(`[${timestamp}] 📧 INICIANDO ENVÍO DE EMAIL DE CONFIRMACIÓN DE PAGO`);
+  console.log(`[${timestamp}] 📋 Detalles del envío:`);
+  console.log(`[${timestamp}]    - Matrícula: ${matricula}`);
+  console.log(`[${timestamp}]    - Email destino: ${email}`);
+  console.log(`[${timestamp}]    - Transaction ID: ${transactionId}`);
+  console.log(`[${timestamp}]    - Monto: $${amount}`);
+  console.log(`[${timestamp}]    - Número de pedidos: ${pedidos.length}`);
+  
   try {
+    console.log(`[${timestamp}] 🔄 Generando contenido HTML del email...`);
     const htmlContent = paymentConfirmationTemplate(matricula, pedidos, transactionId, amount);
+    
+    console.log(`[${timestamp}] 🔄 Creando transporter de email...`);
     const transporter = createTransporter();
 
-    await transporter.sendMail({
+    console.log(`[${timestamp}] 🔄 Enviando email de confirmación...`);
+    const emailResult = await transporter.sendMail({
       from: '"INEC" <no-reply@inec.com>',
       to: email,
       subject: '"Confirmación de pago exitoso - INEC"',
       html: htmlContent
     });
 
+    console.log(`[${timestamp}] ✅ EMAIL DE CONFIRMACIÓN ENVIADO EXITOSAMENTE`);
+    console.log(`[${timestamp}] 📧 Message ID: ${emailResult.messageId}`);
+    console.log(`[${timestamp}] 📧 Response: ${emailResult.response}`);
+    
   } catch (error) {
-    console.error("Error al enviar el email de confirmación de pago: ", error);
+    console.error(`[${timestamp}] ❌ ERROR AL ENVIAR EMAIL DE CONFIRMACIÓN DE PAGO:`);
+    console.error(`[${timestamp}] 📧 Matrícula: ${matricula}`);
+    console.error(`[${timestamp}] 📧 Email: ${email}`);
+    console.error(`[${timestamp}] 📧 Transaction ID: ${transactionId}`);
+    console.error(`[${timestamp}] 📧 Error details:`, error);
+    
+    // Re-lanzar el error para que el código que llama pueda manejarlo
+    throw error;
   }
 }
 

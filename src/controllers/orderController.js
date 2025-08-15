@@ -176,8 +176,23 @@ export const createPaymentLinkStudent = async (req, res, next) => {
     }
 
     // Enviar email
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] 📧 INICIANDO ENVÍO DE EMAIL CON ENLACE DE PAGO`);
+    console.log(`[${timestamp}] 👤 Estudiante: ${student.matricula} - ${student.email}`);
+    console.log(`[${timestamp}] 🔗 Payment URL: ${paymentUrl}`);
+    
     const creaFecha = getCurrentFormattedDate();
-    sendMailOtp(student.matricula, creaFecha, fechaVigencia, pedidosSeleccionados, paymentUrl, student.email);
+    
+    try {
+      await sendMailOtp(student.matricula, creaFecha, fechaVigencia, pedidosSeleccionados, paymentUrl, student.email);
+      console.log(`[${timestamp}] ✅ EMAIL CON ENLACE DE PAGO PROCESADO EXITOSAMENTE`);
+    } catch (emailError) {
+      console.error(`[${timestamp}] ❌ ERROR AL ENVIAR EMAIL CON ENLACE DE PAGO:`);
+      console.error(`[${timestamp}] 👤 Estudiante: ${student.matricula}`);
+      console.error(`[${timestamp}] 📧 Email: ${student.email}`);
+      console.error(`[${timestamp}] 📧 Error details:`, emailError);
+      // No fallar la creación del enlace por error en el email
+    }
 
     res.json({ payment_url: paymentUrl });
 
@@ -236,14 +251,26 @@ export const createChargeWithCard = async (customerId, token, amount, descriptio
 
     // Si el pago fue exitoso, enviar email de confirmación
     if (charge && (charge.status === 'completed' || charge.status === 'COMPLETED')) {
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] 💳 PAGO COMPLETADO EXITOSAMENTE - Iniciando proceso de notificación`);
+      console.log(`[${timestamp}] 💳 Charge ID: ${charge.id}`);
+      console.log(`[${timestamp}] 💳 Order ID: ${charge.order_id}`);
+      console.log(`[${timestamp}] 💳 Status: ${charge.status}`);
+      console.log(`[${timestamp}] 💳 Amount: $${amount}`);
+      
       try {
+        console.log(`[${timestamp}] 🔍 Obteniendo datos del estudiante...`);
         // Obtener datos del estudiante
         const student = await getStudentByOpenPayId(customerId);
+        console.log(`[${timestamp}] 👤 Estudiante encontrado: ${student.matricula} - ${student.email}`);
 
+        console.log(`[${timestamp}] 📋 Obteniendo pedidos pagados...`);
         // Obtener los pedidos pagados
         const pedidosPagados = await getOrdersByMatricula(student.matricula, null);
         const pedidosSeleccionados = pedidosPagados.filter(pedido => ids.includes(pedido.id_pedido));
+        console.log(`[${timestamp}] 📋 Pedidos seleccionados para notificación: ${pedidosSeleccionados.length}`);
 
+        console.log(`[${timestamp}] 📧 Iniciando envío de email de confirmación...`);
         // Enviar email de confirmación
         await sendPaymentConfirmationEmail(
           student.matricula,
@@ -253,11 +280,22 @@ export const createChargeWithCard = async (customerId, token, amount, descriptio
           student.email
         );
 
-        console.log(`Email de confirmación enviado a ${student.email} para la transacción ${charge.id}`);
+        console.log(`[${timestamp}] ✅ PROCESO DE NOTIFICACIÓN COMPLETADO EXITOSAMENTE`);
+        console.log(`[${timestamp}] 📧 Email enviado a: ${student.email}`);
+        console.log(`[${timestamp}] 💳 Transacción: ${charge.id}`);
       } catch (emailError) {
-        console.error('Error al enviar email de confirmación:', emailError);
+        console.error(`[${timestamp}] ❌ ERROR EN PROCESO DE NOTIFICACIÓN:`);
+        console.error(`[${timestamp}] 💳 Charge ID: ${charge.id}`);
+        console.error(`[${timestamp}] 👤 Customer ID: ${customerId}`);
+        console.error(`[${timestamp}] 📧 Error details:`, emailError);
         // No fallar el pago por error en el email
+        console.log(`[${timestamp}] ⚠️  El pago fue exitoso pero falló la notificación por email`);
       }
+    } else {
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] ⚠️  PAGO NO COMPLETADO - No se enviará email de confirmación`);
+      console.log(`[${timestamp}] 💳 Charge status: ${charge?.status || 'undefined'}`);
+      console.log(`[${timestamp}] 💳 Charge ID: ${charge?.id || 'undefined'}`);
     }
 
     return { charge };
