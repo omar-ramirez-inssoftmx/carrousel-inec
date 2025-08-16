@@ -5,10 +5,9 @@ const prisma = new PrismaClient();
 // Función para obtener todos los pedidos para recargo
 async function getAllOrdersForSurcharge() {
   try {
+    // CAMBIO CRÍTICO: Obtener TODOS los pedidos para calcular recargos correctamente
+    // No filtrar por estatus porque necesitamos considerar pedidos pagados para la secuencia
     const pedidos = await prisma.pedidos.findMany({
-      where: {
-        id_cat_estatus: 3
-      },
       include: {
         alumno: true,
         cat_estatus: true
@@ -74,8 +73,8 @@ async function procesoProgramadoRecargo() {
     
     for (const resultado of resultados) {
       try {
-        // Solo actualizar si realmente necesita actualización
-        if (resultado.necesitaActualizacion) {
+        // Solo actualizar pedidos pendientes que necesiten cambios
+        if (resultado.necesitaActualizacion && resultado.id_cat_estatus === 3) {
           await updateOrderSurcharge(resultado.id_pedido, resultado.montoConRecargo);
           
           recargosAplicados++;
@@ -87,6 +86,8 @@ async function procesoProgramadoRecargo() {
           } else {
             console.log(`Recargo aplicado al pedido ${resultado.id_pedido} - Monto anterior: ${resultado.montoOriginal}, Nuevo monto: ${resultado.montoConRecargo}, Recargos aplicados: ${resultado.recargosAplicados}`);
           }
+        } else if (resultado.id_cat_estatus !== 3) {
+          console.log(`ℹ️  Pedido ${resultado.id_pedido} omitido - estatus ${resultado.id_cat_estatus} (no pendiente)`);
         } else {
           console.log(`Pedido ${resultado.id_pedido} ya tiene el monto correcto - Monto: ${resultado.montoOriginal}, Recargos: ${resultado.recargosAplicados}`);
         }

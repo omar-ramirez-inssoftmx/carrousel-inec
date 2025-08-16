@@ -91,10 +91,9 @@ export async function getOrdersByMatricula(matricula: string, status: string) {
 
 export async function getAllOrdersForSurcharge() {
   try {
+    // CAMBIO CRÍTICO: Obtener TODOS los pedidos para calcular recargos correctamente
+    // No filtrar por estatus porque necesitamos considerar pedidos pagados para la secuencia
     const pedidos = await prisma.pedidos.findMany({
-      where: {
-        id_cat_estatus: 3
-      },
       include: {
         alumno: true,
         cat_estatus: true

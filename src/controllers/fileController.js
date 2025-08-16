@@ -260,6 +260,11 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
       // Determinar si ya tenía recargo comparando con el monto base
       const yaTieneRecargo = montoActual > baseAmount;
       
+      // SOLO procesar pedidos pendientes (estatus 3) para aplicar recargos
+      // Los pedidos pagados (estatus 1) o cancelados (estatus 2) se incluyen en el cálculo
+      // pero no se modifican
+      const esPendiente = pedidoActual.id_cat_estatus === 3;
+      
       // Contar recargos aplicados para este pedido específico
       let recargosAplicados = 0;
       
@@ -285,13 +290,17 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
         }
       }
       
-      resultados.push({
-        ...pedidoActual,
-        montoOriginal: montoActual,
-        montoConRecargo: montoFinal,
-        recargosAplicados,
-        yaTeniaRecargo: yaTieneRecargo
-      });
+      // Solo incluir en resultados si es pendiente Y necesita actualización
+      if (esPendiente) {
+        resultados.push({
+          ...pedidoActual,
+          montoOriginal: montoActual,
+          montoConRecargo: montoFinal,
+          recargosAplicados,
+          yaTeniaRecargo: yaTieneRecargo,
+          necesitaActualizacion: Math.abs(montoActual - montoFinal) > 0.01 // Tolerancia para decimales
+        });
+      }
     });
   });
   
