@@ -180,8 +180,8 @@ function excelSerialToDate(excelSerialDate, mes, anio) {
 function calculateSurchargeForCycle(pedidos, fechaActual) {
   const pedidosAgrupados = {};
   
-  // Usar fechaActual directamente sin conversión de zona horaria para evitar problemas
-  const fechaActualMexico = new Date(fechaActual);
+  // Convertir fechaActual a horario de México (GMT-6)
+  const fechaActualMexico = new Date(fechaActual.getTime() - (6 * 60 * 60 * 1000));
   
   // Agrupar pedidos por alumno (matricula)
   pedidos.forEach(pedido => {
@@ -225,11 +225,11 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
         const pedidoAnterior = pedidosAlumno[i - 1];
         const fechaVencimientoAnterior = new Date(pedidoAnterior.fecha_vigencia_pago);
         
-        // Usar fecha de vencimiento directamente en UTC para evitar problemas de zona horaria
-        const fechaVencimientoMexico = new Date(fechaVencimientoAnterior);
+        // Convertir fecha de vencimiento a horario de México
+         const fechaVencimientoMexico = new Date(fechaVencimientoAnterior.getTime() - (6 * 60 * 60 * 1000));
         
-        // El recargo se aplica el día 16 del mes de vencimiento del pedido anterior a primera hora (00:00:00 UTC)
-        const fechaLimiteRecargo = new Date(Date.UTC(fechaVencimientoMexico.getUTCFullYear(), fechaVencimientoMexico.getUTCMonth(), 16, 0, 0, 0));
+        // El recargo se aplica el día 16 del mes de vencimiento a primera hora (00:00:01)
+        const fechaLimiteRecargo = new Date(fechaVencimientoMexico.getFullYear(), fechaVencimientoMexico.getMonth(), 16, 0, 0, 1);
         
         // Solo si el mes anterior ya venció, entonces contar todos los meses anteriores vencidos
         if (fechaActualMexico >= fechaLimiteRecargo) {
@@ -237,8 +237,8 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
           for (let j = 0; j < i; j++) {
             const pedidoAnteriorJ = pedidosAlumno[j];
             const fechaVencimientoAnteriorJ = new Date(pedidoAnteriorJ.fecha_vigencia_pago);
-            const fechaVencimientoMexicoJ = new Date(fechaVencimientoAnteriorJ);
-            const fechaLimiteRecargoJ = new Date(Date.UTC(fechaVencimientoMexicoJ.getUTCFullYear(), fechaVencimientoMexicoJ.getUTCMonth(), 16, 0, 0, 0));
+            const fechaVencimientoMexicoJ = new Date(fechaVencimientoAnteriorJ.getTime() - (6 * 60 * 60 * 1000));
+            const fechaLimiteRecargoJ = new Date(fechaVencimientoMexicoJ.getFullYear(), fechaVencimientoMexicoJ.getMonth(), 16, 0, 0, 1);
             
             if (fechaActualMexico >= fechaLimiteRecargoJ) {
               recargosAplicados++;
@@ -272,16 +272,16 @@ function calculateSurchargeForCycle(pedidos, fechaActual) {
       if (index > 0) {
         const pedidoAnterior = pedidosAlumno[index - 1];
         const fechaVencimientoAnterior = new Date(pedidoAnterior.fecha_vigencia_pago);
-        const fechaVencimientoMexico = new Date(fechaVencimientoAnterior);
-        const fechaLimiteRecargo = new Date(Date.UTC(fechaVencimientoMexico.getUTCFullYear(), fechaVencimientoMexico.getUTCMonth(), 16, 0, 0, 0));
+        const fechaVencimientoMexico = new Date(fechaVencimientoAnterior.getTime() - (6 * 60 * 60 * 1000));
+        const fechaLimiteRecargo = new Date(fechaVencimientoMexico.getFullYear(), fechaVencimientoMexico.getMonth(), 16, 0, 0, 1);
         
         // Solo si el mes anterior ya venció, entonces contar todos los meses anteriores vencidos
         if (fechaActualMexico >= fechaLimiteRecargo) {
           for (let i = 0; i < index; i++) {
             const pedidoAnteriorI = pedidosAlumno[i];
             const fechaVencimientoAnteriorI = new Date(pedidoAnteriorI.fecha_vigencia_pago);
-            const fechaVencimientoMexicoI = new Date(fechaVencimientoAnteriorI);
-            const fechaLimiteRecargoI = new Date(Date.UTC(fechaVencimientoMexicoI.getUTCFullYear(), fechaVencimientoMexicoI.getUTCMonth(), 16, 0, 0, 0));
+            const fechaVencimientoMexicoI = new Date(fechaVencimientoAnteriorI.getTime() - (6 * 60 * 60 * 1000));
+            const fechaLimiteRecargoI = new Date(fechaVencimientoMexicoI.getFullYear(), fechaVencimientoMexicoI.getMonth(), 16, 0, 0, 1);
             
             if (fechaActualMexico >= fechaLimiteRecargoI) {
               recargosAplicados++;

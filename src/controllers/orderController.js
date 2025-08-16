@@ -430,7 +430,7 @@ export function calculateSurchargeForCycle(pedidos, fechaActual) {
   const pedidosAgrupados = {};
   
   // Convertir fechaActual a horario de México (GMT-6)
-  const fechaActualMexico = new Date(fechaActual.toLocaleString("en-US", {timeZone: "America/Mexico_City"}));
+  const fechaActualMexico = new Date(fechaActual.getTime() - (6 * 60 * 60 * 1000));
   
   // Agrupar pedidos por ciclo
   pedidos.forEach(pedido => {
@@ -470,7 +470,7 @@ export function calculateSurchargeForCycle(pedidos, fechaActual) {
        const fechaVencimientoAnterior = new Date(pedidoAnterior.fecha_vigencia_pago);
        
        // Convertir fecha de vencimiento a horario de México
-       const fechaVencimientoMexico = new Date(fechaVencimientoAnterior.toLocaleString("en-US", {timeZone: "America/Mexico_City"}));
+       const fechaVencimientoMexico = new Date(fechaVencimientoAnterior.getTime() - (6 * 60 * 60 * 1000));
        
        // El recargo se aplica el día 16 del mes de vencimiento del pedido anterior a primera hora (00:00:01)
        // Por lo tanto, el día 15 completo (hasta 23:59:59) es válido para pagar sin recargos
@@ -503,7 +503,7 @@ export function calculateSurchargeForCycle(pedidos, fechaActual) {
       for (let i = 0; i < index; i++) {
         const pedidoAnterior = ciclo[i];
         const fechaVencimientoAnterior = new Date(pedidoAnterior.fecha_vigencia_pago);
-        const fechaVencimientoMexico = new Date(fechaVencimientoAnterior.toLocaleString("en-US", {timeZone: "America/Mexico_City"}));
+        const fechaVencimientoMexico = new Date(fechaVencimientoAnterior.getTime() - (6 * 60 * 60 * 1000));
         const fechaLimiteRecargo = new Date(fechaVencimientoMexico.getFullYear(), fechaVencimientoMexico.getMonth(), 16, 0, 0, 1);
         
         if (fechaActualMexico >= fechaLimiteRecargo) {
