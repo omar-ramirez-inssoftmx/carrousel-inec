@@ -8,7 +8,7 @@ dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Puerto del servidor
 
 app.use(cors());
 app.use(helmet());
@@ -28,6 +28,7 @@ const iniciarCronJobRecardo = async () => {
 
 iniciarCronJobUpdateStatus();
 iniciarCronJobRecardo();
+// Email templates updated with modern Shadcn/UI design
 
 import studentRoutes from './routes/studentRoutes.js';
 import ordersRoutes from './routes/ordersRoutes.js';

@@ -69,6 +69,19 @@ export const sendPaymentLinkMessage = (fecha, link, nombre, phoneNumber, matricu
 };
 
 export const formatMexicanPhoneNumber = (phoneNumber) => {
+  // Validar que phoneNumber no sea null, undefined o vacío
+  if (!phoneNumber || phoneNumber === '') {
+    console.warn('formatMexicanPhoneNumber: phoneNumber is null, undefined or empty');
+    return null;
+  }
+
   const cleanNumber = phoneNumber.toString().replace(/\D/g, '');
+
+  // Validar que después de limpiar quede un número válido
+  if (!cleanNumber || cleanNumber.length === 0) {
+    console.warn('formatMexicanPhoneNumber: no valid digits found in phoneNumber');
+    return null;
+  }
+
   return 52 + cleanNumber;
 };
