@@ -111,9 +111,12 @@ export const createChargeRequestWithSurcharge = (baseAmount, description, orderI
   // con la nueva lógica de negocio que aplica recargos mes a mes
   const amount = baseAmount;
 
+  // Formatear el amount a exactamente 2 decimales para evitar BAD_PRECISION_AMOUNT
+  const formattedAmount = parseFloat(amount.toFixed(2));
+
   return {
     method: "card",
-    amount: amount,
+    amount: formattedAmount,
     description,
     order_id: orderId,
     send_email: true,
@@ -125,9 +128,12 @@ export const createChargeRequestWithSurcharge = (baseAmount, description, orderI
 
 // Función alternativa para crear charge request sin recargos automáticos
 export const createChargeRequest = (amount, description, orderId, dueDate) => {
+  // Formatear el amount a exactamente 2 decimales para evitar BAD_PRECISION_AMOUNT
+  const formattedAmount = parseFloat(amount.toFixed(2));
+
   return {
     method: "card",
-    amount: amount,
+    amount: formattedAmount,
     description,
     order_id: orderId,
     send_email: true,

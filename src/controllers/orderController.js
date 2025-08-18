@@ -178,9 +178,12 @@ export const createPaymentLinkStudent = async (req, res, next) => {
 
 
 
+    // Formatear el amount a exactamente 2 decimales para evitar BAD_PRECISION_AMOUNT
+    const formattedAmount = parseFloat(amount.toFixed(2));
+
     const chargeRequest = {
       method: "card",
-      amount,
+      amount: formattedAmount,
       description: concepto,
       order_id: orderId,
       send_email: true,
@@ -263,10 +266,13 @@ export const createChargeWithCard = async (customerId, token, amount, descriptio
   try {
     let cardId = token;
 
+    // Formatear el amount a exactamente 2 decimales para evitar BAD_PRECISION_AMOUNT
+    const formattedAmount = parseFloat(amount.toFixed(2));
+
     const chargeRequest = {
       source_id: cardId,
       method: 'card',
-      amount: amount,
+      amount: formattedAmount,
       description: description,
       order_id: `${orderId}-${generateUniqueOrderId()}`,
       currency: 'MXN',
